@@ -1,16 +1,17 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Button from './Button';
 
 const Navbar: React.FC = () => {
   return (
     <header style={styles.header}>
       <nav style={styles.nav}>
-        <div style={styles.logo}>
+        <Link to="/" style={styles.logo}>
           A-Darts
-        </div>
+        </Link>
 
         <div style={styles.tabs}>
-          <a href="#torneos" style={styles.tabLink}>Torneos</a>
+          <Link to="/torneos" style={styles.tabLink}>Torneos</Link>
         </div>
 
         <div style={styles.auth}>
