@@ -1,5 +1,6 @@
 import React from 'react';
 import Navbar from './components/Navbar';
+import Button from './components/Button';
 
 function App() {
   return (
@@ -13,8 +14,8 @@ function App() {
             La plataforma definitiva para gestionar tus torneos de dardos.
           </p>
           <div style={styles.cta}>
-            <button className="primary">Explorar Torneos</button>
-            <button className="secondary">Saber más</button>
+            <Button variant="primary">Explorar Torneos</Button>
+            <Button variant="secondary">Saber más</Button>
           </div>
         </section>
       </main>

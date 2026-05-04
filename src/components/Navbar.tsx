@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from './Button';
 
 const Navbar: React.FC = () => {
   return (
@@ -13,7 +14,7 @@ const Navbar: React.FC = () => {
         </div>
 
         <div style={styles.auth}>
-          <button className="primary">Iniciar sesión</button>
+          <Button variant="primary">Iniciar sesión</Button>
         </div>
       </nav>
     </header>
