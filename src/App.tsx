@@ -14,8 +14,18 @@ function App() {
             La plataforma definitiva para gestionar tus torneos de dardos.
           </p>
           <div style={styles.cta}>
-            <Button variant="primary">Explorar Torneos</Button>
-            <Button variant="secondary">Saber más</Button>
+            <Button 
+              variant="primary" 
+              leftIcon="Target"
+            >
+              Explorar Torneos
+            </Button>
+            <Button 
+              variant="secondary" 
+              rightIcon="ArrowRight"
+            >
+              Saber más
+            </Button>
           </div>
         </section>
       </main>

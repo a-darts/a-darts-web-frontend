@@ -14,7 +14,12 @@ const Navbar: React.FC = () => {
         </div>
 
         <div style={styles.auth}>
-          <Button variant="primary">Iniciar sesión</Button>
+          <Button
+            variant="primary"
+            rightIcon="LogIn"
+          >
+            Iniciar sesión
+          </Button>
         </div>
       </nav>
     </header>
@@ -54,7 +59,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '2rem',
   },
   tabLink: {
-    fontSize: '1rem',
+    fontSize: '0.875rem',
     fontWeight: '500',
     color: 'var(--text-color)',
   },
