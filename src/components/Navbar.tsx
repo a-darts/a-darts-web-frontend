@@ -1,8 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from './Button';
 
 const Navbar: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <header style={styles.header}>
       <nav style={styles.nav}>
@@ -18,6 +20,7 @@ const Navbar: React.FC = () => {
           <Button
             variant="primary"
             rightIcon="LogIn"
+            onClick={() => navigate('/login')}
           >
             Iniciar sesión
           </Button>
