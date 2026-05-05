@@ -6,14 +6,22 @@ import TextInput from '../components/TextInput';
 import Button from '../components/Button';
 import Toast from '../components/Toast';
 import { useState, useEffect } from 'react';
+import ErrorMessage from '../components/ErrorMessage';
 
 const ProfileScreen: React.FC = () => {
-  const { user, updateEmail } = useAuth();
+  const { user, updateEmail, updatePassword } = useAuth();
   const { t } = useTranslation();
   const [email, setEmail] = useState(user?.email || '');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Password state
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [isSavingPass, setIsSavingPass] = useState(false);
+  const [passError, setPassError] = useState<string | null>(null);
+  const [passSuccess, setPassSuccess] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -54,6 +62,28 @@ const ProfileScreen: React.FC = () => {
     }
   };
 
+  const handleSavePassword = async () => {
+    if (!oldPassword || !newPassword) {
+      setPassError('Todos los campos son obligatorios');
+      return;
+    }
+
+    setIsSavingPass(true);
+    setPassError(null);
+    setPassSuccess(false);
+
+    try {
+      await updatePassword(oldPassword, newPassword);
+      setPassSuccess(true);
+      setOldPassword('');
+      setNewPassword('');
+    } catch (err: any) {
+      setPassError(err.message || 'Error al actualizar la contraseña');
+    } finally {
+      setIsSavingPass(false);
+    }
+  };
+
   const hasEmailChanged = email !== user.email;
 
   return (
@@ -70,24 +100,37 @@ const ProfileScreen: React.FC = () => {
         </div>
 
         <div style={styles.infoGrid}>
+          <div style={styles.sameRow}>
+            <InfoCard
+              title="Miembro desde"
+              content={formatDate(user.registratedAt)}
+              icon="Calendar"
+            />
+            <InfoCard
+              title="Rol"
+              content={user.role}
+              icon="Shield"
+            />
+          </div>
+
           <div style={styles.inputGroup}>
+            <h3 style={styles.sectionTitle}>Cambiar correo electrónico</h3>
             <TextInput
-              label={t('auth.email_label')}
+              label={t('auth.new_email_label')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               icon="Mail"
               error={error || undefined}
             />
-            {hasEmailChanged && (
-              <Button
-                onClick={handleSaveEmail}
-                loading={isSaving}
-                size="small"
-                leftIcon='Save'
-              >
-                Guardar cambios
-              </Button>
-            )}
+            <Button
+              onClick={handleSaveEmail}
+              loading={isSaving}
+              size="small"
+              leftIcon='Save'
+              disabled={!hasEmailChanged}
+            >
+              Guardar cambios
+            </Button>
           </div>
 
           {success && (
@@ -98,16 +141,44 @@ const ProfileScreen: React.FC = () => {
             />
           )}
 
-          <InfoCard
-            title="Miembro desde"
-            content={formatDate(user.registratedAt)}
-            icon="Calendar"
-          />
-          <InfoCard
-            title="Rol del sistema"
-            content={user.role}
-            icon="Shield"
-          />
+          <div style={styles.inputGroup}>
+            <h3 style={styles.sectionTitle}>Cambiar contraseña</h3>
+            <TextInput
+              label={t('auth.old_password_label')}
+              placeholder="••••••••"
+              type="password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              icon="Lock"
+            />
+            <TextInput
+              label={t('auth.new_password_label')}
+              placeholder="••••••••"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              icon="Lock"
+            />
+            {passError && <ErrorMessage message={passError} />}
+            <Button
+              onClick={handleSavePassword}
+              loading={isSavingPass}
+              size="small"
+              leftIcon='Save'
+              variant="primary"
+              disabled={!oldPassword && !newPassword}
+            >
+              Actualizar contraseña
+            </Button>
+          </div>
+
+          {passSuccess && (
+            <Toast
+              message="¡Contraseña actualizada correctamente!"
+              type="success"
+              onClose={() => setPassSuccess(false)}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -123,6 +194,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '2rem',
     minHeight: 'calc(100vh - 140px)',
   },
+  sameRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '1rem',
+    flexWrap: 'wrap',
+    width: '100%',
+  },
   card: {
     // padding: '3rem',
     width: '100%',
@@ -130,7 +208,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: 'center',
   },
   header: {
-    marginBottom: '3rem',
+    marginBottom: '1.5rem',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -190,10 +268,19 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '0.5rem',
     alignItems: 'flex-start',
     width: '100%',
+    maxWidth: '600px',
     backgroundColor: 'rgba(255, 255, 255, 0.02)',
     padding: '1.5rem',
     borderRadius: '16px',
     border: '1px solid rgba(255, 255, 255, 0.05)',
+  },
+  sectionTitle: {
+    fontSize: '0.875rem',
+    fontWeight: '700',
+    marginBottom: '1rem',
+    color: '#ffffff',
+    display: 'flex',
+    alignItems: 'center',
   },
 };
 

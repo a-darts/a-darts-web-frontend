@@ -22,7 +22,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '0.7rem 1rem',
     borderRadius: '12px',
     marginBottom: '1.5rem',
-    fontSize: '0.875rem',
+    fontSize: '0.75rem',
     textAlign: 'left',
     display: 'flex',
     alignItems: 'center',

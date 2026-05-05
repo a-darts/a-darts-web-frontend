@@ -19,6 +19,7 @@ interface AuthContextType {
   refreshUser: () => Promise<void>;
   updateEmail: (newEmail: string) => Promise<void>;
   updateAlias: (newAlias: string) => Promise<void>;
+  updatePassword: (oldPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -82,8 +83,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await refreshUser();
   };
 
+  const updatePassword = async (oldPassword: string, newPassword: string) => {
+    await authService.updatePassword(oldPassword, newPassword);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser, updateEmail, updateAlias }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser, updateEmail, updateAlias, updatePassword }}>
       {children}
     </AuthContext.Provider>
   );

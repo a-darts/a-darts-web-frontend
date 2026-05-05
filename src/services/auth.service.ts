@@ -117,5 +117,20 @@ export const authService = {
     });
 
     return handleResponse(response);
+  },
+
+  updatePassword: async (oldPassword: string, newPassword: string) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_BASE_URL}/users/password`, {
+      method: 'PUT',
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ oldPassword, newPassword }),
+    });
+
+    return handleResponse(response);
   }
 };

@@ -30,8 +30,8 @@ const Button: React.FC<ButtonProps> = ({
       {...props}
       style={{
         ...props.style,
-        opacity: loading ? 0.7 : 1,
-        cursor: loading ? 'not-allowed' : 'pointer',
+        opacity: (disabled || loading) ? 0.5 : 1,
+        cursor: (disabled || loading) ? 'not-allowed' : 'pointer',
       }}
     >
       {loading ? (
