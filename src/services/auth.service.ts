@@ -26,6 +26,19 @@ export const authService = {
     return result;
   },
 
+  register: async (email: string, password: string, alias: string) => {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password, alias, role: 'player' }),
+    });
+
+    return handleResponse(response);
+  },
+
   getMe: async () => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('No hay token de sesión');

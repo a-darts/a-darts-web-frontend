@@ -12,6 +12,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, alias: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -51,6 +52,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await refreshUser();
   };
 
+  const register = async (email: string, password: string, alias: string) => {
+    console.log('AuthContext: Attempting registration...');
+    await authService.register(email, password, alias);
+    console.log('AuthContext: Registration success, logging in...');
+    await login(email, password);
+  };
+
   const logout = async () => {
     console.log('AuthContext: Logging out...');
     await authService.logout();
@@ -58,7 +66,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

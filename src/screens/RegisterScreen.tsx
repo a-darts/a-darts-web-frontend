@@ -5,13 +5,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
-const LoginScreen: React.FC = () => {
+const RegisterScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [alias, setAlias] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { register } = useAuth();
   const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,12 +21,12 @@ const LoginScreen: React.FC = () => {
     setError(null);
 
     try {
-      await login(email, password);
-      console.log('Login successful');
+      await register(email, password, alias);
+      console.log('Registration and login successful');
       navigate('/');
     } catch (err: any) {
-      console.error('Login error:', err);
-      setError(err.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.');
+      console.error('Registration error:', err);
+      setError(err.message || 'Error al registrarse. Por favor, intenta de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -35,8 +36,8 @@ const LoginScreen: React.FC = () => {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.header}>
-          <h1 style={styles.title}>{t('auth.login_title')}</h1>
-          <p style={styles.subtitle}>{t('auth.login_subtitle')}</p>
+          <h1 style={styles.title}>{t('auth.register_title')}</h1>
+          <p style={styles.subtitle}>{t('auth.register_subtitle')}</p>
         </div>
 
         {error && (
@@ -46,6 +47,17 @@ const LoginScreen: React.FC = () => {
         )}
 
         <form onSubmit={handleSubmit} style={styles.form}>
+          <TextInput
+            label={t('auth.alias_label')}
+            placeholder="Ej. PepeDardos"
+            type="text"
+            icon="User"
+            value={alias}
+            onChange={(e) => setAlias(e.target.value)}
+            disabled={loading}
+            required
+          />
+
           <TextInput
             label={t('auth.email_label')}
             placeholder="tu@email.com"
@@ -72,16 +84,16 @@ const LoginScreen: React.FC = () => {
             type="submit"
             variant="primary"
             style={styles.submitBtn}
-            rightIcon={loading ? undefined : "ArrowRight"}
+            rightIcon={loading ? undefined : "UserPlus"}
             disabled={loading}
           >
-            {loading ? t('auth.logging_in') : t('auth.login_btn')}
+            {loading ? t('auth.creating_account') : t('auth.register_btn')}
           </Button>
         </form>
 
         <div style={styles.footer}>
-          <span style={styles.footerText}>{t('auth.no_account')}</span>
-          <Link to="/register" style={styles.linkBold}>{t('auth.signup_link')}</Link>
+          <span style={styles.footerText}>{t('auth.have_account')}</span>
+          <Link to="/login" style={styles.linkBold}>{t('auth.login_link')}</Link>
         </div>
       </div>
     </div>
@@ -135,21 +147,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
   },
-  forgotPassword: {
-    textAlign: 'right',
-    marginBottom: '2rem',
-  },
   submitBtn: {
     height: '52px',
     fontSize: '0.875rem',
     width: '100%',
     marginTop: '2rem',
-  },
-  link: {
-    fontSize: '0.875rem',
-    color: 'var(--text-secondary-color)',
-    textDecoration: 'none',
-    transition: 'color 0.2s',
   },
   linkBold: {
     fontSize: '0.875rem',
@@ -171,4 +173,4 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 };
 
-export default LoginScreen;
+export default RegisterScreen;
