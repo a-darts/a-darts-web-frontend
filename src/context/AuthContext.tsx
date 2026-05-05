@@ -51,8 +51,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await refreshUser();
   };
 
-  const logout = () => {
-    authService.logout();
+  const logout = async () => {
+    console.log('AuthContext: Logging out...');
+    await authService.logout();
     setUser(null);
   };
 

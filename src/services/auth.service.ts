@@ -48,7 +48,21 @@ export const authService = {
     return userData;
   },
 
-  logout: () => {
+  logout: async () => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      try {
+        await fetch(`${API_BASE_URL}/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'accept': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    }
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
   },
