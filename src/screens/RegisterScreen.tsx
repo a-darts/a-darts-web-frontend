@@ -4,7 +4,7 @@ import Button from '../components/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import Icon from '../components/Icon';
+import ErrorMessage from '../components/ErrorMessage';
 
 const RegisterScreen: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -41,12 +41,7 @@ const RegisterScreen: React.FC = () => {
           <p style={styles.subtitle}>{t('auth.register_subtitle')}</p>
         </div>
 
-        {error && (
-          <div style={styles.errorBanner}>
-            <Icon name="AlertCircle" size={18} style={{ flexShrink: 0 }} />
-            <span>{error}</span>
-          </div>
-        )}
+        {error && <ErrorMessage message={error} />}
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <TextInput
