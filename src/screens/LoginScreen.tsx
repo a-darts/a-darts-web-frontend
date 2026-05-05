@@ -1,16 +1,31 @@
 import React, { useState } from 'react';
 import TextInput from '../components/TextInput';
 import Button from '../components/Button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../services/auth.service';
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
-    // Handle login logic here
+    setLoading(true);
+    setError(null);
+
+    try {
+      await authService.login(email, password);
+      console.log('Login successful');
+      navigate('/');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -21,6 +36,12 @@ const LoginScreen: React.FC = () => {
           <p style={styles.subtitle}>Ingresa tus credenciales para acceder</p>
         </div>
 
+        {error && (
+          <div style={styles.errorBanner}>
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} style={styles.form}>
           <TextInput
             label="Correo electrónico"
@@ -29,6 +50,7 @@ const LoginScreen: React.FC = () => {
             icon="Mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
             required
           />
 
@@ -39,20 +61,18 @@ const LoginScreen: React.FC = () => {
             icon="Lock"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
             required
           />
-
-          {/* <div style={styles.forgotPassword}>
-            <Link to="/forgot-password" style={styles.link}>¿Olvidaste tu contraseña?</Link>
-          </div> */}
 
           <Button
             type="submit"
             variant="primary"
             style={styles.submitBtn}
-            rightIcon="ArrowRight"
+            rightIcon={loading ? undefined : "ArrowRight"}
+            disabled={loading}
           >
-            Iniciar sesión
+            {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
           </Button>
         </form>
 
@@ -97,6 +117,16 @@ const styles: { [key: string]: React.CSSProperties } = {
   subtitle: {
     color: 'var(--text-secondary-color)',
     fontSize: '1rem',
+  },
+  errorBanner: {
+    backgroundColor: 'rgba(255, 68, 68, 0.1)',
+    border: '1px solid #ff4444',
+    color: '#ff4444',
+    padding: '1rem',
+    borderRadius: '12px',
+    marginBottom: '1.5rem',
+    fontSize: '0.875rem',
+    textAlign: 'center',
   },
   form: {
     display: 'flex',
