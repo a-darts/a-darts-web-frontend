@@ -34,63 +34,72 @@ const RegisterScreen: React.FC = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <div style={styles.header}>
-          <h1 style={styles.title}>{t('auth.register_title')}</h1>
-          <p style={styles.subtitle}>{t('auth.register_subtitle')}</p>
-        </div>
+    <div className="auth-page-container">
+      <div className="auth-logo-side">
+        <img
+          src="/logo_white.png"
+          alt="A-Darts Logo"
+          className="auth-logo-image"
+        />
+      </div>
 
-        {error && <ErrorMessage message={error} />}
+      <div className="auth-form-side">
+        <div style={styles.card}>
+          <div style={styles.header}>
+            <h1 style={styles.title}>{t('auth.register_title')}</h1>
+            <p style={styles.subtitle}>{t('auth.register_subtitle')}</p>
+          </div>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <TextInput
-            label={t('auth.alias_label')}
-            placeholder="Ej. PepeDardos"
-            type="text"
-            icon="User"
-            value={alias}
-            onChange={(e) => setAlias(e.target.value)}
-            disabled={loading}
-            required
-          />
+          <form onSubmit={handleSubmit} style={styles.form}>
+            {error && <ErrorMessage message={error} />}
+            <TextInput
+              label={t('auth.alias_label')}
+              placeholder="Ej. PepeDardos"
+              type="text"
+              icon="User"
+              value={alias}
+              onChange={(e) => setAlias(e.target.value)}
+              disabled={loading}
+              required
+            />
 
-          <TextInput
-            label={t('auth.email_label')}
-            placeholder="tu@email.com"
-            type="email"
-            icon="Mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
-            required
-          />
+            <TextInput
+              label={t('auth.email_label')}
+              placeholder="tu@email.com"
+              type="email"
+              icon="Mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              required
+            />
 
-          <TextInput
-            label={t('auth.password_label')}
-            placeholder="••••••••"
-            type="password"
-            icon="Lock"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-            required
-          />
+            <TextInput
+              label={t('auth.password_label')}
+              placeholder="••••••••"
+              type="password"
+              icon="Lock"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+              required
+            />
 
-          <Button
-            type="submit"
-            variant="primary"
-            style={styles.submitBtn}
-            rightIcon={loading ? undefined : "UserPlus"}
-            disabled={loading}
-          >
-            {loading ? t('auth.creating_account') : t('auth.register_btn')}
-          </Button>
-        </form>
+            <Button
+              type="submit"
+              variant="primary"
+              style={styles.submitBtn}
+              rightIcon={loading ? undefined : "UserPlus"}
+              disabled={loading}
+            >
+              {loading ? t('auth.creating_account') : t('auth.register_btn')}
+            </Button>
+          </form>
 
-        <div style={styles.footer}>
-          <span style={styles.footerText}>{t('auth.have_account')}</span>
-          <Link to="/login" style={styles.linkBold}>{t('auth.login_link')}</Link>
+          <div style={styles.footer}>
+            <span style={styles.footerText}>{t('auth.have_account')}</span>
+            <Link to="/login" style={styles.linkBold}>{t('auth.login_link')}</Link>
+          </div>
         </div>
       </div>
     </div>
@@ -98,22 +107,9 @@ const RegisterScreen: React.FC = () => {
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    flex: 1,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '2rem',
-    minHeight: 'calc(100vh - 140px)',
-  },
   card: {
-    backgroundColor: '#161616',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
-    borderRadius: '24px',
-    padding: '3rem',
     width: '100%',
     maxWidth: '480px',
-    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
   },
   header: {
     textAlign: 'center',
