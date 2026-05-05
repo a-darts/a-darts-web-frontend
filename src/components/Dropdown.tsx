@@ -9,7 +9,7 @@ export interface DropdownItem {
 }
 
 interface DropdownProps {
-  trigger: React.ReactNode;
+  trigger: React.ReactNode | ((isOpen: boolean) => React.ReactNode);
   items: DropdownItem[];
   align?: 'left' | 'right';
 }
@@ -37,7 +37,7 @@ const Dropdown: React.FC<DropdownProps> = ({ trigger, items, align = 'right' }) 
   return (
     <div style={styles.container} ref={dropdownRef}>
       <div onClick={() => setIsOpen(!isOpen)} style={styles.trigger}>
-        {trigger}
+        {typeof trigger === 'function' ? trigger(isOpen) : trigger}
       </div>
 
       {isOpen && (

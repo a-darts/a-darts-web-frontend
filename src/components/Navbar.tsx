@@ -44,17 +44,18 @@ const Navbar: React.FC = () => {
         <div style={styles.auth}>
           {user ? (
             <Dropdown
-              trigger={
+              trigger={(isOpen) => (
                 <div style={styles.userProfile}>
-                  <div style={styles.userInfo}>
-                    <span style={styles.userAlias}>{user.alias}</span>
-                    <span style={styles.userEmail}>{user.email}</span>
-                  </div>
                   <div style={styles.avatar}>
                     {user.alias.charAt(0).toUpperCase()}
                   </div>
+                  <div style={styles.userInfo}>
+                    <span style={styles.userAlias}>{user.alias}</span>
+                    {/* <span style={styles.userEmail}>{user.email}</span> */}
+                  </div>
+                  <Icon name={isOpen ? "ChevronUp" : "ChevronDown"} size={18} style={{ flexShrink: 0 }} />
                 </div>
-              }
+              )}
               items={userMenuItems}
             />
           ) : (
@@ -118,7 +119,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'center',
     gap: '1rem',
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    padding: '0.25rem 0.25rem 0.25rem 1rem',
+    padding: '0.25rem 1rem 0.25rem 0.25rem',
     borderRadius: '100px',
     border: '1px solid rgba(255, 255, 255, 0.05)',
   },

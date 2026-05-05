@@ -5,6 +5,7 @@ import HomeScreen from './screens/HomeScreen';
 import TournamentsScreen from './screens/TournamentsScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
+import ProfileScreen from './screens/ProfileScreen';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/torneos" element={<TournamentsScreen />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
+        <Route path="/profile" element={<ProfileScreen />} />
       </Routes>
 
       <footer style={styles.footer}>

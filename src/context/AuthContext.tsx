@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService } from '../services/auth.service';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   id: string;
   email: string;
   alias: string;
-  // Add other user fields as needed
+  role: string;
+  registratedAt: string;
 }
 
 interface AuthContextType {
@@ -22,6 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const refreshUser = async () => {
     try {
@@ -35,7 +38,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } catch (error) {
       console.error('AuthContext: Error refreshing user:', error);
       setUser(null);
-      authService.logout();
+      await authService.logout();
+      navigate('/');
     } finally {
       setLoading(false);
     }
@@ -63,6 +67,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     console.log('AuthContext: Logging out...');
     await authService.logout();
     setUser(null);
+    navigate('/');
   };
 
   return (
