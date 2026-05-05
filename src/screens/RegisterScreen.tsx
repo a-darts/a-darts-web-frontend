@@ -22,7 +22,7 @@ const RegisterScreen: React.FC = () => {
 
     try {
       await register(email, password, alias);
-      console.log('Registration and login successful');
+      console.log(t('auth.register_success'));
       navigate('/');
     } catch (err: any) {
       console.error('Registration error:', err);

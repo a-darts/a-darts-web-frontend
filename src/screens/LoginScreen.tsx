@@ -21,7 +21,7 @@ const LoginScreen: React.FC = () => {
 
     try {
       await login(email, password);
-      console.log('Login successful');
+      console.log(t('auth.login_success'));
       navigate('/');
     } catch (err: any) {
       console.error('Login error:', err);
