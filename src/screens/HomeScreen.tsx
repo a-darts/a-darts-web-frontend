@@ -1,16 +1,22 @@
 import React from 'react';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const HomeScreen: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return (
     <main style={styles.main}>
       <section style={styles.hero}>
-        <h1 style={styles.title}>Bienvenido a A-Darts</h1>
+        <h1 style={styles.title}>
+          {user ? `¡Bienvenido, ${user.alias}!` : 'Bienvenido a A-Darts'}
+        </h1>
         <p style={styles.subtitle}>
-          La plataforma definitiva para gestionar tus torneos de dardos.
+          {user 
+            ? 'Es un gusto tenerte de vuelta. ¿Listo para una partida de dardos?' 
+            : 'La plataforma definitiva para gestionar tus torneos de dardos.'}
         </p>
         <div style={styles.cta}>
           <Button 

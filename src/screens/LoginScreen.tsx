@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import TextInput from '../components/TextInput';
 import Button from '../components/Button';
 import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '../services/auth.service';
+import { useAuth } from '../context/AuthContext';
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +10,7 @@ const LoginScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +18,7 @@ const LoginScreen: React.FC = () => {
     setError(null);
 
     try {
-      await authService.login(email, password);
+      await login(email, password);
       console.log('Login successful');
       navigate('/');
     } catch (err: any) {

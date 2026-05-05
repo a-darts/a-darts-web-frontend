@@ -11,18 +11,41 @@ export const authService = {
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await handleResponse(response);
-    
+    const result = await handleResponse(response);
+    const { token, user } = result.data || {};
+
     // Store token if it exists in the response
-    if (data.token) {
-      localStorage.setItem('auth_token', data.token);
-    }
-    
-    if (data.user) {
-      localStorage.setItem('user', JSON.stringify(data.user));
+    if (token) {
+      localStorage.setItem('auth_token', token);
     }
 
-    return data;
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+
+    return result;
+  },
+
+  getMe: async () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const result = await handleResponse(response);
+    const userData = result.data || result; // Fallback to result if not nested
+
+    if (userData) {
+      localStorage.setItem('user', JSON.stringify(userData));
+    }
+
+    return userData;
   },
 
   logout: () => {

@@ -118,3 +118,8 @@ a {
 a:hover {
   opacity: 0.8;
 }
+
+.logout-btn:hover {
+  color: #ff4444 !important;
+  transform: scale(1.1);
+}

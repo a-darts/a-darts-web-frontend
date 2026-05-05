@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from './Button';
+import { useAuth } from '../context/AuthContext';
+import Icon from './Icon';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   return (
     <header style={styles.header}>
@@ -17,13 +20,28 @@ const Navbar: React.FC = () => {
         </div>
 
         <div style={styles.auth}>
-          <Button
-            variant="primary"
-            rightIcon="LogIn"
-            onClick={() => navigate('/login')}
-          >
-            Iniciar sesión
-          </Button>
+          {user ? (
+            <div style={styles.userProfile}>
+              <div style={styles.userInfo}>
+                <span style={styles.userAlias}>{user.alias}</span>
+                <span style={styles.userEmail}>{user.email}</span>
+              </div>
+              <div style={styles.avatar}>
+                {user.alias.charAt(0).toUpperCase()}
+              </div>
+              <button onClick={logout} className="logout-btn" style={styles.logoutBtn} title="Cerrar sesión">
+                <Icon name="LogOut" size={18} />
+              </button>
+            </div>
+          ) : (
+            <Button
+              variant="primary"
+              rightIcon="LogIn"
+              onClick={() => navigate('/login')}
+            >
+              Iniciar sesión
+            </Button>
+          )}
         </div>
       </nav>
     </header>
@@ -70,6 +88,55 @@ const styles: { [key: string]: React.CSSProperties } = {
   auth: {
     display: 'flex',
     alignItems: 'center',
+  },
+  userProfile: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    padding: '0.5rem 0.5rem 0.5rem 1rem',
+    borderRadius: '100px',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+  },
+  userInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+  },
+  userAlias: {
+    fontSize: '0.875rem',
+    fontWeight: '600',
+    color: 'var(--text-color)',
+    lineHeight: '1.2',
+  },
+  userEmail: {
+    fontSize: '0.75rem',
+    color: 'var(--text-secondary-color)',
+    lineHeight: '1.2',
+  },
+  avatar: {
+    width: '36px',
+    height: '36px',
+    borderRadius: '50%',
+    backgroundColor: 'var(--primary-color)',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '0.875rem',
+    fontWeight: '700',
+    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.1)',
+  },
+  logoutBtn: {
+    background: 'none',
+    border: 'none',
+    color: 'var(--text-secondary-color)',
+    cursor: 'pointer',
+    padding: '0.5rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'color 0.2s, transform 0.2s',
   },
 };
 
