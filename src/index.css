@@ -128,6 +128,27 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+button.small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+  border-radius: 6px;
+}
+
+button.large {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  border-radius: 12px;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 a {
   font-weight: 500;
   color: var(--text-color);
@@ -207,4 +228,15 @@ a:hover {
 
 .dropdown-item:hover span {
   color: #ffffff;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }

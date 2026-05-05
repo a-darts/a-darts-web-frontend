@@ -87,5 +87,35 @@ export const authService = {
   getCurrentUser: () => {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
+  },
+
+  updateEmail: async (newEmail: string) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_BASE_URL}/users/email`, {
+      method: 'PUT',
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ newEmail }),
+    });
+
+    return handleResponse(response);
+  },
+
+  updateAlias: async (newAlias: string) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_BASE_URL}/users/alias`, {
+      method: 'PUT',
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ newAlias }),
+    });
+
+    return handleResponse(response);
   }
 };

@@ -2,10 +2,24 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import InfoCard from '../components/InfoCard';
+import TextInput from '../components/TextInput';
+import Button from '../components/Button';
+import Toast from '../components/Toast';
+import { useState, useEffect } from 'react';
 
 const ProfileScreen: React.FC = () => {
-  const { user } = useAuth();
+  const { user, updateEmail } = useAuth();
   const { t } = useTranslation();
+  const [email, setEmail] = useState(user?.email || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setEmail(user.email);
+    }
+  }, [user]);
 
   if (!user) {
     return (
@@ -23,6 +37,25 @@ const ProfileScreen: React.FC = () => {
     });
   };
 
+  const handleSaveEmail = async () => {
+    if (email === user.email) return;
+
+    setIsSaving(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      await updateEmail(email);
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message || 'Error al actualizar el correo');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const hasEmailChanged = email !== user.email;
+
   return (
     <div style={styles.container}>
       <div style={styles.card}>
@@ -37,11 +70,34 @@ const ProfileScreen: React.FC = () => {
         </div>
 
         <div style={styles.infoGrid}>
-          <InfoCard
-            title={t('auth.email_label')}
-            content={user.email}
-            icon="Mail"
-          />
+          <div style={styles.inputGroup}>
+            <TextInput
+              label={t('auth.email_label')}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              icon="Mail"
+              error={error || undefined}
+            />
+            {hasEmailChanged && (
+              <Button
+                onClick={handleSaveEmail}
+                loading={isSaving}
+                size="small"
+                leftIcon='Save'
+              >
+                Guardar cambios
+              </Button>
+            )}
+          </div>
+
+          {success && (
+            <Toast
+              message="¡Correo actualizado correctamente!"
+              type="success"
+              onClose={() => setSuccess(false)}
+            />
+          )}
+
           <InfoCard
             title="Miembro desde"
             content={formatDate(user.registratedAt)}
@@ -127,6 +183,17 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   loadingText: {
     color: 'var(--text-secondary-color)',
+  },
+  inputGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+    alignItems: 'flex-start',
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    padding: '1.5rem',
+    borderRadius: '16px',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
   },
 };
 

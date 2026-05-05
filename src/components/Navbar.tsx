@@ -51,7 +51,6 @@ const Navbar: React.FC = () => {
                   </div>
                   <div style={styles.userInfo}>
                     <span style={styles.userAlias}>{user.alias}</span>
-                    {/* <span style={styles.userEmail}>{user.email}</span> */}
                   </div>
                   <Icon name={isOpen ? "ChevronUp" : "ChevronDown"} size={18} style={{ flexShrink: 0 }} />
                 </div>

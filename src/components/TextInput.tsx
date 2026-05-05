@@ -25,7 +25,12 @@ const TextInput: React.FC<TextInputProps> = ({
           {...props}
         />
       </div>
-      {error && <span style={styles.errorText}>{error}</span>}
+      {error &&
+        <div style={styles.errorContainer}>
+          <Icon name="AlertCircle" size={14} style={styles.errorIcon} />
+          <span style={styles.errorText}>{error}</span>
+        </div>
+      }
     </div>
   );
 };
@@ -70,6 +75,14 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '0.875rem',
     fontFamily: 'inherit',
     height: '100%',
+  },
+  errorContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  errorIcon: {
+    color: '#ff4d4f',
   },
   errorText: {
     fontSize: '0.75rem',
