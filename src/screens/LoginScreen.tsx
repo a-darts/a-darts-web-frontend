@@ -4,6 +4,7 @@ import Button from '../components/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import Icon from '../components/Icon';
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -41,7 +42,8 @@ const LoginScreen: React.FC = () => {
 
         {error && (
           <div style={styles.errorBanner}>
-            {error}
+            <Icon name="AlertCircle" size={18} style={{ flexShrink: 0 }} />
+            <span>{error}</span>
           </div>
         )}
 
@@ -129,7 +131,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '12px',
     marginBottom: '1.5rem',
     fontSize: '0.875rem',
-    textAlign: 'center',
+    textAlign: 'left',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
   },
   form: {
     display: 'flex',
