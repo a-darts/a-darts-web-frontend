@@ -199,3 +199,12 @@ a:hover {
     display: flex;
   }
 }
+
+.dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  transform: translateX(4px);
+}
+
+.dropdown-item:hover span {
+  color: #ffffff;
+}

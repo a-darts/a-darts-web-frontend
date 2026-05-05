@@ -1,12 +1,34 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Button from './Button';
 import { useAuth } from '../context/AuthContext';
 import Icon from './Icon';
+import Dropdown, { DropdownItem } from './Dropdown';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
+
+  const userMenuItems: DropdownItem[] = [
+    {
+      label: t('common.dropdown.profile'),
+      icon: 'User',
+      onClick: () => navigate('/profile')
+    },
+    {
+      label: t('common.dropdown.settings'),
+      icon: 'Settings',
+      onClick: () => navigate('/settings')
+    },
+    {
+      label: t('common.dropdown.logout'),
+      icon: 'LogOut',
+      onClick: logout,
+      variant: 'danger'
+    },
+  ];
 
   return (
     <header style={styles.header}>
@@ -16,30 +38,32 @@ const Navbar: React.FC = () => {
         </Link>
 
         <div style={styles.tabs}>
-          <Link to="/torneos" style={styles.tabLink}>Torneos</Link>
+          <Link to="/torneos" style={styles.tabLink}>{t('common.navbar.tournaments')}</Link>
         </div>
 
         <div style={styles.auth}>
           {user ? (
-            <div style={styles.userProfile}>
-              <div style={styles.userInfo}>
-                <span style={styles.userAlias}>{user.alias}</span>
-                <span style={styles.userEmail}>{user.email}</span>
-              </div>
-              <div style={styles.avatar}>
-                {user.alias.charAt(0).toUpperCase()}
-              </div>
-              <button onClick={logout} className="logout-btn" style={styles.logoutBtn} title="Cerrar sesión">
-                <Icon name="LogOut" size={18} />
-              </button>
-            </div>
+            <Dropdown
+              trigger={
+                <div style={styles.userProfile}>
+                  <div style={styles.userInfo}>
+                    <span style={styles.userAlias}>{user.alias}</span>
+                    <span style={styles.userEmail}>{user.email}</span>
+                  </div>
+                  <div style={styles.avatar}>
+                    {user.alias.charAt(0).toUpperCase()}
+                  </div>
+                </div>
+              }
+              items={userMenuItems}
+            />
           ) : (
             <Button
               variant="tertiary"
-              rightIcon="LogIn"
+              rightIcon='LogIn'
               onClick={() => navigate('/login')}
             >
-              Iniciar sesión
+              {t('common.navbar.login')}
             </Button>
           )}
         </div>
@@ -94,7 +118,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'center',
     gap: '1rem',
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    padding: '0.5rem 0.5rem 0.5rem 1rem',
+    padding: '0.25rem 0.25rem 0.25rem 1rem',
     borderRadius: '100px',
     border: '1px solid rgba(255, 255, 255, 0.05)',
   },
@@ -126,17 +150,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '0.875rem',
     fontWeight: '700',
     boxShadow: '0 4px 12px rgba(255, 255, 255, 0.1)',
-  },
-  logoutBtn: {
-    background: 'none',
-    border: 'none',
-    color: 'var(--text-secondary-color)',
-    cursor: 'pointer',
-    padding: '0.5rem',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'color 0.2s, transform 0.2s',
   },
 };
 

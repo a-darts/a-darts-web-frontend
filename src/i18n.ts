@@ -68,7 +68,16 @@ const resources = {
       },
       common: {
         loading: 'Cargando...',
-        error: 'Error'
+        error: 'Error',
+        dropdown: {
+          profile: 'Perfil',
+          settings: 'Configuración',
+          logout: 'Cerrar sesión'
+        },
+        navbar: {
+          tournaments: 'Torneos',
+          login: 'Iniciar sesión',
+        },
       }
     }
   },
@@ -137,7 +146,16 @@ const resources = {
       },
       common: {
         loading: 'Loading...',
-        error: 'Error'
+        error: 'Error',
+        dropdown: {
+          profile: 'Profile',
+          settings: 'Settings',
+          logout: 'Logout'
+        },
+        navbar: {
+          tournaments: 'Tournaments',
+          login: 'Login',
+        },
       }
     }
   }
