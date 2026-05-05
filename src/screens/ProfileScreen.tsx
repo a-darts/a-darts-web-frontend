@@ -9,12 +9,18 @@ import { useState, useEffect } from 'react';
 import ErrorMessage from '../components/ErrorMessage';
 
 const ProfileScreen: React.FC = () => {
-  const { user, updateEmail, updatePassword } = useAuth();
+  const { user, updateEmail, updatePassword, updateAlias } = useAuth();
   const { t } = useTranslation();
   const [email, setEmail] = useState(user?.email || '');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Alias state
+  const [alias, setAlias] = useState(user?.alias || '');
+  const [isSavingAlias, setIsSavingAlias] = useState(false);
+  const [aliasError, setAliasError] = useState<string | null>(null);
+  const [aliasSuccess, setAliasSuccess] = useState(false);
 
   // Password state
   const [oldPassword, setOldPassword] = useState('');
@@ -26,6 +32,7 @@ const ProfileScreen: React.FC = () => {
   useEffect(() => {
     if (user) {
       setEmail(user.email);
+      setAlias(user.alias);
     }
   }, [user]);
 
@@ -62,6 +69,23 @@ const ProfileScreen: React.FC = () => {
     }
   };
 
+  const handleSaveAlias = async () => {
+    if (alias === user.alias) return;
+
+    setIsSavingAlias(true);
+    setAliasError(null);
+    setAliasSuccess(false);
+
+    try {
+      await updateAlias(alias);
+      setAliasSuccess(true);
+    } catch (err: any) {
+      setAliasError(err.message || 'Error al actualizar el alias');
+    } finally {
+      setIsSavingAlias(false);
+    }
+  };
+
   const handleSavePassword = async () => {
     if (!oldPassword || !newPassword) {
       setPassError('Todos los campos son obligatorios');
@@ -85,6 +109,7 @@ const ProfileScreen: React.FC = () => {
   };
 
   const hasEmailChanged = email !== user.email;
+  const hasAliasChanged = alias !== user.alias;
 
   return (
     <div style={styles.container}>
@@ -95,7 +120,7 @@ const ProfileScreen: React.FC = () => {
           </div>
           <div style={styles.headerInfo}>
             <h1 style={styles.title}>{user.alias}</h1>
-            <p style={styles.roleBadge}>{user.role.toUpperCase()}</p>
+            <p style={styles.roleBadge}>{t(`auth.${user.role}`)}</p>
           </div>
         </div>
 
@@ -108,15 +133,44 @@ const ProfileScreen: React.FC = () => {
             />
             <InfoCard
               title="Rol"
-              content={user.role}
+              content={t(`auth.${user.role}`)}
               icon="Shield"
             />
           </div>
 
           <div style={styles.inputGroup}>
+            <h3 style={styles.sectionTitle}>Cambiar alias</h3>
+            <TextInput
+              label={t('auth.alias_label')}
+              value={alias}
+              onChange={(e) => setAlias(e.target.value)}
+              icon="User"
+              maxLength={48}
+              error={aliasError || undefined}
+            />
+            <Button
+              onClick={handleSaveAlias}
+              loading={isSavingAlias}
+              size="small"
+              leftIcon='Save'
+              disabled={!hasAliasChanged}
+            >
+              Actualizar alias
+            </Button>
+          </div>
+
+          {aliasSuccess && (
+            <Toast
+              message={t('auth.success.Alias updated successfully')}
+              type="success"
+              onClose={() => setAliasSuccess(false)}
+            />
+          )}
+
+          <div style={styles.inputGroup}>
             <h3 style={styles.sectionTitle}>Cambiar correo electrónico</h3>
             <TextInput
-              label={t('auth.new_email_label')}
+              label={t('auth.email_label')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               icon="Mail"
@@ -129,7 +183,7 @@ const ProfileScreen: React.FC = () => {
               leftIcon='Save'
               disabled={!hasEmailChanged}
             >
-              Guardar cambios
+              Actualizar correo
             </Button>
           </div>
 

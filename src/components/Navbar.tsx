@@ -50,7 +50,9 @@ const Navbar: React.FC = () => {
                     {user.alias.charAt(0).toUpperCase()}
                   </div>
                   <div style={styles.userInfo}>
-                    <span style={styles.userAlias}>{user.alias}</span>
+                    <span style={styles.userAlias}>
+                      {user.alias.length > 16 ? `${user.alias.substring(0, 16)}...` : user.alias}
+                    </span>
                   </div>
                   <Icon name={isOpen ? "ChevronUp" : "ChevronDown"} size={18} style={{ flexShrink: 0 }} />
                 </div>
