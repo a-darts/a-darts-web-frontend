@@ -2,7 +2,7 @@ import React from 'react';
 import Icon, { IconName } from './Icon';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'tertiary';
   leftIcon?: IconName;
   rightIcon?: IconName;
   children: React.ReactNode;

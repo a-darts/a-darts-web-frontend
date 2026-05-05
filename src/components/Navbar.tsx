@@ -35,7 +35,7 @@ const Navbar: React.FC = () => {
             </div>
           ) : (
             <Button
-              variant="primary"
+              variant="tertiary"
               rightIcon="LogIn"
               onClick={() => navigate('/login')}
             >
@@ -52,7 +52,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   header: {
     backgroundColor: 'var(--header-bg)',
     width: '100%',
-    height: '70px',
+    height: '64px',
     display: 'flex',
     alignItems: 'center',
     position: 'sticky',
@@ -62,7 +62,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   nav: {
     width: '100%',
-    maxWidth: '1200px',
+    maxWidth: '1500px',
     margin: '0 auto',
     padding: '0 2rem',
     display: 'flex',
