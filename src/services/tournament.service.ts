@@ -8,6 +8,30 @@ export enum TournamentStatus {
   FINISHED = 'FINALIZADO',
 }
 
+export enum Federations {
+  ESPAÑA = 'España',
+  ARAGON = 'Aragón',
+  COMUNIDAD_VALENCIANA = 'Comunidad Valenciana',
+  GALICIA = 'Galicia',
+  ANDALUCIA = 'Andalucía',
+  MADRID = 'Madrid',
+  CASTILLA_LA_MANCHA = 'Castilla-La Mancha',
+  CASTILLA_Y_LEON = 'Castilla y León',
+  CANARIAS = 'Canarias',
+  BALEARES = 'Baleares',
+  // Otras
+  MURCIA = 'Murcia',
+  ASTURIAS = 'Asturias',
+  CANTABRIA = 'Cantabria',
+  CATALUÑA = 'Cataluña',
+  PAIS_VASCO = 'País Vasco',
+  NAVARRA = 'Navarra',
+  LA_RIOJA = 'La Rioja',
+  EXTREMADURA = 'Extremadura',
+  CEUTA = 'Ceuta',
+  MELILLA = 'Melilla',
+}
+
 export interface Tournament {
   id: string;
   name: string;
@@ -25,7 +49,7 @@ export interface Tournament {
     numSets: number;
     rules: string;
     info: string;
-    federation: string;
+    federation: Federations;
   };
   registration: {
     hasCheckIn: boolean;

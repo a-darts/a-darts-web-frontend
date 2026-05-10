@@ -34,19 +34,23 @@ const TournamentsScreen: React.FC = () => {
   }, []);
 
   const toggleFilter = (filter: FilterType) => {
-    setActiveFilters(prev => 
-      prev.includes(filter) 
-        ? prev.filter(f => f !== filter) 
-        : [...prev, filter]
-    );
+    setActiveFilters(prev => {
+      const isCurrentlySelected = prev.includes(filter);
+      if (isCurrentlySelected) {
+        // Only remove if it's not the last one
+        if (prev.length > 1) {
+          return prev.filter(f => f !== filter);
+        }
+        return prev;
+      } else {
+        return [...prev, filter];
+      }
+    });
   };
 
   const filteredTournaments = tournaments.filter((t) => {
     const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase());
     if (!matchesSearch) return false;
-
-    // If no filters are selected, show all tournaments
-    if (activeFilters.length === 0) return true;
 
     const date = new Date(t.info.dateTime);
     const now = new Date();
@@ -69,7 +73,7 @@ const TournamentsScreen: React.FC = () => {
     <div style={styles.container}>
       <Breadcrumbs items={breadcrumbItems} />
       <div style={styles.header}>
-        <h1 style={styles.title}>Torneos</h1>
+        <h1 style={styles.title}>TORNEOS</h1>
         <div style={styles.controls}>
           <div style={styles.searchWrapper}>
             <SearchInput
@@ -129,8 +133,7 @@ const TournamentsScreen: React.FC = () => {
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    padding: '4rem 2rem',
-    maxWidth: '1200px',
+    padding: '2rem 2rem',
     margin: '0 auto',
     width: '100%',
     minHeight: '80vh',
@@ -142,7 +145,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginBottom: '2.5rem',
   },
   title: {
-    fontSize: '2.5rem',
+    fontSize: '2rem',
     fontWeight: '700',
     background: 'linear-gradient(to bottom, #ffffff 0%, #a1a1a1 100%)',
     WebkitBackgroundClip: 'text',

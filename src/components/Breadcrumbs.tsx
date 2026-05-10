@@ -37,7 +37,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
-    marginBottom: '1.5rem',
   },
   separator: {
     color: 'rgba(255, 255, 255, 0.2)',

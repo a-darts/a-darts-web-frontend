@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { tournamentService, Tournament, TournamentStatus } from '../services/tournament.service';
+import { tournamentService, Tournament } from '../services/tournament.service';
+import { getStatusLabel, getFederationLabel } from '../utils/tournament.utils';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
 import ErrorMessage from '../components/ErrorMessage';
@@ -60,10 +61,6 @@ const TournamentDetailsScreen: React.FC = () => {
     { label: name },
   ];
 
-  const getStatusLabel = (s: string) => {
-    return TournamentStatus[s as keyof typeof TournamentStatus] || s;
-  };
-
   return (
     <div style={styles.container}>
       <header style={styles.header}>
@@ -81,7 +78,7 @@ const TournamentDetailsScreen: React.FC = () => {
             <InfoCard title="Lugar" content={info.place} icon="MapPin" />
             <InfoCard title="Fecha" content={formattedDate} icon="Calendar" />
             <InfoCard title="Hora" content={formattedTime} icon="Clock" />
-            <InfoCard title="Federación" content={info.federation} icon="Flag" />
+            <InfoCard title="Federación" content={getFederationLabel(info.federation)} icon="Flag" />
             <InfoCard title="Modo" content={info.mode} icon="Users" />
             <InfoCard title="Juego" content={info.game} icon="Target" />
             <InfoCard title="Máx. Jugadores" content={info.maxPlayers.toString()} icon="UserPlus" />
@@ -120,8 +117,7 @@ const TournamentDetailsScreen: React.FC = () => {
 
 const styles: { [key: string]: any } = {
   container: {
-    padding: '4rem 2rem',
-    maxWidth: '1000px',
+    padding: '2rem 2rem',
     margin: '0 auto',
     width: '100%',
     minHeight: '80vh',
@@ -133,7 +129,7 @@ const styles: { [key: string]: any } = {
     fontSize: '1.2rem',
   },
   header: {
-    marginBottom: '3rem',
+    marginBottom: '2rem',
     display: 'flex',
     flexDirection: 'column',
     gap: '1.5rem',

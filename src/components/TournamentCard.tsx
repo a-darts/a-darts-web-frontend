@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tournament, TournamentStatus } from '../services/tournament.service';
+import { Tournament } from '../services/tournament.service';
+import { getStatusLabel, getFederationLabel } from '../utils/tournament.utils';
 import Icon from './Icon';
 import Button from './Button';
 
@@ -27,10 +28,6 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
 
   const handleSeeMore = () => {
     navigate(`/torneos/${id}`);
-  };
-
-  const getStatusLabel = (status: string) => {
-    return TournamentStatus[status as keyof typeof TournamentStatus] || status;
   };
 
   return (
@@ -62,7 +59,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
         </div>
         <div style={styles.infoItem}>
           <Icon name="Flag" size={16} style={styles.icon} />
-          <span style={styles.text}>{federation}</span>
+          <span style={styles.text}>{getFederationLabel(federation)}</span>
         </div>
       </div>
 
@@ -124,7 +121,7 @@ const styles: { [key: string]: any } = {
   }),
   infoGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
     gap: '0.75rem',
   },
   infoItem: {
