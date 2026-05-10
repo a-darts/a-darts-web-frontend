@@ -4,6 +4,7 @@ import { Tournament } from '../services/tournament.service';
 import { getStatusLabel, getFederationLabel } from '../utils/tournament.utils';
 import Icon from './Icon';
 import Button from './Button';
+import TournamentStatusTag from './TournamentStatusTag';
 
 interface TournamentCardProps {
   tournament: Tournament;
@@ -39,9 +40,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
     >
       <div style={styles.header}>
         <h3 style={styles.name}>{name}</h3>
-        <span style={styles.statusBadge(tournament.status)}>
-          {getStatusLabel(tournament.status)}
-        </span>
+        <TournamentStatusTag status={tournament.status} />
       </div>
 
       <div style={styles.infoGrid}>
@@ -107,18 +106,6 @@ const styles: { [key: string]: any } = {
     margin: 0,
     lineHeight: '1.4',
   },
-  statusBadge: (status: string) => ({
-    fontSize: '0.65rem',
-    fontWeight: '700',
-    padding: '0.25rem 0.6rem',
-    borderRadius: '100px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-    backgroundColor: status === 'PUBLISHED' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-    color: status === 'PUBLISHED' ? '#4ade80' : '#a1a1a1',
-    border: `1px solid ${status === 'PUBLISHED' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)'}`,
-    whiteSpace: 'nowrap',
-  }),
   infoGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',

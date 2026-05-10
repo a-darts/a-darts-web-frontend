@@ -3,11 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { tournamentService, Tournament } from '../services/tournament.service';
 import { getStatusLabel, getFederationLabel } from '../utils/tournament.utils';
 import Button from '../components/Button';
-import Icon from '../components/Icon';
 import ErrorMessage from '../components/ErrorMessage';
-import InfoCard from '../components/InfoCard';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Title from '../components/Title';
+import TournamentStatusTag from '../components/TournamentStatusTag';
+import InfoCard from '../components/InfoCard';
 
 const TournamentDetailsScreen: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -68,7 +68,7 @@ const TournamentDetailsScreen: React.FC = () => {
         <Breadcrumbs items={breadcrumbItems} />
         <div style={styles.titleContainer}>
           <Title>{name}</Title>
-          <span style={styles.statusBadge(status)}>{getStatusLabel(status)}</span>
+          <TournamentStatusTag status={status} size="medium" />
         </div>
       </header>
 
@@ -142,18 +142,6 @@ const styles: { [key: string]: any } = {
     gap: '2rem',
     flexWrap: 'wrap',
   },
-  statusBadge: (status: string) => ({
-    fontSize: '0.8rem',
-    fontWeight: '700',
-    padding: '0.4rem 1rem',
-    borderRadius: '100px',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-    backgroundColor: status === 'PUBLISHED' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-    color: status === 'PUBLISHED' ? '#4ade80' : '#a1a1a1',
-    border: `1px solid ${status === 'PUBLISHED' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)'}`,
-    whiteSpace: 'nowrap',
-  }),
   content: {
     display: 'flex',
     flexDirection: 'column',
