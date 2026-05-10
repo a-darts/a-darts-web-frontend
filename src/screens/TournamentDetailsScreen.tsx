@@ -7,6 +7,7 @@ import Icon from '../components/Icon';
 import ErrorMessage from '../components/ErrorMessage';
 import InfoCard from '../components/InfoCard';
 import Breadcrumbs from '../components/Breadcrumbs';
+import Title from '../components/Title';
 
 const TournamentDetailsScreen: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -66,7 +67,7 @@ const TournamentDetailsScreen: React.FC = () => {
       <header style={styles.header}>
         <Breadcrumbs items={breadcrumbItems} />
         <div style={styles.titleContainer}>
-          <h1 style={styles.title}>{name}</h1>
+          <Title>{name}</Title>
           <span style={styles.statusBadge(status)}>{getStatusLabel(status)}</span>
         </div>
       </header>
@@ -140,15 +141,6 @@ const styles: { [key: string]: any } = {
     justifyContent: 'space-between',
     gap: '2rem',
     flexWrap: 'wrap',
-  },
-  title: {
-    fontSize: '3rem',
-    fontWeight: '800',
-    margin: 0,
-    background: 'linear-gradient(to bottom, #ffffff 0%, #a1a1a1 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    lineHeight: '1.2',
   },
   statusBadge: (status: string) => ({
     fontSize: '0.8rem',

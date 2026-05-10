@@ -5,6 +5,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import Breadcrumbs from '../components/Breadcrumbs';
 import SearchInput from '../components/SearchInput';
 import Button from '../components/Button';
+import Title from '../components/Title';
 
 type FilterType = 'upcoming' | 'ongoing' | 'finished';
 
@@ -73,7 +74,7 @@ const TournamentsScreen: React.FC = () => {
     <div style={styles.container}>
       <Breadcrumbs items={breadcrumbItems} />
       <div style={styles.header}>
-        <h1 style={styles.title}>TORNEOS</h1>
+        <Title>Torneos</Title>
         <div style={styles.controls}>
           <div style={styles.searchWrapper}>
             <SearchInput
@@ -143,14 +144,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: 'column',
     gap: '1.5rem',
     marginBottom: '2.5rem',
-  },
-  title: {
-    fontSize: '2rem',
-    fontWeight: '700',
-    background: 'linear-gradient(to bottom, #ffffff 0%, #a1a1a1 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    margin: 0,
   },
   controls: {
 
