@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { tournamentService, Tournament } from '../services/tournament.service';
 import TournamentCard from '../components/TournamentCard';
 import ErrorMessage from '../components/ErrorMessage';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 const TournamentsScreen: React.FC = () => {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -26,8 +27,14 @@ const TournamentsScreen: React.FC = () => {
     fetchTournaments();
   }, []);
 
+  const breadcrumbItems = [
+    { label: 'Inicio', path: '/' },
+    { label: 'Torneos' },
+  ];
+
   return (
     <div style={styles.container}>
+      <Breadcrumbs items={breadcrumbItems} />
       <h1 style={styles.title}>Torneos</h1>
       
       {error && <ErrorMessage message={error} />}

@@ -5,6 +5,7 @@ import Button from '../components/Button';
 import Icon from '../components/Icon';
 import ErrorMessage from '../components/ErrorMessage';
 import InfoCard from '../components/InfoCard';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 const TournamentDetailsScreen: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -53,15 +54,16 @@ const TournamentDetailsScreen: React.FC = () => {
   const formattedDate = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
   const formattedTime = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
+  const breadcrumbItems = [
+    { label: 'Inicio', path: '/' },
+    { label: 'Torneos', path: '/torneos' },
+    { label: name },
+  ];
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <div style={styles.backButtonContainer}>
-          <Button variant="secondary" onClick={() => navigate('/torneos')} style={styles.backButton}>
-            <Icon name="ArrowLeft" size={18} />
-            Volver
-          </Button>
-        </div>
+        <Breadcrumbs items={breadcrumbItems} />
         <div style={styles.titleContainer}>
           <h1 style={styles.title}>{name}</h1>
           <span style={styles.statusBadge(status)}>{status}</span>
@@ -131,14 +133,6 @@ const styles: { [key: string]: any } = {
     display: 'flex',
     flexDirection: 'column',
     gap: '1.5rem',
-  },
-  backButtonContainer: {
-    display: 'flex',
-  },
-  backButton: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
   },
   titleContainer: {
     display: 'flex',
