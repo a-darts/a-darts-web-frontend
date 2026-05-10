@@ -32,6 +32,25 @@ export enum Federations {
   MELILLA = 'Melilla',
 }
 
+export enum GameModes {
+  SINGLE = 'Individual',
+  WOMEN_SINGLES = 'Individual Femenino',
+  MEN_SINGLES = 'Individual Masculino',
+  MIXED_SINGLES = 'Individual Mixto',
+  YOUTH_SINGLES = 'Individual Juvenil',
+  PAIRS = 'Parejas',
+  WOMEN_PAIRS = 'Parejas Femeninas',
+  MEN_PAIRS = 'Parejas Masculinas',
+  MIXED_PAIRS = 'Parejas Mixtas',
+  YOUTH_PAIRS = 'Parejas Juveniles',
+  TEAMS = 'Equipos',
+}
+
+export enum GameTypes {
+  BEST_OF = 'Al mejor de',
+  FIRST_TO = 'A ganar',
+}
+
 export interface Tournament {
   id: string;
   name: string;
@@ -40,11 +59,11 @@ export interface Tournament {
   info: {
     place: string;
     dateTime: string;
-    mode: string;
+    mode: GameModes;
     game: string;
     schedule: string;
     maxPlayers: number;
-    gameType: string;
+    gameType: GameTypes;
     numLegs: number;
     numSets: number;
     rules: string;
@@ -60,6 +79,7 @@ export interface Tournament {
     registeredParticipantsIds: string[];
   };
 }
+
 
 export const tournamentService = {
   getTournaments: async (): Promise<Tournament[]> => {

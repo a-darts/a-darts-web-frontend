@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { tournamentService, Tournament } from '../services/tournament.service';
-import { getStatusLabel, getFederationLabel, getFederationFlag } from '../utils/tournament.utils';
+import { getStatusLabel, getFederationLabel, getFederationFlag, getModeLabel, getGameTypeLabel } from '../utils/tournament.utils';
 import Button from '../components/Button';
 import ErrorMessage from '../components/ErrorMessage';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -79,6 +79,7 @@ const TournamentDetailsScreen: React.FC = () => {
             <InfoCard title="Lugar" content={info.place} icon="MapPin" />
             <InfoCard title="Fecha" content={formattedDate} icon="Calendar" />
             <InfoCard title="Hora" content={formattedTime} icon="Clock" />
+            <InfoCard title="Modalidad" content={getModeLabel(info.mode)} icon="Users" />
             <InfoCard
               title="Federación"
               content={
@@ -95,10 +96,12 @@ const TournamentDetailsScreen: React.FC = () => {
               }
               icon="Flag"
             />
-            <InfoCard title="Modo" content={info.mode} icon="Users" />
+          </div>
+          <div style={styles.infoGrid}>
             <InfoCard title="Juego" content={info.game} icon="Target" />
-            <InfoCard title="Máx. Jugadores" content={info.maxPlayers.toString()} icon="UserPlus" />
-            <InfoCard title="Tipo" content={`${info.gameType} ${info.numLegs} legs / ${info.numSets} sets`} icon="Layers" />
+            <InfoCard title="Máx. Jugadores" content={info.maxPlayers ? info.maxPlayers.toString() : 'Sin máximo'} icon="UserPlus" />
+            <InfoCard title="Legs" content={`${getGameTypeLabel(info.gameType)} ${info.numLegs} legs`} icon="Layers" />
+            <InfoCard title="Sets" content={`${getGameTypeLabel(info.gameType)} ${info.numSets} sets`} icon="Layers" />
           </div>
         </section>
 
@@ -111,21 +114,14 @@ const TournamentDetailsScreen: React.FC = () => {
           </section>
         )}
 
-        <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>Registro</h2>
-          <div style={styles.infoGrid}>
-            <InfoCard
-              title="Check-in requerido"
-              content={registration.hasCheckIn ? 'Sí' : 'No'}
-              icon={registration.hasCheckIn ? 'CheckCircle' : 'XCircle'}
-            />
-            <InfoCard
-              title="Participantes"
-              content={`${registration.registeredParticipantsIds.length} registrados`}
-              icon="UserCheck"
-            />
-          </div>
-        </section>
+        {info.info && (
+          <section style={styles.section}>
+            <h2 style={styles.sectionTitle}>Más información</h2>
+            <div style={styles.rulesContainer}>
+              <p style={styles.rulesText}>{info.info}</p>
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
@@ -177,7 +173,7 @@ const styles: { [key: string]: any } = {
   },
   infoGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
     gap: '1rem',
   },
   rulesContainer: {

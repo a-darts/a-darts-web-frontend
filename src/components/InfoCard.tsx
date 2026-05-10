@@ -28,7 +28,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     alignItems: 'center',
     gap: '1.25rem',
-    padding: '1rem 2rem',
+    padding: '1rem 1.5rem',
     backgroundColor: 'rgba(255, 255, 255, 0.02)',
     borderRadius: '16px',
     border: '1px solid rgba(255, 255, 255, 0.03)',

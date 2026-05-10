@@ -1,10 +1,24 @@
-import { TournamentStatus, Federations } from '../services/tournament.service';
+import { TournamentStatus, Federations, GameModes, GameTypes } from '../services/tournament.service';
 
 /**
  * Returns the localized label for a tournament status.
  */
 export const getStatusLabel = (status: string): string => {
   return TournamentStatus[status as keyof typeof TournamentStatus] || status;
+};
+
+/**
+ * Returns the localized label for a tournament mode.
+ */
+export const getModeLabel = (mode: string): string => {
+  return GameModes[mode as keyof typeof GameModes] || mode;
+};
+
+/**
+ * Returns the localized label for a tournament game type.
+ */
+export const getGameTypeLabel = (gameType: string): string => {
+  return GameTypes[gameType as keyof typeof GameTypes] || gameType;
 };
 
 /**
