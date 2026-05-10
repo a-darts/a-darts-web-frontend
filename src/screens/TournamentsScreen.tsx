@@ -3,7 +3,7 @@ import { tournamentService, Tournament } from '../services/tournament.service';
 import TournamentCard from '../components/TournamentCard';
 import ErrorMessage from '../components/ErrorMessage';
 import Breadcrumbs from '../components/Breadcrumbs';
-import TextInput from '../components/TextInput';
+import SearchInput from '../components/SearchInput';
 import Button from '../components/Button';
 
 type FilterType = 'all' | 'upcoming' | 'ongoing' | 'finished';
@@ -38,7 +38,7 @@ const TournamentsScreen: React.FC = () => {
     const date = new Date(t.info.dateTime);
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
-    
+
     let matchesFilter = true;
     if (activeFilter === 'upcoming') {
       matchesFilter = date > now && !isToday;
@@ -47,7 +47,7 @@ const TournamentsScreen: React.FC = () => {
     } else if (activeFilter === 'finished') {
       matchesFilter = date < now && !isToday;
     }
-    
+
     return matchesSearch && matchesFilter;
   });
 
@@ -63,38 +63,39 @@ const TournamentsScreen: React.FC = () => {
         <h1 style={styles.title}>Torneos</h1>
         <div style={styles.controls}>
           <div style={styles.searchWrapper}>
-            <TextInput 
-              placeholder="Buscar torneos..." 
-              value={searchTerm} 
-              onChange={(e) => setSearchTerm(e.target.value)}
-              icon="Search"
-              style={{ marginBottom: 0 }}
+            <SearchInput
+              value={searchTerm}
+              onChange={setSearchTerm}
             />
           </div>
           <div style={styles.filtersWrapper}>
-            <Button 
-              variant={activeFilter === 'all' ? 'primary' : 'secondary'} 
+            <Button
+              variant={activeFilter === 'all' ? 'primary' : 'secondary'}
+              leftIcon={activeFilter === 'all' ? 'Check' : undefined}
               onClick={() => setActiveFilter('all')}
               size="small"
             >
               Todos
             </Button>
-            <Button 
-              variant={activeFilter === 'upcoming' ? 'primary' : 'secondary'} 
+            <Button
+              variant={activeFilter === 'upcoming' ? 'primary' : 'secondary'}
+              leftIcon={activeFilter === 'upcoming' ? 'Check' : undefined}
               onClick={() => setActiveFilter('upcoming')}
               size="small"
             >
               Próximos
             </Button>
-            <Button 
-              variant={activeFilter === 'ongoing' ? 'primary' : 'secondary'} 
+            <Button
+              variant={activeFilter === 'ongoing' ? 'primary' : 'secondary'}
+              leftIcon={activeFilter === 'ongoing' ? 'Check' : undefined}
               onClick={() => setActiveFilter('ongoing')}
               size="small"
             >
               En curso
             </Button>
-            <Button 
-              variant={activeFilter === 'finished' ? 'primary' : 'secondary'} 
+            <Button
+              variant={activeFilter === 'finished' ? 'primary' : 'secondary'}
+              leftIcon={activeFilter === 'finished' ? 'Check' : undefined}
               onClick={() => setActiveFilter('finished')}
               size="small"
             >
@@ -103,15 +104,15 @@ const TournamentsScreen: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {error && <ErrorMessage message={error} />}
-      
+
       {loading ? (
         <div style={styles.message}>Cargando torneos...</div>
       ) : filteredTournaments.length === 0 ? (
         <div style={styles.message}>
-          {searchTerm || activeFilter !== 'all' 
-            ? 'No se encontraron torneos con los filtros aplicados.' 
+          {searchTerm || activeFilter !== 'all'
+            ? 'No se encontraron torneos con los filtros aplicados.'
             : 'No hay torneos disponibles en este momento.'}
         </div>
       ) : (
@@ -148,16 +149,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     margin: 0,
   },
   controls: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    gap: '2rem',
-    flexWrap: 'wrap',
+
   },
   searchWrapper: {
     flex: 1,
     minWidth: '300px',
+    marginBottom: '1rem',
   },
   filtersWrapper: {
     display: 'flex',

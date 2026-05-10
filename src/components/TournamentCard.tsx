@@ -25,16 +25,12 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
     minute: '2-digit',
   });
 
-  const STATUS_LABELS: Record<TournamentStatus, string> = {
-    [TournamentStatus.DRAFT]: 'Borrador',
-    [TournamentStatus.PUBLISHED]: 'Publicado',
-    [TournamentStatus.IN_PROGRESS]: 'En Curso',
-    [TournamentStatus.CANCELLED]: 'Cancelado',
-    [TournamentStatus.FINISHED]: 'Finalizado',
-  };
-
   const handleSeeMore = () => {
     navigate(`/torneos/${id}`);
+  };
+
+  const getStatusLabel = (status: string) => {
+    return TournamentStatus[status as keyof typeof TournamentStatus] || status;
   };
 
   return (
@@ -47,7 +43,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
       <div style={styles.header}>
         <h3 style={styles.name}>{name}</h3>
         <span style={styles.statusBadge(tournament.status)}>
-          {STATUS_LABELS[tournament.status] || tournament.status}
+          {getStatusLabel(tournament.status)}
         </span>
       </div>
 

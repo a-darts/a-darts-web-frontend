@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { tournamentService, Tournament } from '../services/tournament.service';
+import { tournamentService, Tournament, TournamentStatus } from '../services/tournament.service';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
 import ErrorMessage from '../components/ErrorMessage';
@@ -60,13 +60,17 @@ const TournamentDetailsScreen: React.FC = () => {
     { label: name },
   ];
 
+  const getStatusLabel = (s: string) => {
+    return TournamentStatus[s as keyof typeof TournamentStatus] || s;
+  };
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
         <Breadcrumbs items={breadcrumbItems} />
         <div style={styles.titleContainer}>
           <h1 style={styles.title}>{name}</h1>
-          <span style={styles.statusBadge(status)}>{status}</span>
+          <span style={styles.statusBadge(status)}>{getStatusLabel(status)}</span>
         </div>
       </header>
 
