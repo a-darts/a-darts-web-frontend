@@ -21,10 +21,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     gap: '0.4rem',
-    marginBottom: '0.5rem',
   },
   title: {
-    fontSize: '2.5rem', // Match current screen title size
+    fontSize: '2rem',
     fontWeight: '800',
     background: 'linear-gradient(to bottom, #ffffff 0%, #a1a1a1 100%)',
     WebkitBackgroundClip: 'text',
