@@ -32,6 +32,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: 'rgba(255, 255, 255, 0.02)',
     borderRadius: '16px',
     border: '1px solid rgba(255, 255, 255, 0.03)',
+    borderLeft: '1px solid #C4E866',
     width: 'auto',
   },
   iconContainer: {

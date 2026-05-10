@@ -108,8 +108,8 @@ const TournamentDetailsScreen: React.FC = () => {
         {info.rules && (
           <section style={styles.section}>
             <h2 style={styles.sectionTitle}>Reglas</h2>
-            <div style={styles.rulesContainer}>
-              <p style={styles.rulesText}>{info.rules}</p>
+            <div style={styles.sectionContentContainer}>
+              <p style={styles.sectionText}>{info.rules}</p>
             </div>
           </section>
         )}
@@ -117,8 +117,8 @@ const TournamentDetailsScreen: React.FC = () => {
         {info.info && (
           <section style={styles.section}>
             <h2 style={styles.sectionTitle}>Más información</h2>
-            <div style={styles.rulesContainer}>
-              <p style={styles.rulesText}>{info.info}</p>
+            <div style={styles.sectionContentContainer}>
+              <p style={styles.sectionText}>{info.info}</p>
             </div>
           </section>
         )}
@@ -176,14 +176,13 @@ const styles: { [key: string]: any } = {
     gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
     gap: '1rem',
   },
-  rulesContainer: {
+  sectionContentContainer: {
     background: 'rgba(255, 255, 255, 0.02)',
     padding: '2rem',
     borderRadius: '16px',
     border: '1px solid rgba(255, 255, 255, 0.05)',
   },
-  rulesText: {
-    color: 'rgba(255, 255, 255, 0.7)',
+  sectionText: {
     lineHeight: '1.6',
     margin: 0,
     whiteSpace: 'pre-wrap',
