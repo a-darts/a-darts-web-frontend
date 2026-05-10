@@ -6,14 +6,14 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import SearchInput from '../components/SearchInput';
 import Button from '../components/Button';
 
-type FilterType = 'all' | 'upcoming' | 'ongoing' | 'finished';
+type FilterType = 'upcoming' | 'ongoing' | 'finished';
 
 const TournamentsScreen: React.FC = () => {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [activeFilters, setActiveFilters] = useState<FilterType[]>(['upcoming']);
 
   useEffect(() => {
     const fetchTournaments = async () => {
@@ -33,22 +33,31 @@ const TournamentsScreen: React.FC = () => {
     fetchTournaments();
   }, []);
 
+  const toggleFilter = (filter: FilterType) => {
+    setActiveFilters(prev => 
+      prev.includes(filter) 
+        ? prev.filter(f => f !== filter) 
+        : [...prev, filter]
+    );
+  };
+
   const filteredTournaments = tournaments.filter((t) => {
     const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase());
+    if (!matchesSearch) return false;
+
+    // If no filters are selected, show all tournaments
+    if (activeFilters.length === 0) return true;
+
     const date = new Date(t.info.dateTime);
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
 
-    let matchesFilter = true;
-    if (activeFilter === 'upcoming') {
-      matchesFilter = date > now && !isToday;
-    } else if (activeFilter === 'ongoing') {
-      matchesFilter = isToday;
-    } else if (activeFilter === 'finished') {
-      matchesFilter = date < now && !isToday;
-    }
-
-    return matchesSearch && matchesFilter;
+    return activeFilters.some(filter => {
+      if (filter === 'upcoming') return date > now && !isToday;
+      if (filter === 'ongoing') return isToday;
+      if (filter === 'finished') return date < now && !isToday;
+      return false;
+    });
   });
 
   const breadcrumbItems = [
@@ -70,33 +79,25 @@ const TournamentsScreen: React.FC = () => {
           </div>
           <div style={styles.filtersWrapper}>
             <Button
-              variant={activeFilter === 'all' ? 'primary' : 'secondary'}
-              leftIcon={activeFilter === 'all' ? 'Check' : undefined}
-              onClick={() => setActiveFilter('all')}
-              size="small"
-            >
-              Todos
-            </Button>
-            <Button
-              variant={activeFilter === 'upcoming' ? 'primary' : 'secondary'}
-              leftIcon={activeFilter === 'upcoming' ? 'Check' : undefined}
-              onClick={() => setActiveFilter('upcoming')}
+              variant={activeFilters.includes('upcoming') ? 'primary' : 'secondary'}
+              leftIcon={activeFilters.includes('upcoming') ? 'Check' : undefined}
+              onClick={() => toggleFilter('upcoming')}
               size="small"
             >
               Próximos
             </Button>
             <Button
-              variant={activeFilter === 'ongoing' ? 'primary' : 'secondary'}
-              leftIcon={activeFilter === 'ongoing' ? 'Check' : undefined}
-              onClick={() => setActiveFilter('ongoing')}
+              variant={activeFilters.includes('ongoing') ? 'primary' : 'secondary'}
+              leftIcon={activeFilters.includes('ongoing') ? 'Check' : undefined}
+              onClick={() => toggleFilter('ongoing')}
               size="small"
             >
               En curso
             </Button>
             <Button
-              variant={activeFilter === 'finished' ? 'primary' : 'secondary'}
-              leftIcon={activeFilter === 'finished' ? 'Check' : undefined}
-              onClick={() => setActiveFilter('finished')}
+              variant={activeFilters.includes('finished') ? 'primary' : 'secondary'}
+              leftIcon={activeFilters.includes('finished') ? 'Check' : undefined}
+              onClick={() => toggleFilter('finished')}
               size="small"
             >
               Finalizados
@@ -111,7 +112,7 @@ const TournamentsScreen: React.FC = () => {
         <div style={styles.message}>Cargando torneos...</div>
       ) : filteredTournaments.length === 0 ? (
         <div style={styles.message}>
-          {searchTerm || activeFilter !== 'all'
+          {searchTerm || activeFilters.length > 0
             ? 'No se encontraron torneos con los filtros aplicados.'
             : 'No hay torneos disponibles en este momento.'}
         </div>
