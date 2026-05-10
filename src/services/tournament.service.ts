@@ -41,4 +41,16 @@ export const tournamentService = {
     const result = await handleResponse(response);
     return result.data;
   },
+
+  getTournamentById: async (id: string): Promise<Tournament> => {
+    const response = await fetch(`${API_BASE_URL}/tournaments/${id}`, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+      },
+    });
+
+    const result = await handleResponse(response);
+    return result.data;
+  },
 };

@@ -7,6 +7,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   leftIcon?: IconName;
   rightIcon?: IconName;
   loading?: boolean;
+  fullWidth?: boolean;
   children: React.ReactNode;
 }
 
@@ -16,20 +17,27 @@ const Button: React.FC<ButtonProps> = ({
   leftIcon,
   rightIcon,
   loading,
+  fullWidth,
   children,
   className = '',
   disabled,
   ...props
 }) => {
-  const buttonClass = `${variant} ${size} ${className}`.trim();
+  const buttonClass = `
+    ${variant}
+    ${size}
+    ${fullWidth ? 'full-width' : ''}
+    ${className}
+  `.trim();
 
   return (
-    <button 
-      className={buttonClass} 
-      disabled={disabled || loading} 
+    <button
+      className={buttonClass}
+      disabled={disabled || loading}
       {...props}
       style={{
         ...props.style,
+        width: fullWidth ? '100%' : undefined,
         opacity: (disabled || loading) ? 0.5 : 1,
         cursor: (disabled || loading) ? 'not-allowed' : 'pointer',
       }}

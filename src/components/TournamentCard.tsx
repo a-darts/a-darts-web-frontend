@@ -1,13 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tournament } from '../services/tournament.service';
 import Icon from './Icon';
+import Button from './Button';
 
 interface TournamentCardProps {
   tournament: Tournament;
 }
 
 const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
-  const { name, info } = tournament;
+  const navigate = useNavigate();
+  const { id, name, info } = tournament;
   const { place, dateTime, federation } = info;
 
   const date = new Date(dateTime);
@@ -21,13 +24,17 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
     minute: '2-digit',
   });
 
+  const handleSeeMore = () => {
+    navigate(`/torneos/${id}`);
+  };
+
   return (
     <div style={styles.card}>
       <div style={styles.header}>
         <h3 style={styles.name}>{name}</h3>
         <span style={styles.statusBadge(tournament.status)}>{tournament.status}</span>
       </div>
-      
+
       <div style={styles.infoGrid}>
         <div style={styles.infoItem}>
           <Icon name="MapPin" size={16} style={styles.icon} />
@@ -45,6 +52,16 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
           <Icon name="Flag" size={16} style={styles.icon} />
           <span style={styles.text}>{federation}</span>
         </div>
+      </div>
+
+      <div style={styles.footer}>
+        <Button
+          variant="secondary"
+          onClick={handleSeeMore}
+          fullWidth
+        >
+          Ver más
+        </Button>
       </div>
     </div>
   );
@@ -104,6 +121,10 @@ const styles: { [key: string]: any } = {
   icon: {
     color: 'rgba(255, 255, 255, 0.4)',
     flexShrink: 0,
+  },
+  footer: {
+    marginTop: 'auto',
+    paddingTop: '0.5rem',
   },
 };
 

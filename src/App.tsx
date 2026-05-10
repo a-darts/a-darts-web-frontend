@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HomeScreen from './screens/HomeScreen';
 import TournamentsScreen from './screens/TournamentsScreen';
+import TournamentDetailsScreen from './screens/TournamentDetailsScreen';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import ProfileScreen from './screens/ProfileScreen';
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomeScreen />} />
         <Route path="/torneos" element={<TournamentsScreen />} />
+        <Route path="/torneos/:id" element={<TournamentDetailsScreen />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
