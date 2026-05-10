@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tournament } from '../services/tournament.service';
+import { Tournament, TournamentStatus } from '../services/tournament.service';
 import Icon from './Icon';
 import Button from './Button';
 
@@ -10,6 +10,7 @@ interface TournamentCardProps {
 
 const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
   const navigate = useNavigate();
+  const [isHovered, setIsHovered] = useState(false);
   const { id, name, info } = tournament;
   const { place, dateTime, federation } = info;
 
@@ -24,15 +25,30 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
     minute: '2-digit',
   });
 
+  const STATUS_LABELS: Record<TournamentStatus, string> = {
+    [TournamentStatus.DRAFT]: 'Borrador',
+    [TournamentStatus.PUBLISHED]: 'Publicado',
+    [TournamentStatus.IN_PROGRESS]: 'En Curso',
+    [TournamentStatus.CANCELLED]: 'Cancelado',
+    [TournamentStatus.FINISHED]: 'Finalizado',
+  };
+
   const handleSeeMore = () => {
     navigate(`/torneos/${id}`);
   };
 
   return (
-    <div style={styles.card}>
+    <div
+      style={styles.card(isHovered)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={handleSeeMore}
+    >
       <div style={styles.header}>
         <h3 style={styles.name}>{name}</h3>
-        <span style={styles.statusBadge(tournament.status)}>{tournament.status}</span>
+        <span style={styles.statusBadge(tournament.status)}>
+          {STATUS_LABELS[tournament.status] || tournament.status}
+        </span>
       </div>
 
       <div style={styles.infoGrid}>
@@ -56,8 +72,11 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
 
       <div style={styles.footer}>
         <Button
-          variant="secondary"
-          onClick={handleSeeMore}
+          variant={isHovered ? 'primary' : 'secondary'}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleSeeMore();
+          }}
           fullWidth
         >
           Ver más
@@ -68,17 +87,20 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
 };
 
 const styles: { [key: string]: any } = {
-  card: {
-    background: 'rgba(255, 255, 255, 0.03)',
+  card: (isHovered: boolean) => ({
+    background: isHovered ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.03)',
     backdropFilter: 'blur(10px)',
     borderRadius: '20px',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
+    border: `1px solid ${isHovered ? '#C4E866' : 'rgba(255, 255, 255, 0.05)'}`,
     padding: '1.5rem',
     display: 'flex',
     flexDirection: 'column',
     gap: '1.25rem',
     transition: 'all 0.3s ease',
-  },
+    cursor: 'pointer',
+    transform: isHovered ? 'translateY(-5px)' : 'translateY(0)',
+    boxShadow: isHovered ? '0 10px 30px rgba(196, 232, 102, 0.1)' : 'none',
+  }),
   header: {
     display: 'flex',
     justifyContent: 'space-between',

@@ -1,10 +1,18 @@
 import { API_BASE_URL, handleResponse } from './api';
 
+export enum TournamentStatus {
+  DRAFT = 'BORRADOR',
+  PUBLISHED = 'PUBLICADO',
+  IN_PROGRESS = 'EN CURSO',
+  CANCELLED = 'CANCELADO',
+  FINISHED = 'FINALIZADO',
+}
+
 export interface Tournament {
   id: string;
   name: string;
   createdAt: string;
-  status: string;
+  status: TournamentStatus;
   info: {
     place: string;
     dateTime: string;
