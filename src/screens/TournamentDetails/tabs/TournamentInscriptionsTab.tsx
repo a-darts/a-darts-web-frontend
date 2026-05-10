@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Tournament, Participant, tournamentService } from '../../services/tournament.service';
-import Table, { Column } from '../../components/Table';
-import { getFederationLabel, getFederationFlag } from '../../utils/tournament.utils';
+import { Tournament, Participant, tournamentService } from '../../../services/tournament.service';
+import Table, { Column } from '../../../components/Table';
+import { getFederationLabel, getFederationFlag } from '../../../utils/tournament.utils';
 
 interface TournamentInscriptionsTabProps {
   tournament: Tournament;
@@ -37,23 +37,23 @@ const TournamentInscriptionsTab: React.FC<TournamentInscriptionsTabProps> = ({ t
         </span>
       )
     },
-    { 
-      key: 'alias', 
+    {
+      key: 'alias',
       header: 'Jugador',
       render: (item) => (
         <span style={{ fontWeight: '600', color: '#fff' }}>{item.alias}</span>
       )
     },
-    { 
-      key: 'federation', 
+    {
+      key: 'federation',
       header: 'Federación',
       render: (item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           {getFederationFlag(item.federation) && (
-            <img 
-              src={getFederationFlag(item.federation)!} 
-              alt="Flag" 
-              style={{ width: '20px', height: 'auto', borderRadius: '2px' }} 
+            <img
+              src={getFederationFlag(item.federation)!}
+              alt="Flag"
+              style={{ width: '20px', height: 'auto', borderRadius: '2px' }}
             />
           )}
           <span>{getFederationLabel(item.federation)}</span>
@@ -71,10 +71,10 @@ const TournamentInscriptionsTab: React.FC<TournamentInscriptionsTabProps> = ({ t
             {participants.length} {participants.length === 1 ? 'jugador' : 'jugadores'}
           </span>
         </div>
-        
-        <Table 
-          data={participants} 
-          columns={columns} 
+
+        <Table
+          data={participants}
+          columns={columns}
           loading={loading}
           emptyMessage="No hay jugadores inscritos en este torneo"
         />

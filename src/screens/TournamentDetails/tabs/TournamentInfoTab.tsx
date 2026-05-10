@@ -1,12 +1,12 @@
 import React from 'react';
-import { Tournament } from '../../services/tournament.service';
+import { Tournament } from '../../../services/tournament.service';
 import {
   getFederationLabel,
   getFederationFlag,
   getModeLabel,
   getGameTypeLabel
-} from '../../utils/tournament.utils';
-import InfoCard from '../../components/InfoCard';
+} from '../../../utils/tournament.utils';
+import InfoCard from '../../../components/InfoCard';
 
 interface TournamentInfoTabProps {
   tournament: Tournament;

@@ -2,12 +2,17 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { authService } from '../services/auth.service';
 import { useNavigate } from 'react-router-dom';
 
+export enum UserRoles {
+  ADMIN = 'Administrador',
+  USER = 'Usuario',
+}
+
 interface User {
   id: string;
   email: string;
   alias: string;
-  role: string;
-  registratedAt: string;
+  role: UserRoles;
+  registeredAt: string;
 }
 
 interface AuthContextType {

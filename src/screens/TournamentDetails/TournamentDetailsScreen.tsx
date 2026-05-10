@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { tournamentService, Tournament } from '../services/tournament.service';
-import { getStatusLabel, getFederationLabel, getFederationFlag, getModeLabel, getGameTypeLabel } from '../utils/tournament.utils';
-import Button from '../components/Button';
-import ErrorMessage from '../components/ErrorMessage';
-import Breadcrumbs from '../components/Breadcrumbs';
-import Title from '../components/Title';
-import TournamentStatusTag from '../components/TournamentStatusTag';
-import Tabs from '../components/Tabs';
-import InfoCard from '../components/InfoCard';
+import { tournamentService, Tournament } from '../../services/tournament.service';
+import { getStatusLabel, getFederationLabel, getFederationFlag, getModeLabel, getGameTypeLabel } from '../../utils/tournament.utils';
+import Button from '../../components/Button';
+import ErrorMessage from '../../components/ErrorMessage';
+import Breadcrumbs from '../../components/Breadcrumbs';
+import Title from '../../components/Title';
+import TournamentStatusTag from '../../components/TournamentStatusTag';
+import Tabs from '../../components/Tabs';
+import InfoCard from '../../components/InfoCard';
 
-import TournamentInfoTab from './tournament-details/TournamentInfoTab';
-import TournamentInscriptionsTab from './tournament-details/TournamentInscriptionsTab';
+import TournamentInfoTab from './tabs/TournamentInfoTab';
+import TournamentInscriptionsTab from './tabs/TournamentInscriptionsTab';
 
 const TournamentDetailsScreen: React.FC = () => {
   const { id } = useParams<{ id: string }>();

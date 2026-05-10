@@ -52,7 +52,7 @@ export const authService = {
     });
 
     const result = await handleResponse(response);
-    const userData = result.data || result; // Fallback to result if not nested
+    const userData = result.data || result;
 
     if (userData) {
       localStorage.setItem('user', JSON.stringify(userData));

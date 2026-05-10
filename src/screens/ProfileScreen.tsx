@@ -7,6 +7,7 @@ import Button from '../components/Button';
 import Toast from '../components/Toast';
 import { useState, useEffect } from 'react';
 import ErrorMessage from '../components/ErrorMessage';
+import { getRoleLabel } from '../utils/auth.utils';
 
 const ProfileScreen: React.FC = () => {
   const { user, updateEmail, updatePassword, updateAlias } = useAuth();
@@ -45,6 +46,7 @@ const ProfileScreen: React.FC = () => {
   }
 
   const formatDate = (dateString: string) => {
+    console.log(dateString);
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
@@ -120,7 +122,7 @@ const ProfileScreen: React.FC = () => {
           </div>
           <div style={styles.headerInfo}>
             <h1 style={styles.title}>{user.alias}</h1>
-            <p style={styles.roleBadge}>{t(`auth.${user.role}`)}</p>
+            <p style={styles.roleBadge}>{getRoleLabel(user.role)}</p>
           </div>
         </div>
 
@@ -128,12 +130,12 @@ const ProfileScreen: React.FC = () => {
           <div style={styles.sameRow}>
             <InfoCard
               title="Miembro desde"
-              content={formatDate(user.registratedAt)}
+              content={formatDate(user.registeredAt)}
               icon="Calendar"
             />
             <InfoCard
               title="Rol"
-              content={t(`auth.${user.role}`)}
+              content={getRoleLabel(user.role)}
               icon="Shield"
             />
           </div>
