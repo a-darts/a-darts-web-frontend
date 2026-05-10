@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { tournamentService, Tournament } from '../services/tournament.service';
-import { getStatusLabel, getFederationLabel } from '../utils/tournament.utils';
+import { getStatusLabel, getFederationLabel, getFederationFlag } from '../utils/tournament.utils';
 import Button from '../components/Button';
 import ErrorMessage from '../components/ErrorMessage';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -79,7 +79,22 @@ const TournamentDetailsScreen: React.FC = () => {
             <InfoCard title="Lugar" content={info.place} icon="MapPin" />
             <InfoCard title="Fecha" content={formattedDate} icon="Calendar" />
             <InfoCard title="Hora" content={formattedTime} icon="Clock" />
-            <InfoCard title="Federación" content={getFederationLabel(info.federation)} icon="Flag" />
+            <InfoCard
+              title="Federación"
+              content={
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {getFederationFlag(info.federation) && (
+                    <img
+                      src={getFederationFlag(info.federation)!}
+                      alt="Flag"
+                      style={{ width: '20px', height: 'auto', borderRadius: '2px' }}
+                    />
+                  )}
+                  <span>{getFederationLabel(info.federation)}</span>
+                </div>
+              }
+              icon="Flag"
+            />
             <InfoCard title="Modo" content={info.mode} icon="Users" />
             <InfoCard title="Juego" content={info.game} icon="Target" />
             <InfoCard title="Máx. Jugadores" content={info.maxPlayers.toString()} icon="UserPlus" />

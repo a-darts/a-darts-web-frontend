@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tournament } from '../services/tournament.service';
-import { getStatusLabel, getFederationLabel } from '../utils/tournament.utils';
+import { getFederationLabel, getFederationFlag } from '../utils/tournament.utils';
 import Icon from './Icon';
 import Button from './Button';
 import TournamentStatusTag from './TournamentStatusTag';
@@ -38,10 +38,23 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleSeeMore}
     >
-      <div style={styles.header}>
-        <h3 style={styles.name}>{name}</h3>
-        <TournamentStatusTag status={tournament.status} />
+      <div>
+        <div style={styles.header}>
+          <h3 style={styles.name}>{name}</h3>
+          <TournamentStatusTag status={tournament.status} />
+        </div>
+        <div style={styles.federationWrapper}>
+          {getFederationFlag(federation) && (
+            <img
+              src={getFederationFlag(federation)!}
+              alt="Flag"
+              style={styles.flag}
+            />
+          )}
+          <span style={styles.text}>{getFederationLabel(federation)}</span>
+        </div>
       </div>
+
 
       <div style={styles.infoGrid}>
         <div style={styles.infoItem}>
@@ -56,10 +69,19 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
           <Icon name="Clock" size={16} style={styles.icon} />
           <span style={styles.text}>{formattedTime}</span>
         </div>
-        <div style={styles.infoItem}>
+        {/* <div style={styles.infoItem}>
           <Icon name="Flag" size={16} style={styles.icon} />
-          <span style={styles.text}>{getFederationLabel(federation)}</span>
-        </div>
+          <div style={styles.federationWrapper}>
+            {getFederationFlag(federation) && (
+              <img
+                src={getFederationFlag(federation)!}
+                alt="Flag"
+                style={styles.flag}
+              />
+            )}
+            <span style={styles.text}>{getFederationLabel(federation)}</span>
+          </div>
+        </div> */}
       </div>
 
       <div style={styles.footer}>
@@ -98,6 +120,7 @@ const styles: { [key: string]: any } = {
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: '1rem',
+    marginBottom: '0.25rem',
   },
   name: {
     fontSize: '1.25rem',
@@ -127,6 +150,17 @@ const styles: { [key: string]: any } = {
   footer: {
     marginTop: 'auto',
     paddingTop: '0.5rem',
+  },
+  federationWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  },
+  flag: {
+    width: '18px',
+    height: 'auto',
+    borderRadius: '2px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
   },
 };
 

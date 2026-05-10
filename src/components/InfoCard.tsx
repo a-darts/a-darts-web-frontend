@@ -3,7 +3,7 @@ import Icon, { IconName } from './Icon';
 
 interface InfoCardProps {
   title: string;
-  content: string;
+  content: React.ReactNode;
   icon?: IconName;
 }
 
@@ -17,7 +17,7 @@ const InfoCard: React.FC<InfoCardProps> = ({ title, content, icon }) => {
       )}
       <div style={styles.content}>
         <p style={styles.title}>{title}</p>
-        <p style={styles.value}>{content}</p>
+        <div style={styles.value}>{content}</div>
       </div>
     </div>
   );
