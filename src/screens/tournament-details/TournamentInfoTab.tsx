@@ -1,10 +1,10 @@
 import React from 'react';
 import { Tournament } from '../../services/tournament.service';
-import { 
-  getFederationLabel, 
-  getFederationFlag, 
-  getModeLabel, 
-  getGameTypeLabel 
+import {
+  getFederationLabel,
+  getFederationFlag,
+  getModeLabel,
+  getGameTypeLabel
 } from '../../utils/tournament.utils';
 import InfoCard from '../../components/InfoCard';
 

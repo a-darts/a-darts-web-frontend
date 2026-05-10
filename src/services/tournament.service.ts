@@ -80,6 +80,12 @@ export interface Tournament {
   };
 }
 
+export interface Participant {
+  id: string;
+  alias: string;
+  federation: string;
+}
+
 
 export const tournamentService = {
   getTournaments: async (): Promise<Tournament[]> => {
@@ -96,6 +102,18 @@ export const tournamentService = {
 
   getTournamentById: async (id: string): Promise<Tournament> => {
     const response = await fetch(`${API_BASE_URL}/tournaments/${id}`, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+      },
+    });
+
+    const result = await handleResponse(response);
+    return result.data;
+  },
+
+  getParticipantsByTournamentId: async (id: string): Promise<Participant[]> => {
+    const response = await fetch(`${API_BASE_URL}/tournaments/${id}/participants`, {
       method: 'GET',
       headers: {
         'accept': 'application/json',
