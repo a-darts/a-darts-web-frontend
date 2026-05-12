@@ -16,7 +16,8 @@ const TournamentInfoTab: React.FC<TournamentInfoTabProps> = ({ tournament }) => 
   const { info } = tournament;
   const date = new Date(info.dateTime);
   const formattedDate = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
-  const formattedTime = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  const formattedTime = date.getUTCHours().toString().padStart(2, '0') + ':' +
+    date.getUTCMinutes().toString().padStart(2, '0');
 
   return (
     <div style={styles.content}>

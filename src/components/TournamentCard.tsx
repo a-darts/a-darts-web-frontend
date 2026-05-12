@@ -22,10 +22,8 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
     month: 'long',
     year: 'numeric',
   });
-  const formattedTime = date.toLocaleTimeString('es-ES', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const formattedTime = date.getUTCHours().toString().padStart(2, '0') + ':' +
+    date.getUTCMinutes().toString().padStart(2, '0');
 
   const handleSeeMore = () => {
     navigate(`/torneos/${id}`);
