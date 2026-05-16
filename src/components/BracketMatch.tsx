@@ -8,14 +8,14 @@ export interface BracketParticipant {
 }
 
 interface BracketMatchProps {
-  matchNumber: number;
   player1: BracketParticipant;
   player2: BracketParticipant;
+  showPositions?: boolean;
 }
 
-const BracketMatch: React.FC<BracketMatchProps> = ({ matchNumber, player1, player2 }) => {
+const BracketMatch: React.FC<BracketMatchProps> = ({ player1, player2, showPositions = false }) => {
   const truncateAlias = (alias: string | null) => {
-    if (!alias) return 'Pendiente';
+    if (!alias) return '-';
     return alias.length > 21 ? `${alias.substring(0, 21)}...` : alias;
   };
 
@@ -25,7 +25,7 @@ const BracketMatch: React.FC<BracketMatchProps> = ({ matchNumber, player1, playe
       borderBottom: isFirst ? '1px solid rgba(255, 255, 255, 0.05)' : 'none'
     }}>
       <div style={styles.participantInfo}>
-        <span style={styles.positionNumber}>{pos.position}</span>
+        {showPositions && <span style={styles.positionNumber}>{pos.position}</span>}
         <div style={styles.aliasFederationContainer}>
           {pos.federation && pos.federation !== 'N/A' && (
             <img
@@ -58,7 +58,7 @@ const BracketMatch: React.FC<BracketMatchProps> = ({ matchNumber, player1, playe
 const styles: { [key: string]: React.CSSProperties } = {
   matchCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderRadius: '16px',
+    borderRadius: '8px',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     overflow: 'hidden',
     transition: 'transform 0.2s ease, border-color 0.2s ease',

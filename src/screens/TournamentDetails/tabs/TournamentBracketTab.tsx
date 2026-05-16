@@ -102,9 +102,9 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({ tournament 
                   }}>
                     <div style={styles.matchCentering}>
                       <BracketMatch
-                        matchNumber={matchIndex + 1}
                         player1={match.player1}
                         player2={match.player2}
+                        showPositions={roundIndex === 0}
                       />
                     </div>
 
@@ -169,7 +169,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: 'center',
     fontSize: '0.8rem',
     fontWeight: '800',
-    color: 'rgba(255, 255, 255, 0.3)',
+    color: 'rgba(255, 255, 255, 0.6)',
     textTransform: 'uppercase',
     letterSpacing: '2px',
     padding: '0.5rem',
