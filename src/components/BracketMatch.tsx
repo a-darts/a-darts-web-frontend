@@ -20,6 +20,8 @@ const BracketMatch: React.FC<BracketMatchProps> = ({ player1, player2, showPosit
     return alias.length > 21 ? `${alias.substring(0, 21)}...` : alias;
   };
 
+  const isByeMatch = player1.alias === 'Bye' || player2.alias === 'Bye';
+
   const renderParticipant = (pos: BracketParticipant, isFirst: boolean) => (
     <div style={{
       ...styles.participantRow,
@@ -43,13 +45,15 @@ const BracketMatch: React.FC<BracketMatchProps> = ({ player1, player2, showPosit
           </span>
         </div>
       </div>
-      <div style={{
-        ...styles.scoreBox,
-        backgroundColor: pos.score !== undefined && pos.score > 0 ? 'rgba(196, 232, 102, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-        color: pos.score !== undefined && pos.score > 0 ? 'var(--btn-primary-bg)' : 'rgba(255, 255, 255, 0.3)',
-      }}>
-        {pos.score !== undefined ? pos.score : ''}
-      </div>
+      {!isByeMatch && (
+        <div style={{
+          ...styles.scoreBox,
+          backgroundColor: pos.score !== undefined && pos.score > 0 ? 'rgba(196, 232, 102, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+          color: pos.score !== undefined && pos.score > 0 ? 'var(--btn-primary-bg)' : 'rgba(255, 255, 255, 0.3)',
+        }}>
+          {pos.score !== undefined ? pos.score : ''}
+        </div>
+      )}
     </div>
   );
 
