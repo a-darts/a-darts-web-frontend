@@ -134,7 +134,7 @@ export const tournamentService = {
     const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/participants`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ playerId }),

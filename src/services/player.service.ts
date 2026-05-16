@@ -16,7 +16,7 @@ export const playerService = {
   async getPlayerByUserAndSeason(userId: string, seasonYear: number): Promise<Player> {
     const response = await fetch(`${API_BASE_URL}/players/user/${userId}/season/${seasonYear}`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         'Content-Type': 'application/json',
       },
     });
