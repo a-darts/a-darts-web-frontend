@@ -94,7 +94,7 @@ const TournamentDetailsScreen: React.FC = () => {
               leftIcon="Plus"
               onClick={() => {
                 if (!user) {
-                  navigate('/login');
+                  navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
                 } else {
                   console.log('Registering user...');
                 }

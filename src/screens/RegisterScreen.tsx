@@ -24,7 +24,10 @@ const RegisterScreen: React.FC = () => {
     try {
       await register(email, password, alias);
       console.log(t('auth.register_success'));
-      navigate('/');
+
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get('redirect');
+      navigate(redirect || '/');
     } catch (err: any) {
       console.error('Registration error:', err);
       setError(err.message || 'Error al registrarse. Por favor, intenta de nuevo.');
@@ -98,7 +101,12 @@ const RegisterScreen: React.FC = () => {
 
           <div style={styles.footer}>
             <span style={styles.footerText}>{t('auth.have_account')}</span>
-            <Link to="/login" style={styles.linkBold}>{t('auth.login_link')}</Link>
+            <Link
+              to={window.location.search.includes('redirect=') ? `/login${window.location.search}` : "/login"}
+              style={styles.linkBold}
+            >
+              {t('auth.login_link')}
+            </Link>
           </div>
         </div>
       </div>

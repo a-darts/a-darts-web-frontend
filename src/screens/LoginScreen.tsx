@@ -23,7 +23,10 @@ const LoginScreen: React.FC = () => {
     try {
       await login(email, password);
       console.log(t('auth.login_success'));
-      navigate('/');
+
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get('redirect');
+      navigate(redirect || '/');
     } catch (err: any) {
       console.error('Login error:', err);
       setError(err.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.');
@@ -86,7 +89,12 @@ const LoginScreen: React.FC = () => {
 
           <div style={styles.footer}>
             <span style={styles.footerText}>{t('auth.no_account')}</span>
-            <Link to="/register" style={styles.linkBold}>{t('auth.signup_link')}</Link>
+            <Link
+              to={window.location.search.includes('redirect=') ? `/register${window.location.search}` : "/register"}
+              style={styles.linkBold}
+            >
+              {t('auth.signup_link')}
+            </Link>
           </div>
         </div>
       </div>
