@@ -146,6 +146,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'flex-end',
     gap: '1rem',
     marginTop: 'auto',
+    flexWrap: 'wrap',
   },
 };
 
