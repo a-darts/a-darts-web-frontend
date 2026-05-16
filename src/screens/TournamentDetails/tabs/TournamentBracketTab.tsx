@@ -133,6 +133,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({ tournament 
                           player1={match.player1}
                           player2={match.player2}
                           showPositions={roundIndex === 0}
+                          status={match.status}
                         />
                       </div>
                     </div>

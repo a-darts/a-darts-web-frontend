@@ -12,9 +12,10 @@ interface BracketMatchProps {
   player1: BracketParticipant;
   player2: BracketParticipant;
   showPositions?: boolean;
+  status?: string;
 }
 
-const BracketMatch: React.FC<BracketMatchProps> = ({ player1, player2, showPositions = false }) => {
+const BracketMatch: React.FC<BracketMatchProps> = ({ player1, player2, showPositions = false, status }) => {
   const truncateAlias = (alias: string | null) => {
     if (!alias) return '-';
     return alias.length > 21 ? `${alias.substring(0, 21)}...` : alias;
@@ -39,7 +40,7 @@ const BracketMatch: React.FC<BracketMatchProps> = ({ player1, player2, showPosit
           )}
           <span style={{
             ...styles.alias,
-            color: pos.alias === 'Bye' ? 'rgba(255, 255, 255, 0.3)' : '#fff'
+            color: pos.alias === 'Bye' || pos.alias === 'Por determinar' ? 'rgba(255, 255, 255, 0.3)' : '#fff'
           }}>
             {truncateAlias(pos.alias)}
           </span>
@@ -51,7 +52,7 @@ const BracketMatch: React.FC<BracketMatchProps> = ({ player1, player2, showPosit
           backgroundColor: pos.score !== undefined && pos.score > 0 ? 'rgba(196, 232, 102, 0.1)' : 'rgba(255, 255, 255, 0.05)',
           color: pos.score !== undefined && pos.score > 0 ? 'var(--btn-primary-bg)' : 'rgba(255, 255, 255, 0.3)',
         }}>
-          {pos.score !== undefined ? pos.score : ''}
+          {status === 'PENDING' || status === 'READY' ? '-' : (pos.score !== undefined ? pos.score : '')}
         </div>
       )}
     </div>
