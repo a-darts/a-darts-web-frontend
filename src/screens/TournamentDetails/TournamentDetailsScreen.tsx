@@ -12,6 +12,7 @@ import InfoCard from '../../components/InfoCard';
 
 import TournamentInfoTab from './tabs/TournamentInfoTab';
 import TournamentInscriptionsTab from './tabs/TournamentInscriptionsTab';
+import TournamentBracketTab from './tabs/TournamentBracketTab';
 import TournamentRegistrationStatusTag from '../../components/TournamentRegistrationStatusTag';
 import Modal from '../../components/Modal';
 import { useAuth } from '../../context/AuthContext';
@@ -32,6 +33,7 @@ const TournamentDetailsScreen: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [modalMode, setModalMode] = useState<'register' | 'unregister'>('register');
+  const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTournament = async () => {
@@ -44,6 +46,18 @@ const TournamentDetailsScreen: React.FC = () => {
         ]);
         setTournament(tournamentData);
         setParticipants(participantsData);
+
+        // Fetch user playerId for the tournament season if logged in
+        if (user) {
+          const seasonYear = new Date(tournamentData.info.dateTime).getFullYear();
+          try {
+            const player = await playerService.getPlayerByUserAndSeason(user.id, seasonYear);
+            setCurrentPlayerId(player.id);
+          } catch (e) {
+            console.log('Current user is not registered as a player for this season');
+            setCurrentPlayerId(null);
+          }
+        }
       } catch (err: any) {
         console.error('Error fetching tournament details:', err);
         setError(err.message || 'Error al cargar los detalles del torneo');
@@ -53,7 +67,7 @@ const TournamentDetailsScreen: React.FC = () => {
     };
 
     fetchTournament();
-  }, [id]);
+  }, [id, user]);
 
   if (loading) return <div style={styles.message}>Cargando detalles...</div>;
 
@@ -74,9 +88,9 @@ const TournamentDetailsScreen: React.FC = () => {
 
   const { name, status, registration, info } = tournament;
 
-  const userParticipant = user ? participants.find(p => p.alias === user.alias) : null;
-  // Note: Comparing by alias for now as user.id might not match playerId. 
-  // Ideally we'd have playerId in the user object or fetch it once.
+  const userParticipant = user && currentPlayerId
+    ? participants.find(p => p.playerId === currentPlayerId)
+    : null;
 
   const handleRegisterClick = () => {
     if (!user) {
@@ -99,14 +113,13 @@ const TournamentDetailsScreen: React.FC = () => {
       setIsRegistering(true);
 
       if (modalMode === 'register') {
-        // 1. Get playerId
-        const seasonYear = new Date(info.dateTime).getFullYear();
-        const player = await playerService.getPlayerByUserAndSeason(user.id, seasonYear);
+        if (!currentPlayerId) {
+          throw new Error('No se ha encontrado tu perfil de jugador para esta temporada. Asegúrate de estar federado.');
+        }
 
-        // 2. Register
-        await tournamentService.registerParticipant(tournament.id, player.id);
+        await tournamentService.registerParticipant(tournament.id, currentPlayerId);
         showToast('¡Inscripción realizada con éxito!', 'success');
-      } else {
+      } else if (modalMode === 'unregister') {
         // Unregister
         if (userParticipant) {
           await tournamentService.unregisterParticipant(tournament.id, userParticipant.id);
@@ -151,6 +164,7 @@ const TournamentDetailsScreen: React.FC = () => {
   const tabs = [
     { id: 'info', label: 'Información' },
     { id: 'inscriptions', label: 'Inscripciones' },
+    { id: 'bracket', label: 'Cuadrante' },
   ];
 
   return (
@@ -222,14 +236,18 @@ const TournamentDetailsScreen: React.FC = () => {
         onTabChange={setActiveTab}
       />
 
-      {activeTab === 'info' ? (
+      {activeTab === 'info' &&
         <TournamentInfoTab tournament={tournament} />
-      ) : (
-        <TournamentInscriptionsTab 
-          tournament={tournament} 
+      }
+      {activeTab === 'inscriptions' && (
+        <TournamentInscriptionsTab
+          tournament={tournament}
           participants={participants}
         />
       )}
+      {activeTab === 'bracket' &&
+        <TournamentBracketTab tournament={tournament} />
+      }
     </div>
   );
 };

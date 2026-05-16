@@ -94,6 +94,21 @@ export interface Participant {
   federation: string;
 }
 
+export interface BracketPosition {
+  position: number;
+  participantId: string | null;
+  participantAlias: string | null;
+  participantFederation: string | null;
+}
+
+export interface Bracket {
+  id: string;
+  tournamentId: string;
+  status: string;
+  totalPositions: number;
+  positions: BracketPosition[];
+}
+
 
 export const tournamentService = {
   getTournaments: async (): Promise<Tournament[]> => {
@@ -131,6 +146,22 @@ export const tournamentService = {
   getParticipantsByTournamentId: async (id: string): Promise<Participant[]> => {
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/participants`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+        },
+      });
+
+      const result = await handleResponse(response);
+      return result.data;
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  getTournamentBracket: async (id: string): Promise<Bracket> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${id}/bracket`, {
         method: 'GET',
         headers: {
           'accept': 'application/json',
