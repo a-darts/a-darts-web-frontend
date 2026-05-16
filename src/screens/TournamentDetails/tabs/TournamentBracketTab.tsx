@@ -34,31 +34,28 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({ tournament 
     fetchBracket();
   }, [tournament.id]);
 
-  if (loading) {
-    return <div style={styles.message}>Cargando cuadrante...</div>;
-  }
+  if (loading) return <div style={styles.message}>Cargando cuadrante...</div>;
+  if (isNotPublished) return (
+    <div style={styles.infoContainer}>
+      <h3 style={styles.infoTitle}>Cuadrante no disponible</h3>
+      <p style={styles.infoText}>Aún no se ha publicado el cuadrante para este torneo. Por favor, vuelve a consultar más tarde.</p>
+    </div>
+  );
+  if (error) return <ErrorMessage message={error} />;
+  if (!bracket || !bracket.positions) return <div style={styles.message}>No hay datos del cuadrante</div>;
 
-  if (isNotPublished) {
-    return (
-      <div style={styles.infoContainer}>
-        <h3 style={styles.infoTitle}>Cuadrante no disponible</h3>
-        <p style={styles.infoText}>Aún no se ha publicado el cuadrante para este torneo</p>
-      </div>
-    );
-  }
+  const totalPositions = bracket.totalPositions;
+  const numRounds = Math.log2(totalPositions);
+  const matchHeight = 110; // Approximate height of a BracketMatch
+  const initialGap = 40;   // Initial gap between matches
 
-  if (error) {
-    return <ErrorMessage message={error} />;
-  }
+  // Generate rounds
+  const roundsData = [];
 
-  if (!bracket || !bracket.positions) {
-    return <div style={styles.message}>No hay datos del cuadrante</div>;
-  }
-
-  // Group positions into pairs (matches)
-  const matches = [];
+  // First round (from API)
+  const firstRoundMatches = [];
   for (let i = 0; i < bracket.positions.length; i += 2) {
-    matches.push({
+    firstRoundMatches.push({
       player1: {
         position: bracket.positions[i].position,
         alias: bracket.positions[i].participantAlias,
@@ -71,39 +68,159 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({ tournament 
       }
     });
   }
+  roundsData.push(firstRoundMatches);
+
+  // Subsequent rounds
+  for (let r = 1; r < numRounds; r++) {
+    const numMatches = roundsData[r - 1].length / 2;
+    const roundMatches = [];
+    for (let m = 0; m < numMatches; m++) {
+      roundMatches.push({
+        player1: { position: 0, alias: null, federation: null },
+        player2: { position: 0, alias: null, federation: null }
+      });
+    }
+    roundsData.push(roundMatches);
+  }
 
   return (
-    <div style={styles.content}>
-      <div style={styles.matchList}>
-        {matches.map((match, index) => (
-          <BracketMatch
-            key={index}
-            matchNumber={index + 1}
-            player1={match.player1}
-            player2={match.player2}
-          />
-        ))}
+    <div style={styles.container}>
+      <div style={styles.bracketWrapper}>
+        {roundsData.map((round, roundIndex) => {
+          const roundMatchContainerHeight = (matchHeight + initialGap) * Math.pow(2, roundIndex);
+
+          return (
+            <div key={roundIndex} style={styles.roundColumn}>
+              <div style={styles.roundHeader}>
+                {roundIndex === numRounds - 1 ? 'Final' : `Ronda ${roundIndex + 1}`}
+              </div>
+              <div style={styles.matchesContainer}>
+                {round.map((match, matchIndex) => (
+                  <div key={matchIndex} style={{
+                    ...styles.matchWrapper,
+                    height: `${roundMatchContainerHeight}px`
+                  }}>
+                    <div style={styles.matchCentering}>
+                      <BracketMatch
+                        matchNumber={matchIndex + 1}
+                        player1={match.player1}
+                        player2={match.player2}
+                      />
+                    </div>
+
+                    {/* Connector lines to next round */}
+                    {roundIndex < numRounds - 1 && (
+                      <div style={{
+                        ...styles.connectorWrapper,
+                        height: `${roundMatchContainerHeight}px`
+                      }}>
+                        {/* Horizontal line out from match */}
+                        <div style={styles.lineHorizontal} />
+
+                        {/* Vertical line connecting pairs */}
+                        <div style={{
+                          ...styles.lineVertical,
+                          height: `${roundMatchContainerHeight / 2}px`,
+                          top: matchIndex % 2 === 0 ? '50%' : 'auto',
+                          bottom: matchIndex % 2 === 1 ? '50%' : 'auto',
+                          borderLeft: '2px solid rgba(255, 255, 255, 0.1)',
+                        }} />
+
+                        {/* Horizontal line into next round match (only for the first of the pair) */}
+                        {matchIndex % 2 === 0 && (
+                          <div style={{
+                            ...styles.lineHorizontalNext,
+                            top: `${roundMatchContainerHeight}px`
+                          }} />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
-  content: {
-    padding: '2rem 0',
+  container: {
+    width: '100%',
+    overflowX: 'auto',
+    msOverflowStyle: 'none',
+    scrollbarWidth: 'none',
+  },
+  bracketWrapper: {
+    display: 'flex',
+    gap: '0',
+    minWidth: 'max-content',
+    alignItems: 'flex-start',
+  },
+  roundColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '320px',
+    flexShrink: 0,
+  },
+  roundHeader: {
+    textAlign: 'center',
+    fontSize: '0.8rem',
+    fontWeight: '800',
+    color: 'rgba(255, 255, 255, 0.3)',
+    textTransform: 'uppercase',
+    letterSpacing: '2px',
+    padding: '0.5rem',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+  },
+  matchesContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  matchWrapper: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  matchCentering: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
+  connectorWrapper: {
+    position: 'absolute',
+    right: '-60px',
+    width: '60px',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  lineHorizontal: {
+    position: 'absolute',
+    left: '-20px',
+    width: '20px',
+    height: '2px',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    top: '50%',
+  },
+  lineVertical: {
+    position: 'absolute',
+    width: '2px',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  lineHorizontalNext: {
+    position: 'absolute',
+    width: '20px',
+    height: '2px',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   message: {
     padding: '4rem',
     textAlign: 'center',
     color: 'rgba(255, 255, 255, 0.5)',
     fontSize: '1.1rem',
-  },
-  matchList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.5rem',
-    maxWidth: '240px',
-    margin: '0',
   },
   infoContainer: {
     padding: '5rem 2rem',

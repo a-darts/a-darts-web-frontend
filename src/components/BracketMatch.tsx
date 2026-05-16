@@ -62,6 +62,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: '1px solid rgba(255, 255, 255, 0.1)',
     overflow: 'hidden',
     transition: 'transform 0.2s ease, border-color 0.2s ease',
+    width: '280px',
+    flexShrink: 0,
   },
   participantsContainer: {
     display: 'flex',
