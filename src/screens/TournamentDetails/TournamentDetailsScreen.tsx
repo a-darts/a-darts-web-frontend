@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { tournamentService, Tournament, TournamentStatus, RegistrationStatus } from '../../services/tournament.service';
+import { tournamentService, Tournament, TournamentStatus, RegistrationStatus, Participant } from '../../services/tournament.service';
 import { getStatusLabel, getFederationLabel, getFederationFlag, getModeLabel, getGameTypeLabel } from '../../utils/tournament.utils';
 import Button from '../../components/Button';
 import ErrorMessage from '../../components/ErrorMessage';
@@ -17,24 +17,31 @@ import Modal from '../../components/Modal';
 import { useAuth } from '../../context/AuthContext';
 import { playerService } from '../../services/player.service';
 
+
 const TournamentDetailsScreen: React.FC = () => {
   const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [tournament, setTournament] = useState<Tournament | null>(null);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('info');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [modalMode, setModalMode] = useState<'register' | 'unregister'>('register');
 
   useEffect(() => {
     const fetchTournament = async () => {
       if (!id) return;
       try {
         setLoading(true);
-        const data = await tournamentService.getTournamentById(id);
-        setTournament(data);
+        const [tournamentData, participantsData] = await Promise.all([
+          tournamentService.getTournamentById(id),
+          tournamentService.getParticipantsByTournamentId(id)
+        ]);
+        setTournament(tournamentData);
+        setParticipants(participantsData);
       } catch (err: any) {
         console.error('Error fetching tournament details:', err);
         setError(err.message || 'Error al cargar los detalles del torneo');
@@ -65,12 +72,22 @@ const TournamentDetailsScreen: React.FC = () => {
 
   const { name, status, registration, info } = tournament;
 
+  const userParticipant = user ? participants.find(p => p.alias === user.alias) : null;
+  // Note: Comparing by alias for now as user.id might not match playerId. 
+  // Ideally we'd have playerId in the user object or fetch it once.
+
   const handleRegisterClick = () => {
     if (!user) {
       navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
     } else {
+      setModalMode('register');
       setIsModalOpen(true);
     }
+  };
+
+  const handleUnregisterClick = () => {
+    setModalMode('unregister');
+    setIsModalOpen(true);
   };
 
   const handleConfirmRegistration = async () => {
@@ -79,25 +96,36 @@ const TournamentDetailsScreen: React.FC = () => {
     try {
       setIsRegistering(true);
 
-      // 1. Get playerId for current season (assuming tournament year)
-      const seasonYear = new Date(info.dateTime).getFullYear();
-      const player = await playerService.getPlayerByUserAndSeason(user.id, seasonYear);
+      if (modalMode === 'register') {
+        // 1. Get playerId
+        const seasonYear = new Date(info.dateTime).getFullYear();
+        const player = await playerService.getPlayerByUserAndSeason(user.id, seasonYear);
 
-      // 2. Register
-      await tournamentService.registerParticipant(tournament.id, player.id);
+        // 2. Register
+        await tournamentService.registerParticipant(tournament.id, player.id);
+        alert('¡Inscripción realizada con éxito!');
+      } else {
+        // Unregister
+        if (userParticipant) {
+          await tournamentService.unregisterParticipant(tournament.id, userParticipant.id);
+          alert('Te has desinscrito del torneo correctamente.');
+        }
+      }
 
-      // 3. Success
+      // 3. Success cleanup
       setIsModalOpen(false);
 
-      // Refresh tournament data
-      const data = await tournamentService.getTournamentById(tournament.id);
-      setTournament(data);
+      // Refresh data
+      const [tournamentData, participantsData] = await Promise.all([
+        tournamentService.getTournamentById(tournament.id),
+        tournamentService.getParticipantsByTournamentId(tournament.id)
+      ]);
+      setTournament(tournamentData);
+      setParticipants(participantsData);
 
-      // We could use a toast here, but for now alert is fine as per project style
-      alert('¡Inscripción realizada con éxito!');
     } catch (err: any) {
-      console.error('Registration error:', err);
-      alert(err.message || 'Error al realizar la inscripción. Por favor, verifica que estás federado para esta temporada.');
+      console.error('Action error:', err);
+      alert(err.message || 'Error al procesar la solicitud.');
     } finally {
       setIsRegistering(false);
     }
@@ -109,8 +137,8 @@ const TournamentDetailsScreen: React.FC = () => {
     month: 'long',
     year: 'numeric',
   });
-  const formattedTime = date.getHours().toString().padStart(2, '0') + ':' +
-    date.getMinutes().toString().padStart(2, '0');
+  const formattedTime = date.getUTCHours().toString().padStart(2, '0') + ':' +
+    date.getUTCMinutes().toString().padStart(2, '0');
 
   const breadcrumbItems = [
     { label: 'Inicio', path: '/' },
@@ -140,13 +168,23 @@ const TournamentDetailsScreen: React.FC = () => {
           </div>
 
           {status === TournamentStatus.PUBLISHED && registration.status === RegistrationStatus.OPEN && (
-            <Button
-              variant="primary"
-              leftIcon="Plus"
-              onClick={handleRegisterClick}
-            >
-              INSCRIBIRSE
-            </Button>
+            userParticipant ? (
+              <Button
+                variant="danger"
+                leftIcon="X"
+                onClick={handleUnregisterClick}
+              >
+                DESINSCRIBIRSE
+              </Button>
+            ) : (
+              <Button
+                variant="primary"
+                leftIcon="Plus"
+                onClick={handleRegisterClick}
+              >
+                INSCRIBIRSE
+              </Button>
+            )
           )}
         </div>
       </header>
@@ -154,9 +192,23 @@ const TournamentDetailsScreen: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="INSCRIBIRSE"
-        description={`Confirma la inscripción al ${name}\nFecha: ${formattedDate}\nHora: ${formattedTime}\nLugar: ${info.place}`}
-        confirmLabel="Confirmar"
+        title={modalMode === 'register' ? "INSCRIBIRSE" : "DESINSCRIBIRSE"}
+        description={modalMode === 'register'
+          ? (
+            <>
+              Confirma la inscripción al <strong>{name}</strong>
+              <br /><br />
+              <strong>Fecha:</strong> {formattedDate}<br />
+              <strong>Hora:</strong> {formattedTime}<br />
+              <strong>Lugar:</strong> {info.place}
+            </>
+          ) : (
+            <>
+              ¿Estás seguro de que deseas desinscribirte de <strong>{name}</strong>?
+            </>
+          )
+        }
+        confirmLabel={modalMode === 'register' ? "Confirmar" : "Desinscribirse"}
         cancelLabel="Cancelar"
         onConfirm={handleConfirmRegistration}
         loading={isRegistering}

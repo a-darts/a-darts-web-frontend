@@ -88,6 +88,7 @@ export interface Tournament {
 
 export interface Participant {
   id: string;
+  playerId: string;
   alias: string;
   federation: string;
 }
@@ -138,6 +139,17 @@ export const tournamentService = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ playerId }),
+    });
+    await handleResponse(response);
+  },
+
+  unregisterParticipant: async (tournamentId: string, participantId: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/participants/${participantId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+        'accept': 'application/json',
+      },
     });
     await handleResponse(response);
   },
