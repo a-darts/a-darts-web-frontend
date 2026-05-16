@@ -225,7 +225,10 @@ const TournamentDetailsScreen: React.FC = () => {
       {activeTab === 'info' ? (
         <TournamentInfoTab tournament={tournament} />
       ) : (
-        <TournamentInscriptionsTab tournament={tournament} />
+        <TournamentInscriptionsTab 
+          tournament={tournament} 
+          participants={participants}
+        />
       )}
     </div>
   );

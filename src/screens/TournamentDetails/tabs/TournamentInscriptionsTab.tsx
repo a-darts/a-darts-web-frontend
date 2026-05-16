@@ -1,32 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { Tournament, Participant, tournamentService } from '../../../services/tournament.service';
+import React from 'react';
+import { Tournament, Participant } from '../../../services/tournament.service';
 import Table, { Column } from '../../../components/Table';
 import { getFederationLabel, getFederationFlag } from '../../../utils/tournament.utils';
 
 interface TournamentInscriptionsTabProps {
   tournament: Tournament;
+  participants: Participant[];
+  loading?: boolean;
 }
 
-const TournamentInscriptionsTab: React.FC<TournamentInscriptionsTabProps> = ({ tournament }) => {
-  const [participants, setParticipants] = useState<Participant[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchParticipants = async () => {
-      try {
-        setLoading(true);
-        const data = await tournamentService.getParticipantsByTournamentId(tournament.id);
-        setParticipants(data);
-      } catch (err) {
-        console.error('Error fetching participants:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchParticipants();
-  }, [tournament.id]);
-
+const TournamentInscriptionsTab: React.FC<TournamentInscriptionsTabProps> = ({
+  tournament,
+  participants,
+  loading = false
+}) => {
   const columns: Column<Participant>[] = [
     {
       key: 'id',
