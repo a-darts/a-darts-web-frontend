@@ -111,6 +111,16 @@ button.secondary:hover {
   transform: translateY(-1px);
 }
 
+button.danger {
+  background-color: #FD605D;
+  color: #000000;
+}
+
+button.danger:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
 button.tertiary {
   background-color: transparent;
   border: 1px solid transparent;
@@ -149,8 +159,13 @@ button.large {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 a {
@@ -239,6 +254,7 @@ a:hover {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;

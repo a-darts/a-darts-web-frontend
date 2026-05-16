@@ -129,4 +129,16 @@ export const tournamentService = {
     const result = await handleResponse(response);
     return result.data;
   },
+
+  registerParticipant: async (tournamentId: string, playerId: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/participants`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ playerId }),
+    });
+    await handleResponse(response);
+  },
 };
