@@ -1,41 +1,74 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Icon, { IconName } from './Icon';
 
-interface ToastProps {
+export type ToastType = 'success' | 'error' | 'info';
+
+export interface ToastProps {
+  id?: string;
   message: string;
-  type?: 'success' | 'error' | 'info';
-  onClose: () => void;
+  type?: ToastType;
   duration?: number;
+  onClose?: (id?: string) => void;
 }
 
-const Toast: React.FC<ToastProps> = ({ 
-  message, 
-  type = 'success', 
-  onClose, 
-  duration = 3000 
+const Toast: React.FC<ToastProps> = ({
+  id,
+  message,
+  type = 'success',
+  duration = 3000,
+  onClose,
 }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
   useEffect(() => {
+    setIsVisible(true);
     const timer = setTimeout(() => {
-      onClose();
+      setIsVisible(false);
+      setTimeout(() => onClose?.(id), 300); // Wait for exit animation
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [onClose, duration]);
+  }, [id, duration, onClose]);
 
   const getIcon = (): IconName => {
     switch (type) {
-      case 'success': return 'CheckCircle';
-      case 'error': return 'AlertCircle';
-      default: return 'Info';
+      case 'success': return 'Check';
+      case 'error': return 'X';
+      case 'info': return 'Search'; // Or any other suitable icon
+      default: return 'Check';
     }
   };
 
+  const getColors = () => {
+    switch (type) {
+      case 'success': return { bg: 'rgba(196, 232, 102, 0.15)', border: '#C4E866', icon: '#C4E866' };
+      case 'error': return { bg: 'rgba(239, 68, 68, 0.15)', border: '#ef4444', icon: '#ef4444' };
+      case 'info': return { bg: 'rgba(59, 130, 246, 0.15)', border: '#3b82f6', icon: '#3b82f6' };
+    }
+  };
+
+  const colors = getColors();
+
   return (
-    <div style={{ ...styles.toast, ...styles[type] }}>
-      <Icon name={getIcon()} size={20} />
-      <span style={styles.message}>{message}</span>
-      <button onClick={onClose} style={styles.closeButton}>
-        <Icon name="X" size={16} />
+    <div style={{
+      ...styles.toast,
+      backgroundColor: colors.bg,
+      borderColor: colors.border,
+      opacity: isVisible ? 1 : 0,
+      transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+    }}>
+      <div style={{ ...styles.iconContainer, backgroundColor: colors.icon }}>
+        <Icon name={getIcon()} size={16} color="#000" />
+      </div>
+      <p style={styles.message}>{message}</p>
+      <button
+        onClick={() => {
+          setIsVisible(false);
+          setTimeout(() => onClose?.(id), 300);
+        }}
+        style={styles.closeBtn}
+      >
+        <Icon name="X" size={14} color="rgba(255,255,255,0.5)" />
       </button>
     </div>
   );
@@ -43,51 +76,46 @@ const Toast: React.FC<ToastProps> = ({
 
 const styles: { [key: string]: React.CSSProperties } = {
   toast: {
-    position: 'fixed',
-    bottom: '2rem',
-    right: '2rem',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem',
-    padding: '1rem 1.25rem',
+    gap: '1rem',
+    padding: '0.75rem 1rem',
     borderRadius: '12px',
-    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-    zIndex: 9999,
-    animation: 'slideIn 0.3s ease-out forwards',
+    border: '1px solid',
+    backdropFilter: 'blur(10px)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+    marginBottom: '1rem',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     minWidth: '300px',
+    maxWidth: '450px',
+    pointerEvents: 'auto',
+  },
+  iconContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '24px',
+    height: '24px',
+    borderRadius: '50%',
+    flexShrink: 0,
   },
   message: {
-    fontSize: '0.875rem',
+    margin: 0,
+    fontSize: '0.9rem',
     fontWeight: '500',
-    color: '#ffffff',
+    color: '#fff',
     flex: 1,
   },
-  success: {
-    backgroundColor: '#0E0E0E',
-    border: '1px solid rgba(196, 232, 102, 0.3)',
-    color: 'var(--btn-primary-bg)',
-  },
-  error: {
-    backgroundColor: '#0E0E0E',
-    border: '1px solid rgba(255, 77, 79, 0.3)',
-    color: '#ff4d4f',
-  },
-  info: {
-    backgroundColor: '#0E0E0E',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    color: '#ffffff',
-  },
-  closeButton: {
-    background: 'transparent',
+  closeBtn: {
+    background: 'none',
     border: 'none',
-    color: 'rgba(255, 255, 255, 0.4)',
+    padding: '4px',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '4px',
-    borderRadius: '50%',
-    transition: 'all 0.2s ease',
+    borderRadius: '4px',
+    transition: 'background 0.2s',
   },
 };
 

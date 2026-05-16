@@ -14,20 +14,20 @@ const HomeScreen: React.FC = () => {
           {user ? `¡Bienvenido, ${user.alias}!` : 'Bienvenido a A-Darts'}
         </h1>
         <p style={styles.subtitle}>
-          {user 
-            ? 'Es un gusto tenerte de vuelta. ¿Listo para una partida de dardos?' 
+          {user
+            ? 'Es un gusto tenerte de vuelta. ¿Listo para una partida de dardos?'
             : 'La plataforma definitiva para gestionar tus torneos de dardos.'}
         </p>
         <div style={styles.cta}>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             leftIcon="Target"
             onClick={() => navigate('/torneos')}
           >
             Explorar Torneos
           </Button>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             rightIcon="ArrowRight"
           >
             Saber más

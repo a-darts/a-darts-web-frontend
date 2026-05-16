@@ -72,8 +72,8 @@ const TournamentsScreen: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      <Breadcrumbs items={breadcrumbItems} />
-      <div style={styles.header}>
+      <header style={styles.header}>
+        <Breadcrumbs items={breadcrumbItems} />
         <Title>Torneos</Title>
         <div style={styles.controls}>
           <div style={styles.searchWrapper}>
@@ -109,26 +109,28 @@ const TournamentsScreen: React.FC = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </header >
 
       {error && <ErrorMessage message={error} />}
 
-      {loading ? (
-        <div style={styles.message}>Cargando torneos...</div>
-      ) : filteredTournaments.length === 0 ? (
-        <div style={styles.message}>
-          {searchTerm || activeFilters.length > 0
-            ? 'No se encontraron torneos con los filtros aplicados.'
-            : 'No hay torneos disponibles en este momento.'}
-        </div>
-      ) : (
-        <div style={styles.grid}>
-          {filteredTournaments.map((tournament) => (
-            <TournamentCard key={tournament.id} tournament={tournament} />
-          ))}
-        </div>
-      )}
-    </div>
+      {
+        loading ? (
+          <div style={styles.message}>Cargando torneos...</div>
+        ) : filteredTournaments.length === 0 ? (
+          <div style={styles.message}>
+            {searchTerm || activeFilters.length > 0
+              ? 'No se encontraron torneos con los filtros aplicados.'
+              : 'No hay torneos disponibles en este momento.'}
+          </div>
+        ) : (
+          <div style={styles.grid}>
+            {filteredTournaments.map((tournament) => (
+              <TournamentCard key={tournament.id} tournament={tournament} />
+            ))}
+          </div>
+        )
+      }
+    </div >
   );
 };
 

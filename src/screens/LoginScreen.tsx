@@ -3,22 +3,21 @@ import TextInput from '../components/TextInput';
 import Button from '../components/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useTranslation } from 'react-i18next';
-import ErrorMessage from '../components/ErrorMessage';
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { showToast } = useToast();
   const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     try {
       await login(email, password);
@@ -29,7 +28,7 @@ const LoginScreen: React.FC = () => {
       navigate(redirect || '/');
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.');
+      showToast(err.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.', 'error');
     } finally {
       setLoading(false);
     }
@@ -53,7 +52,6 @@ const LoginScreen: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} style={styles.form}>
-            {error && <ErrorMessage message={error} />}
             <TextInput
               label={t('auth.email_label')}
               placeholder="tu@email.com"

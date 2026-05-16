@@ -15,11 +15,13 @@ import TournamentInscriptionsTab from './tabs/TournamentInscriptionsTab';
 import TournamentRegistrationStatusTag from '../../components/TournamentRegistrationStatusTag';
 import Modal from '../../components/Modal';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { playerService } from '../../services/player.service';
 
 
 const TournamentDetailsScreen: React.FC = () => {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [tournament, setTournament] = useState<Tournament | null>(null);
@@ -103,12 +105,12 @@ const TournamentDetailsScreen: React.FC = () => {
 
         // 2. Register
         await tournamentService.registerParticipant(tournament.id, player.id);
-        alert('¡Inscripción realizada con éxito!');
+        showToast('¡Inscripción realizada con éxito!', 'success');
       } else {
         // Unregister
         if (userParticipant) {
           await tournamentService.unregisterParticipant(tournament.id, userParticipant.id);
-          alert('Te has desinscrito del torneo correctamente.');
+          showToast('Te has desinscrito del torneo correctamente.', 'success');
         }
       }
 
@@ -125,7 +127,7 @@ const TournamentDetailsScreen: React.FC = () => {
 
     } catch (err: any) {
       console.error('Action error:', err);
-      alert(err.message || 'Error al procesar la solicitud.');
+      showToast(err.message || 'Error al procesar la solicitud.', 'error');
     } finally {
       setIsRegistering(false);
     }
