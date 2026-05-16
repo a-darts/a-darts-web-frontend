@@ -67,8 +67,10 @@ const resources = {
 
           // Generales
           'Internal server error': 'Error interno del servidor. Inténtalo de nuevo más tarde',
+          'network_error': 'Error de conexión. Inténtalo de nuevo más tarde',
           'Default': 'Ha ocurrido un error inesperado',
           //
+
         }
       },
       common: {
@@ -150,6 +152,7 @@ const resources = {
 
           // Generales
           'Internal server error': 'Internal server error. Please try again later',
+          'network_error': 'Connection error. Please try again later',
           'Default': 'An unexpected error occurred',
           //
         }

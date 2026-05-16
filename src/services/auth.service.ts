@@ -1,68 +1,82 @@
-import { API_BASE_URL, handleResponse } from './api';
+import i18n from '../i18n';
+import { API_BASE_URL, handleFetchError, handleResponse } from './api';
 
 export const authService = {
   login: async (email: string, password: string) => {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const result = await handleResponse(response);
-    const { token, user } = result.data || {};
+      const result = await handleResponse(response);
+      const { token, user } = result.data || {};
 
-    // Store token if it exists in the response
-    if (token) {
-      localStorage.setItem('auth_token', token);
+      // Store token if it exists in the response
+      if (token) {
+        localStorage.setItem('auth_token', token);
+      }
+
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+
+      return result;
+    } catch (error: any) {
+      throw handleFetchError(error);
     }
-
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-    }
-
-    return result;
   },
 
   register: async (email: string, password: string, alias: string) => {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password, alias, role: 'player' }),
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, alias, role: 'player' }),
+      });
 
-    return handleResponse(response);
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
   },
 
   getMe: async () => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('No hay token de sesión');
 
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
-      method: 'GET',
-      headers: {
-        'accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
-    const result = await handleResponse(response);
-    const userData = result.data || result;
+      const result = await handleResponse(response);
+      const userData = result.data || result;
 
-    if (userData) {
-      localStorage.setItem('user', JSON.stringify(userData));
+      if (userData) {
+        localStorage.setItem('user', JSON.stringify(userData));
+      }
+
+      return userData;
+    } catch (error: any) {
+      throw handleFetchError(error);
     }
-
-    return userData;
   },
 
   logout: async () => {
     const token = localStorage.getItem('auth_token');
+
     if (token) {
       try {
         await fetch(`${API_BASE_URL}/auth/logout`, {
@@ -73,7 +87,7 @@ export const authService = {
           },
         });
       } catch (error) {
-        console.error('Logout error:', error);
+        console.error('Network error during backend logout:', error);
       }
     }
     localStorage.removeItem('auth_token');
@@ -91,46 +105,63 @@ export const authService = {
 
   updateEmail: async (newEmail: string) => {
     const token = localStorage.getItem('auth_token');
-    const response = await fetch(`${API_BASE_URL}/users/email`, {
-      method: 'PUT',
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ newEmail }),
-    });
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
 
-    return handleResponse(response);
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/email`, {
+        method: 'PUT',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ newEmail }),
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
   },
 
   updateAlias: async (newAlias: string) => {
     const token = localStorage.getItem('auth_token');
-    const response = await fetch(`${API_BASE_URL}/users/alias`, {
-      method: 'PUT',
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ newAlias }),
-    });
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/alias`, {
+        method: 'PUT',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ newAlias }),
+      });
 
-    return handleResponse(response);
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
   },
 
   updatePassword: async (oldPassword: string, newPassword: string) => {
     const token = localStorage.getItem('auth_token');
-    const response = await fetch(`${API_BASE_URL}/users/password`, {
-      method: 'PUT',
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ oldPassword, newPassword }),
-    });
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
 
-    return handleResponse(response);
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/password`, {
+        method: 'PUT',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ oldPassword, newPassword }),
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
   }
 };
