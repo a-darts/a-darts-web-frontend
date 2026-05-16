@@ -13,6 +13,7 @@ const TournamentMatchStatusTag: React.FC<TournamentMatchStatusTagProps> = ({ sta
   const getIconName = (s: string): IconName => {
     switch (s) {
       case 'PENDING': return 'Clock';
+      case 'READY': return 'Zap';
       case 'IN_PROGRESS': return 'Play';
       case 'FINISHED': return 'Check';
       case 'SUSPENDED': return 'Pause';
@@ -44,6 +45,11 @@ const styles: { [key: string]: any } = {
         color = 'rgba(255, 255, 255, 0.4)';
         bgColor = 'rgba(255, 255, 255, 0.02)';
         borderColor = 'rgba(255, 255, 255, 0.05)';
+        break;
+      case 'READY':
+        color = '#60a5fa';           // Azul brillante / Celeste
+        bgColor = 'rgba(59, 130, 246, 0.1)';
+        borderColor = 'rgba(59, 130, 246, 0.2)';
         break;
       case 'IN_PROGRESS':
         color = '#fbbf24';

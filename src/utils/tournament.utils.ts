@@ -20,6 +20,7 @@ export const getStatusLabel = (status: string): string => {
 export const getMatchStatusLabel = (status: string): string => {
   const matchStatusLabels: { [key: string]: string } = {
     'PENDING': 'Pendiente',
+    'READY': 'Listo',
     'IN_PROGRESS': 'En curso',
     'FINISHED': 'Finalizado',
     'SUSPENDED': 'Suspendido',
