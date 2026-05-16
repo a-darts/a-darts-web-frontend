@@ -109,6 +109,35 @@ export interface Bracket {
   positions: BracketPosition[];
 }
 
+export interface MatchParticipant {
+  id: string | null;
+  alias: string;
+  federation: string;
+}
+
+export interface MatchScore {
+  participant1: {
+    setsWon: number;
+    legsWon: number;
+  };
+  participant2: {
+    setsWon: number;
+    legsWon: number;
+  };
+}
+
+export interface Match {
+  id: string;
+  round: number;
+  boardNumber: number | null;
+  startedAt: string | null;
+  finishedAt: string | null;
+  status: string;
+  participant1: MatchParticipant;
+  participant2: MatchParticipant;
+  matchScore: MatchScore;
+}
+
 
 export const tournamentService = {
   getTournaments: async (): Promise<Tournament[]> => {
@@ -162,6 +191,22 @@ export const tournamentService = {
   getTournamentBracket: async (id: string): Promise<Bracket> => {
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/bracket`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+        },
+      });
+
+      const result = await handleResponse(response);
+      return result.data;
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  getTournamentMatches: async (id: string): Promise<Match[]> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${id}/matches`, {
         method: 'GET',
         headers: {
           'accept': 'application/json',

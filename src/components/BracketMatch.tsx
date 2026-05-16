@@ -5,6 +5,7 @@ export interface BracketParticipant {
   position: number;
   alias: string | null;
   federation: string | null;
+  score?: number;
 }
 
 interface BracketMatchProps {
@@ -41,6 +42,13 @@ const BracketMatch: React.FC<BracketMatchProps> = ({ player1, player2, showPosit
             {truncateAlias(pos.alias)}
           </span>
         </div>
+      </div>
+      <div style={{
+        ...styles.scoreBox,
+        backgroundColor: pos.score !== undefined && pos.score > 0 ? 'rgba(196, 232, 102, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+        color: pos.score !== undefined && pos.score > 0 ? 'var(--btn-primary-bg)' : 'rgba(255, 255, 255, 0.3)',
+      }}>
+        {pos.score !== undefined ? pos.score : ''}
       </div>
     </div>
   );
@@ -108,6 +116,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '2px',
     opacity: 0.8,
     alignSelf: 'center',
+  },
+  scoreBox: {
+    width: '32px',
+    height: '32px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '4px',
+    fontSize: '0.9rem',
+    fontWeight: '700',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
   },
 };
 

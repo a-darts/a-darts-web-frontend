@@ -15,6 +15,20 @@ export const getStatusLabel = (status: string): string => {
 };
 
 /**
+ * Returns the localized label for a match status
+ */
+export const getMatchStatusLabel = (status: string): string => {
+  const matchStatusLabels: { [key: string]: string } = {
+    'PENDING': 'Pendiente',
+    'IN_PROGRESS': 'En curso',
+    'FINISHED': 'Finalizado',
+    'SUSPENDED': 'Suspendido',
+    'CANCELLED': 'Cancelado',
+  };
+  return matchStatusLabels[status] || status;
+};
+
+/**
  * Returns the localized label for a tournament registration status
  */
 export const getRegistrationStatusLabel = (status: string): string => {
