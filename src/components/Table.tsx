@@ -82,16 +82,16 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '1.25rem 1.5rem',
     fontSize: '0.75rem',
     fontWeight: '700',
-    color: 'rgba(255, 255, 255, 0.4)',
+    color: 'rgba(255, 255, 255, 0.8)',
     textTransform: 'uppercase',
     letterSpacing: '1.5px',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
   },
   td: {
     padding: '1.25rem 1.5rem',
     fontSize: '0.9rem',
     color: 'rgba(255, 255, 255, 0.9)',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
     fontWeight: '400',
   },
   tr: {
@@ -103,7 +103,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: 'rgba(255, 255, 255, 0.4)',
     background: 'rgba(255, 255, 255, 0.02)',
     borderRadius: '16px',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     fontSize: '0.95rem',
   },
 };
