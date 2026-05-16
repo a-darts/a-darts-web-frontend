@@ -1,11 +1,11 @@
 import { API_BASE_URL, handleResponse } from './api';
 
 export enum TournamentStatus {
-  DRAFT = 'BORRADOR',
-  PUBLISHED = 'PUBLICADO',
-  IN_PROGRESS = 'EN CURSO',
-  CANCELLED = 'CANCELADO',
-  FINISHED = 'FINALIZADO',
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  CANCELLED = 'CANCELLED',
+  FINISHED = 'FINISHED',
 }
 
 export enum Federations {
@@ -51,6 +51,11 @@ export enum GameTypes {
   FIRST_TO = 'A ganar',
 }
 
+export enum RegistrationStatus {
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED',
+}
+
 export interface Tournament {
   id: string;
   name: string;
@@ -72,6 +77,7 @@ export interface Tournament {
   };
   registration: {
     hasCheckIn: boolean;
+    status: RegistrationStatus;
     registrationPeriod: {
       startsAt: string | null;
       endsAt: string | null;

@@ -1,10 +1,28 @@
-import { TournamentStatus, Federations, GameModes, GameTypes } from '../services/tournament.service';
+import { TournamentStatus, Federations, GameModes, GameTypes, RegistrationStatus } from '../services/tournament.service';
 
 /**
- * Returns the localized label for a tournament status.
+ * Returns the localized label for a tournament status
  */
 export const getStatusLabel = (status: string): string => {
-  return TournamentStatus[status as keyof typeof TournamentStatus] || status;
+  const statusLabels: { [key: string]: string } = {
+    'DRAFT': 'Borrador',
+    'PUBLISHED': 'Publicado',
+    'IN_PROGRESS': 'En curso',
+    'FINISHED': 'Finalizado',
+    'CANCELLED': 'Cancelado',
+  };
+  return statusLabels[status] || status;
+};
+
+/**
+ * Returns the localized label for a tournament registration status
+ */
+export const getRegistrationStatusLabel = (status: string): string => {
+  const registrationLabels: { [key: string]: string } = {
+    'OPEN': 'Inscripciones abiertas',
+    'CLOSED': 'Inscripciones cerradas',
+  };
+  return registrationLabels[status] || status;
 };
 
 /**

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { tournamentService, Tournament } from '../../services/tournament.service';
+import { tournamentService, Tournament, TournamentStatus, RegistrationStatus } from '../../services/tournament.service';
 import { getStatusLabel, getFederationLabel, getFederationFlag, getModeLabel, getGameTypeLabel } from '../../utils/tournament.utils';
 import Button from '../../components/Button';
 import ErrorMessage from '../../components/ErrorMessage';
@@ -12,8 +12,11 @@ import InfoCard from '../../components/InfoCard';
 
 import TournamentInfoTab from './tabs/TournamentInfoTab';
 import TournamentInscriptionsTab from './tabs/TournamentInscriptionsTab';
+import TournamentRegistrationStatusTag from '../../components/TournamentRegistrationStatusTag';
+import { useAuth } from '../../context/AuthContext';
 
 const TournamentDetailsScreen: React.FC = () => {
+  const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [tournament, setTournament] = useState<Tournament | null>(null);
@@ -56,7 +59,7 @@ const TournamentDetailsScreen: React.FC = () => {
 
   if (!tournament) return <div style={styles.message}>Torneo no encontrado</div>;
 
-  const { name, status } = tournament;
+  const { name, status, registration } = tournament;
 
   const breadcrumbItems = [
     { label: 'Inicio', path: '/' },
@@ -73,9 +76,33 @@ const TournamentDetailsScreen: React.FC = () => {
     <div style={styles.container}>
       <header style={styles.header}>
         <Breadcrumbs items={breadcrumbItems} />
+
         <div style={styles.titleContainer}>
-          <Title>{name}</Title>
-          <TournamentStatusTag status={status} size="medium" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+            <Title>{name}</Title>
+            <div style={styles.tagsContainer}>
+              <TournamentStatusTag status={status} size="medium" />
+              {status === TournamentStatus.PUBLISHED && (
+                <TournamentRegistrationStatusTag status={registration.status} size="medium" />
+              )}
+            </div>
+          </div>
+
+          {status === TournamentStatus.PUBLISHED && registration.status === RegistrationStatus.OPEN && (
+            <Button
+              variant="primary"
+              leftIcon="Plus"
+              onClick={() => {
+                if (!user) {
+                  navigate('/login');
+                } else {
+                  console.log('Registering user...');
+                }
+              }}
+            >
+              INSCRIBIRSE
+            </Button>
+          )}
         </div>
       </header>
 
@@ -118,6 +145,11 @@ const styles: { [key: string]: any } = {
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: '2rem',
+    flexWrap: 'wrap',
+  },
+  tagsContainer: {
+    display: 'flex',
+    gap: '1rem',
     flexWrap: 'wrap',
   },
 };
