@@ -15,13 +15,14 @@ import TournamentRegistrationTab from './tabs/TournamentRegistrationTab';
 import TournamentBracketTab from './tabs/TournamentBracketTab';
 import TournamentRegistrationStatusTag from '../../components/TournamentRegistrationStatusTag';
 import Modal from '../../components/Modal';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, UserRoles } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { playerService } from '../../services/player.service';
 
 
 const TournamentDetailsScreen: React.FC = () => {
   const { user } = useAuth();
+  const isAdmin = user?.role === UserRoles.ADMIN;
   const { showToast } = useToast();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -106,6 +107,20 @@ const TournamentDetailsScreen: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const refreshData = async () => {
+    if (!id) return;
+    try {
+      const [tournamentData, participantsData] = await Promise.all([
+        tournamentService.getTournamentById(id),
+        tournamentService.getParticipantsByTournamentId(id)
+      ]);
+      setTournament(tournamentData);
+      setParticipants(participantsData);
+    } catch (err: any) {
+      console.error('Error refreshing data:', err);
+    }
+  };
+
   const handleConfirmRegistration = async () => {
     if (!user || !tournament) return;
 
@@ -131,12 +146,7 @@ const TournamentDetailsScreen: React.FC = () => {
       setIsModalOpen(false);
 
       // Refresh data
-      const [tournamentData, participantsData] = await Promise.all([
-        tournamentService.getTournamentById(tournament.id),
-        tournamentService.getParticipantsByTournamentId(tournament.id)
-      ]);
-      setTournament(tournamentData);
-      setParticipants(participantsData);
+      await refreshData();
 
     } catch (err: any) {
       console.error('Action error:', err);
@@ -183,7 +193,7 @@ const TournamentDetailsScreen: React.FC = () => {
             </div>
           </div>
 
-          {status === TournamentStatus.PUBLISHED && registration.status === RegistrationStatus.OPEN && (
+          {!isAdmin && status === TournamentStatus.PUBLISHED && registration.status === RegistrationStatus.OPEN && (
             userParticipant ? (
               <Button
                 variant="danger"
@@ -243,6 +253,7 @@ const TournamentDetailsScreen: React.FC = () => {
         <TournamentRegistrationTab
           tournament={tournament}
           participants={participants}
+          onRefresh={refreshData}
         />
       )}
       {activeTab === 'bracket' &&

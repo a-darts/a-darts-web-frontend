@@ -1,24 +1,49 @@
-import React from 'react';
-import { Tournament, Participant } from '../../../services/tournament.service';
+import React, { useState } from 'react';
+import { Tournament, Participant, tournamentService } from '../../../services/tournament.service';
 import Table, { Column } from '../../../components/Table';
 import { getFederationLabel, getFederationFlag, getRegistrationStatusLabel } from '../../../utils/tournament.utils';
 import { useAuth, UserRoles } from '../../../context/AuthContext';
 import InfoCard from '../../../components/InfoCard';
 import Button from '../../../components/Button';
+import { useToast } from '../../../context/ToastContext';
 
 interface TournamentRegistrationTabProps {
   tournament: Tournament;
   participants: Participant[];
   loading?: boolean;
+  onRefresh?: () => void;
 }
 
 const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
   tournament,
   participants,
-  loading = false
+  loading = false,
+  onRefresh
 }) => {
   const { user } = useAuth();
   const isAdmin = user?.role === UserRoles.ADMIN;
+  const { showToast } = useToast();
+  const [isToggling, setIsToggling] = useState(false);
+
+  const handleToggleRegistration = async () => {
+    if (isToggling) return;
+    try {
+      setIsToggling(true);
+      if (registration.status === 'OPEN') {
+        await tournamentService.closeRegistration(tournament.id);
+        showToast('Inscripciones cerradas correctamente.', 'success');
+      } else {
+        await tournamentService.openRegistration(tournament.id);
+        showToast('Inscripciones abiertas correctamente.', 'success');
+      }
+      if (onRefresh) onRefresh();
+    } catch (err: any) {
+      console.error('Error toggling registration status:', err);
+      showToast(err.message || 'Error al cambiar el estado de las inscripciones.', 'error');
+    } finally {
+      setIsToggling(false);
+    }
+  };
 
   const formatDateTime = (dateVal: any): string => {
     if (!dateVal) return 'Sin programar';
@@ -82,30 +107,40 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
             <InfoCard
               title="Apertura inscripciones"
               content={registrationStartsAt}
-              icon="Calendar"
+              icon="Clock"
             />
             <InfoCard
               title="Cierre inscripciones"
               content={registrationEndsAt}
-              icon="Calendar"
+              icon="Clock"
             />
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', justifyContent: 'center', alignItems: 'flex-start' }}>
+            <div style={styles.registrationButtonsContainer}>
               <Button
-                variant="primary"
-                leftIcon="Clock"
-              // onClick={() => navigate(`/torneos/${tournament.id}/edit`)}
+                variant='secondary'
+                leftIcon={registration.status === 'OPEN' ? 'ClipboardX' : 'ClipboardCheck'}
+                onClick={handleToggleRegistration}
+                loading={isToggling}
               >
-                Abrir inscripciones
+                {registration.status === 'OPEN' ? 'Cerrar inscripciones' : 'Abrir inscripciones'}
               </Button>
               <Button
-                variant="primary"
+                variant="secondary"
                 leftIcon="Clock"
               // onClick={() => navigate(`/torneos/${tournament.id}/edit`)}
               >
                 Programar apertura/cierre
               </Button>
             </div>
+          </div>
+          <div style={{ alignItems: 'flex-start' }}>
+            <Button
+              variant="primary"
+              leftIcon="Plus"
+            // onClick={() => navigate(`/torneos/${tournament.id}/edit`)}
+            >
+              INSCRIBIR PARTICIPANTE
+            </Button>
           </div>
         </section>
       )}
@@ -169,6 +204,13 @@ const styles: { [key: string]: any } = {
     gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
     gap: '1rem',
   },
+  registrationButtonsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  }
 };
 
 export default TournamentRegistrationTab;
