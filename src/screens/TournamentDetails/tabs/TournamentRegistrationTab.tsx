@@ -6,6 +6,25 @@ import { useAuth, UserRoles } from '../../../context/AuthContext';
 import InfoCard from '../../../components/InfoCard';
 import Button from '../../../components/Button';
 import { useToast } from '../../../context/ToastContext';
+import Modal from '../../../components/Modal';
+
+const toUtcDateParts = (isoString: any) => {
+  if (!isoString) return { date: '', time: '12:00' };
+  const d = new Date(isoString);
+  if (isNaN(d.getTime())) return { date: '', time: '12:00' };
+
+  const yyyy = d.getUTCFullYear();
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(d.getUTCDate()).padStart(2, '0');
+
+  const hh = String(d.getUTCHours()).padStart(2, '0');
+  const min = String(d.getUTCMinutes()).padStart(2, '0');
+
+  return {
+    date: `${yyyy}-${mm}-${dd}`,
+    time: `${hh}:${min}`
+  };
+};
 
 interface TournamentRegistrationTabProps {
   tournament: Tournament;
@@ -42,6 +61,58 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
       showToast(err.message || 'Error al cambiar el estado de las inscripciones.', 'error');
     } finally {
       setIsToggling(false);
+    }
+  };
+
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [isStartProgrammed, setIsStartProgrammed] = useState<'SI' | 'NO'>('NO');
+  const [startDate, setStartDate] = useState('');
+  const [startTime, setStartTime] = useState('12:00');
+  const [isEndProgrammed, setIsEndProgrammed] = useState<'SI' | 'NO'>('NO');
+  const [endDate, setEndDate] = useState('');
+  const [endTime, setEndTime] = useState('12:00');
+  const [isScheduling, setIsScheduling] = useState(false);
+
+  const handleOpenScheduleModal = () => {
+    const startParts = toUtcDateParts(registration.registrationPeriod.startsAt);
+    const endParts = toUtcDateParts(registration.registrationPeriod.endsAt);
+
+    setIsStartProgrammed(registration.registrationPeriod.startsAt ? 'SI' : 'NO');
+    setStartDate(startParts.date);
+    setStartTime(startParts.time);
+
+    setIsEndProgrammed(registration.registrationPeriod.endsAt ? 'SI' : 'NO');
+    setEndDate(endParts.date);
+    setEndTime(endParts.time);
+
+    setIsScheduleModalOpen(true);
+  };
+
+  const handleConfirmSchedule = async () => {
+    try {
+      setIsScheduling(true);
+
+      const startsAt = isStartProgrammed === 'SI' && startDate
+        ? `${startDate}T${startTime || '12:00'}:00.000Z`
+        : null;
+
+      const endsAt = isEndProgrammed === 'SI' && endDate
+        ? `${endDate}T${endTime || '12:00'}:00.000Z`
+        : null;
+
+      await tournamentService.updateRegistrationSchedule(tournament.id, {
+        startsAt,
+        endsAt
+      });
+
+      showToast('Programación de inscripciones actualizada correctamente.', 'success');
+      setIsScheduleModalOpen(false);
+      if (onRefresh) onRefresh();
+    } catch (err: any) {
+      console.error('Error scheduling registration:', err);
+      showToast(err.message || 'Error al programar las inscripciones.', 'error');
+    } finally {
+      setIsScheduling(false);
     }
   };
 
@@ -127,7 +198,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
               <Button
                 variant="secondary"
                 leftIcon="Clock"
-              // onClick={() => navigate(`/torneos/${tournament.id}/edit`)}
+                onClick={handleOpenScheduleModal}
               >
                 Programar apertura/cierre
               </Button>
@@ -161,6 +232,106 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
           emptyMessage="No hay jugadores inscritos en este torneo"
         />
       </section>
+
+      <Modal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        title="PROGRAMAR CIERRE/APERTURA DE INSCRIPCIONES"
+        description={
+          <div style={styles.modalContainer}>
+            <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.95rem', margin: 0 }}>
+              Elige la fecha y hora de apertura y/o cierre de las inscripciones.
+            </p>
+
+            {/* APERTURA ROW */}
+            <div style={styles.modalRow}>
+              <h3 style={styles.modalRowTitle}>Apertura</h3>
+              <div style={styles.inputGroup}>
+                <label style={styles.inputLabel}>¿Deseas programar la apertura de las inscripciones?</label>
+                <select
+                  value={isStartProgrammed}
+                  onChange={(e) => setIsStartProgrammed(e.target.value as 'SI' | 'NO')}
+                  style={styles.modalSelect}
+                >
+                  <option value="NO">No</option>
+                  <option value="SI">Sí</option>
+                </select>
+              </div>
+
+              {isStartProgrammed === 'SI' && (
+                <div style={styles.dateTimeGrid}>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.inputLabel}>Fecha de Apertura</label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      style={styles.modalInput}
+                      required
+                    />
+                  </div>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.inputLabel}>Hora de Apertura</label>
+                    <input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      style={styles.modalInput}
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* CIERRE ROW */}
+            <div style={styles.modalRow}>
+              <h3 style={styles.modalRowTitle}>Cierre</h3>
+              <div style={styles.inputGroup}>
+                <label style={styles.inputLabel}>¿Deseas programar el cierre de las inscripciones?</label>
+                <select
+                  value={isEndProgrammed}
+                  onChange={(e) => setIsEndProgrammed(e.target.value as 'SI' | 'NO')}
+                  style={styles.modalSelect}
+                >
+                  <option value="NO">No</option>
+                  <option value="SI">Sí</option>
+                </select>
+              </div>
+
+              {isEndProgrammed === 'SI' && (
+                <div style={styles.dateTimeGrid}>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.inputLabel}>Fecha de Cierre</label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      style={styles.modalInput}
+                      required
+                    />
+                  </div>
+                  <div style={styles.inputGroup}>
+                    <label style={styles.inputLabel}>Hora de Cierre</label>
+                    <input
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      style={styles.modalInput}
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        }
+        confirmLabel="Confirmar"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmSchedule}
+        loading={isScheduling}
+        maxWidth="700px"
+      />
     </div>
   );
 };
@@ -210,6 +381,69 @@ const styles: { [key: string]: any } = {
     gap: '0.75rem',
     justifyContent: 'center',
     alignItems: 'flex-start',
+  },
+  modalContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.5rem',
+    width: '100%',
+    textAlign: 'left',
+    marginTop: '0.5rem',
+  },
+  modalRow: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.25rem',
+    textAlign: 'left',
+  },
+  modalRowTitle: {
+    fontSize: '0.9rem',
+    fontWeight: '700',
+    color: '#C4E866',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    margin: 0,
+  },
+  inputGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+    width: '100%',
+  },
+  inputLabel: {
+    fontSize: '0.8rem',
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.5)',
+    textAlign: 'left',
+  },
+  modalSelect: {
+    padding: '0.75rem 1rem',
+    backgroundColor: '#1E1E1E',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '8px',
+    color: '#fff',
+    fontSize: '0.9rem',
+    outline: 'none',
+    width: '100%',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  },
+  modalInput: {
+    padding: '0.75rem 1rem',
+    backgroundColor: '#1E1E1E',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '8px',
+    color: '#fff',
+    fontSize: '0.9rem',
+    outline: 'none',
+    width: '100%',
+    fontFamily: 'inherit',
+  },
+  dateTimeGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '0.75rem',
+    marginTop: '0.5rem',
   }
 };
 

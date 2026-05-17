@@ -12,6 +12,7 @@ interface ModalProps {
   onConfirm: () => void;
   variant?: 'primary' | 'danger';
   loading?: boolean;
+  maxWidth?: string;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -24,6 +25,7 @@ const Modal: React.FC<ModalProps> = ({
   onConfirm,
   variant = 'primary',
   loading = false,
+  maxWidth = '480px',
 }) => {
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -42,7 +44,7 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <div style={styles.overlay} onClick={onClose}>
       <div
-        style={styles.modal}
+        style={{ ...styles.modal, maxWidth }}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
