@@ -3,6 +3,9 @@ import { Tournament, Bracket, tournamentService, Match } from '../../../services
 import ErrorMessage from '../../../components/ErrorMessage';
 import BracketMatch, { BracketParticipant } from '../../../components/BracketMatch';
 import TournamentMatchStatusTag from '../../../components/TournamentMatchStatusTag';
+import { useAuth, UserRoles } from '../../../context/AuthContext';
+import { useToast } from '../../../context/ToastContext';
+import Button from '../../../components/Button';
 
 interface TournamentBracketTabProps {
   tournament: Tournament;
@@ -14,6 +17,32 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({ tournament 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNotPublished, setIsNotPublished] = useState(false);
+  const { user } = useAuth();
+  const isAdmin = user?.role === UserRoles.ADMIN;
+  const { showToast } = useToast();
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerateBracket = async () => {
+    try {
+      setIsGenerating(true);
+      await tournamentService.generateBracket(tournament.id);
+      showToast('¡Cuadrante generado correctamente!', 'success');
+
+      // Re-fetch data
+      const [bracketData, matchesData] = await Promise.all([
+        tournamentService.getTournamentBracket(tournament.id),
+        tournamentService.getTournamentMatches(tournament.id)
+      ]);
+      setBracket(bracketData);
+      setMatches(matchesData);
+      setIsNotPublished(false);
+    } catch (err: any) {
+      console.error('Error generating bracket:', err);
+      showToast(err.message || 'Error al generar el cuadrante.', 'error');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -44,7 +73,22 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({ tournament 
   if (isNotPublished) return (
     <div style={styles.infoContainer}>
       <h3 style={styles.infoTitle}>Cuadrante no disponible</h3>
-      <p style={styles.infoText}>Aún no se ha publicado el cuadrante para este torneo. Por favor, vuelve a consultar más tarde.</p>
+      <p style={styles.infoText}>
+        {isAdmin
+          ? 'El cuadrante aún no ha sido generado para este torneo. Como administrador, puedes generarlo automáticamente con los participantes inscritos.'
+          : 'Aún no se ha publicado el cuadrante para este torneo. Por favor, vuelve a consultar más tarde.'}
+      </p>
+      {isAdmin && (
+        <Button
+          variant="primary"
+          leftIcon="Network"
+          onClick={handleGenerateBracket}
+          loading={isGenerating}
+          style={{ marginTop: '1.5rem' }}
+        >
+          Generar cuadrante
+        </Button>
+      )}
     </div>
   );
   if (error) return <ErrorMessage message={error} />;
@@ -264,6 +308,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '24px',
     border: '1px dashed rgba(255, 255, 255, 0.1)',
     marginTop: '2rem',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   infoTitle: {
     fontSize: '1.25rem',

@@ -12,21 +12,26 @@ import TimePicker from '../../../components/TimePicker';
 import Select from '../../../components/Select';
 import ErrorMessage from '../../../components/ErrorMessage';
 
-const toUtcDateParts = (isoString: any) => {
+const toLocalDateParts = (isoString: any) => {
   if (!isoString) return { date: '', time: '12:00' };
   const d = new Date(isoString);
   if (isNaN(d.getTime())) return { date: '', time: '12:00' };
 
-  const yyyy = d.getUTCFullYear();
-  const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
-  const dd = String(d.getUTCDate()).padStart(2, '0');
+  const formatter = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Europe/Madrid',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
 
-  const hh = String(d.getUTCHours()).padStart(2, '0');
-  const min = String(d.getUTCMinutes()).padStart(2, '0');
-
+  const formatted = formatter.format(d);
+  const [date, time] = formatted.split(' ');
   return {
-    date: `${yyyy}-${mm}-${dd}`,
-    time: `${hh}:${min}`
+    date,
+    time: time.substring(0, 5)
   };
 };
 
@@ -78,8 +83,8 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
   const [isScheduling, setIsScheduling] = useState(false);
 
   const handleOpenScheduleModal = () => {
-    const startParts = toUtcDateParts(registration.registrationPeriod.startsAt);
-    const endParts = toUtcDateParts(registration.registrationPeriod.endsAt);
+    const startParts = toLocalDateParts(registration.registrationPeriod.startsAt);
+    const endParts = toLocalDateParts(registration.registrationPeriod.endsAt);
 
     setIsStartProgrammed(registration.registrationPeriod.startsAt ? 'SI' : 'NO');
     setStartDate(startParts.date);
@@ -97,11 +102,11 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
       setIsScheduling(true);
 
       const startsAt = isStartProgrammed === 'SI' && startDate
-        ? `${startDate}T${startTime || '12:00'}:00.000Z`
+        ? new Date(`${startDate}T${startTime || '12:00'}:00`).toISOString()
         : null;
 
       const endsAt = isEndProgrammed === 'SI' && endDate
-        ? `${endDate}T${endTime || '12:00'}:00.000Z`
+        ? new Date(`${endDate}T${endTime || '12:00'}:00`).toISOString()
         : null;
 
       await tournamentService.updateRegistrationSchedule(tournament.id, {

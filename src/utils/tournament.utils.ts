@@ -109,20 +109,23 @@ export const formatTournamentDate = (dateVal: any): string => {
     day: '2-digit',
     month: 'long',
     year: 'numeric',
-    timeZone: 'UTC',
+    timeZone: 'Europe/Madrid',
   });
 };
 
 /**
- * Formats a Date object or date string to a string time (HH:MM) in UTC timezone
+ * Formats a Date object or date string to a string time (HH:MM) in Europe/Madrid timezone
  */
 export const formatTournamentTime = (dateVal: any): string => {
   if (!dateVal) return '';
   const date = new Date(dateVal);
   if (isNaN(date.getTime())) return '';
-  const hh = date.getUTCHours().toString().padStart(2, '0');
-  const mm = date.getUTCMinutes().toString().padStart(2, '0');
-  return `${hh}:${mm}`;
+  return date.toLocaleTimeString('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Europe/Madrid',
+  });
 };
 
 /**

@@ -41,15 +41,22 @@ const EditTournamentInfoScreen: React.FC = () => {
   const [info, setInfo] = useState('');
   const [federation, setFederation] = useState('');
 
-  const toUtcDatetimeString = (isoString: string): string => {
+  const toLocalDatetimeString = (isoString: string): string => {
     if (!isoString) return '';
     const date = new Date(isoString);
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    if (isNaN(date.getTime())) return '';
+
+    const formatter = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'Europe/Madrid',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+
+    return formatter.format(date).replace(' ', 'T');
   };
 
   useEffect(() => {
@@ -70,8 +77,8 @@ const EditTournamentInfoScreen: React.FC = () => {
         // Initialize Form State
         setName(data.name);
         setPlace(data.info.place);
-        const utcDt = toUtcDatetimeString(data.info.dateTime);
-        const [d, t] = utcDt.split('T');
+        const localDt = toLocalDatetimeString(data.info.dateTime);
+        const [d, t] = localDt.split('T');
         setDate(d || '');
         setTime(t || '');
         setMode(data.info.mode);
@@ -115,7 +122,7 @@ const EditTournamentInfoScreen: React.FC = () => {
       // Check if any info fields have changed
       const originalInfo = tournament.info;
       const formattedMaxPlayers = maxPlayers === '' ? null : Number(maxPlayers);
-      const isoDateTimeString = `${date}T${time}:00.000Z`;
+      const isoDateTimeString = new Date(`${date}T${time}:00`).toISOString();
 
       const newInfo = {
         place,
@@ -274,7 +281,7 @@ const EditTournamentInfoScreen: React.FC = () => {
             value={schedule}
             options={ScheduleTypes}
             onChange={setSchedule}
-            icon="List"
+            icon="Network"
           />
         </div>
 
