@@ -1,7 +1,10 @@
 import React from 'react';
 import { Tournament, Participant } from '../../../services/tournament.service';
 import Table, { Column } from '../../../components/Table';
-import { getFederationLabel, getFederationFlag } from '../../../utils/tournament.utils';
+import { getFederationLabel, getFederationFlag, getRegistrationStatusLabel } from '../../../utils/tournament.utils';
+import { useAuth, UserRoles } from '../../../context/AuthContext';
+import InfoCard from '../../../components/InfoCard';
+import Button from '../../../components/Button';
 
 interface TournamentRegistrationTabProps {
   tournament: Tournament;
@@ -14,6 +17,23 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
   participants,
   loading = false
 }) => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === UserRoles.ADMIN;
+
+  const formatDateTime = (dateVal: any): string => {
+    if (!dateVal) return 'Sin programar';
+    const date = new Date(dateVal);
+    if (isNaN(date.getTime())) return 'Sin programar';
+    const formattedDate = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+    const formattedTime = date.getUTCHours().toString().padStart(2, '0') + ':' +
+      date.getUTCMinutes().toString().padStart(2, '0');
+    return `${formattedDate} a las ${formattedTime}`;
+  };
+
+  const { registration } = tournament;
+  const registrationStartsAt = formatDateTime(registration.registrationPeriod.startsAt);
+  const registrationEndsAt = formatDateTime(registration.registrationPeriod.endsAt);
+
   const columns: Column<Participant>[] = [
     {
       key: 'id',
@@ -51,6 +71,46 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
 
   return (
     <div style={styles.content}>
+      {isAdmin && (
+        <section style={styles.section}>
+          <div style={styles.infoGrid}>
+            <InfoCard
+              title="Estado"
+              content={getRegistrationStatusLabel(registration.status)}
+              icon="Info"
+            />
+            <InfoCard
+              title="Apertura inscripciones"
+              content={registrationStartsAt}
+              icon="Calendar"
+            />
+            <InfoCard
+              title="Cierre inscripciones"
+              content={registrationEndsAt}
+              icon="Calendar"
+            />
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', justifyContent: 'center', alignItems: 'flex-start' }}>
+              <Button
+                variant="primary"
+                leftIcon="Clock"
+              // onClick={() => navigate(`/torneos/${tournament.id}/edit`)}
+              >
+                Abrir inscripciones
+              </Button>
+              <Button
+                variant="primary"
+                leftIcon="Clock"
+              // onClick={() => navigate(`/torneos/${tournament.id}/edit`)}
+              >
+                Programar apertura/cierre
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
+
+
       <section style={styles.section}>
         <div style={styles.header}>
           <h2 style={styles.sectionTitle}>Jugadores inscritos</h2>
@@ -103,6 +163,11 @@ const styles: { [key: string]: any } = {
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
+  },
+  infoGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gap: '1rem',
   },
 };
 

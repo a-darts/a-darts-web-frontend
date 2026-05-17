@@ -17,8 +17,9 @@ interface TournamentInfoTabProps {
 }
 
 const TournamentInfoTab: React.FC<TournamentInfoTabProps> = ({ tournament }) => {
-  const { user } = useAuth();
   const navigate = useNavigate();
+
+  const { user } = useAuth();
   const isAdmin = user?.role === UserRoles.ADMIN;
 
   const { info } = tournament;
