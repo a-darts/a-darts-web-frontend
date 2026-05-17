@@ -8,33 +8,14 @@ export interface DropdownItem {
   variant?: 'default' | 'danger';
 }
 
-interface StandardDropdownProps {
+interface DropdownProps {
   trigger: React.ReactNode | ((isOpen: boolean) => React.ReactNode);
   items: DropdownItem[];
   align?: 'left' | 'right';
   style?: React.CSSProperties;
-  value?: never;
-  options?: never;
-  onChange?: never;
-  icon?: never;
-  label?: never;
 }
 
-interface SelectDropdownProps {
-  value: string;
-  options: { [key: string]: string } | { value: string; label: string; icon?: IconName }[];
-  onChange: (value: string) => void;
-  icon?: IconName;
-  label?: string;
-  align?: 'left' | 'right';
-  style?: React.CSSProperties;
-  trigger?: never;
-  items?: never;
-}
-
-type DropdownProps = StandardDropdownProps | SelectDropdownProps;
-
-const Dropdown: React.FC<DropdownProps> = (props) => {
+const Dropdown: React.FC<DropdownProps> = ({ trigger, items, align = 'right', style }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -53,89 +34,6 @@ const Dropdown: React.FC<DropdownProps> = (props) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
-
-  const isSelectMode = 'value' in props;
-
-  if (isSelectMode) {
-    const selectProps = props as SelectDropdownProps;
-    const { value, options, onChange, icon, label, align = 'left', style } = selectProps;
-
-    // Normalizar opciones
-    let displayValue = '';
-    let dropdownItems: DropdownItem[] = [];
-
-    if (Array.isArray(options)) {
-      const selectedOpt = options.find((o) => o.value === value);
-      displayValue = selectedOpt ? selectedOpt.label : value;
-      dropdownItems = options.map((opt) => ({
-        label: opt.label,
-        icon: opt.icon,
-        onClick: () => onChange(opt.value)
-      }));
-    } else {
-      const recordOptions = options as { [key: string]: string };
-      displayValue = recordOptions[value] || value;
-      dropdownItems = Object.keys(recordOptions).map((key) => ({
-        label: recordOptions[key],
-        onClick: () => onChange(key)
-      }));
-    }
-
-    return (
-      <div style={{ ...styles.selectContainer, ...style }} ref={dropdownRef}>
-        {label && <label style={styles.selectLabel}>{label}</label>}
-        <div style={{ position: 'relative', width: '100%' }}>
-          <div
-            onClick={() => setIsOpen(!isOpen)}
-            style={{
-              ...styles.selectWrapper,
-              cursor: 'pointer',
-              borderColor: isOpen ? '#C4E866' : 'rgba(255, 255, 255, 0.1)'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              {icon && <Icon name={icon} size={16} style={styles.selectIcon} />}
-              <span style={{ color: '#fff', fontSize: '0.875rem' }}>{displayValue}</span>
-            </div>
-            <Icon name={isOpen ? "ChevronUp" : "ChevronDown"} size={16} style={{ color: 'rgba(255, 255, 255, 0.5)' }} />
-          </div>
-
-          {isOpen && (
-            <div style={{
-              ...styles.menu,
-              ...(align === 'right' ? { right: 0 } : { left: 0 }),
-              width: '100%',
-              minWidth: '100%',
-              boxSizing: 'border-box'
-            }}>
-              {dropdownItems.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    item.onClick();
-                    setIsOpen(false);
-                  }}
-                  style={{
-                    ...styles.item,
-                    ...(item.variant === 'danger' ? styles.dangerItem : {}),
-                    backgroundColor: item.label === displayValue ? 'rgba(196, 232, 102, 0.1)' : 'transparent',
-                    color: item.label === displayValue ? '#C4E866' : '#E0E0E0',
-                  }}
-                  className="dropdown-item"
-                >
-                  {item.icon && <Icon name={item.icon} size={16} />}
-                  <span>{item.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Modo Dropdown Genérico Estándar
-  const { trigger, items, align = 'right', style } = props;
 
   return (
     <div style={{ ...styles.container, ...style }} ref={dropdownRef}>
@@ -216,37 +114,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   dangerItem: {
     color: '#FF4D4D',
-  },
-  selectContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem',
-    width: '100%',
-    marginBottom: '1rem',
-  },
-  selectLabel: {
-    fontSize: '0.875rem',
-    fontWeight: '600',
-    color: 'var(--text-secondary-color)',
-    marginLeft: '0.25rem',
-    textAlign: 'left',
-  },
-  selectWrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'var(--header-bg)',
-    border: '1px solid var(--btn-secondary-border)',
-    borderRadius: '10px',
-    padding: '0 1rem',
-    transition: 'all 0.2s ease',
-    height: '48px',
-    boxSizing: 'border-box',
-    width: '100%',
-  },
-  selectIcon: {
-    color: 'var(--text-secondary-color)',
-    marginRight: '0.75rem',
   },
 };
 

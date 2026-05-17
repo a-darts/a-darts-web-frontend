@@ -9,7 +9,7 @@ import { useToast } from '../../../context/ToastContext';
 import Modal from '../../../components/Modal';
 import DatePicker from '../../../components/DatePicker';
 import TimePicker from '../../../components/TimePicker';
-import Dropdown from '../../../components/Dropdown';
+import Select from '../../../components/Select';
 
 const toUtcDateParts = (isoString: any) => {
   if (!isoString) return { date: '', time: '12:00' };
@@ -245,7 +245,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
             {/* APERTURA ROW */}
             <div style={styles.modalRow}>
               <h3 style={styles.modalRowTitle}>Apertura</h3>
-              <Dropdown
+              <Select
                 label="¿Deseas programar la apertura de las inscripciones?"
                 value={isStartProgrammed}
                 options={{ NO: 'No', SI: 'Sí' }}
@@ -273,7 +273,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
             {/* CIERRE ROW */}
             <div style={styles.modalRow}>
               <h3 style={styles.modalRowTitle}>Cierre</h3>
-              <Dropdown
+              <Select
                 label="¿Deseas programar el cierre de las inscripciones?"
                 value={isEndProgrammed}
                 options={{ NO: 'No', SI: 'Sí' }}

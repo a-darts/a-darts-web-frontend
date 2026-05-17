@@ -8,7 +8,7 @@ import TextInput from '../components/TextInput';
 import ErrorMessage from '../components/ErrorMessage';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Title from '../components/Title';
-import Dropdown from '../components/Dropdown';
+import Select from '../components/Select';
 import DatePicker from '../components/DatePicker';
 import TimePicker from '../components/TimePicker';
 
@@ -232,7 +232,7 @@ const EditTournamentInfoScreen: React.FC = () => {
           />
         </div>
 
-        <Dropdown
+        <Select
           label="Federación"
           value={federation}
           options={Federations}
@@ -241,7 +241,7 @@ const EditTournamentInfoScreen: React.FC = () => {
         />
 
         <div style={styles.grid2Col}>
-          <Dropdown
+          <Select
             label="Modalidad de Juego"
             value={mode}
             options={GameModes}
@@ -268,7 +268,7 @@ const EditTournamentInfoScreen: React.FC = () => {
             required
           />
 
-          <Dropdown
+          <Select
             label="Tipo de cuadrante"
             value={schedule}
             options={ScheduleTypes}
@@ -278,7 +278,7 @@ const EditTournamentInfoScreen: React.FC = () => {
         </div>
 
         <div style={styles.grid3Col}>
-          <Dropdown
+          <Select
             label="Formato del Juego"
             value={gameType}
             options={GameTypes}
