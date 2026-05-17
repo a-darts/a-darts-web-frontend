@@ -8,6 +8,8 @@ const resources = {
       auth: {
         admin: 'Administrador',
         player: 'Jugador',
+        ADMIN: 'Administrador',
+        PLAYER: 'Jugador',
         login_title: 'Bienvenido de nuevo',
         login_subtitle: 'Ingresa tus credenciales para acceder',
         register_title: 'Crea tu cuenta',
@@ -97,6 +99,8 @@ const resources = {
       auth: {
         admin: 'Administrator',
         player: 'Player',
+        ADMIN: 'Administrator',
+        PLAYER: 'Player',
         login_title: 'Welcome back',
         login_subtitle: 'Enter your credentials to access',
         register_title: 'Create your account',

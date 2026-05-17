@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth, UserRoles } from '../../../context/AuthContext';
 import { Tournament } from '../../../services/tournament.service';
 import {
   getFederationLabel,
@@ -7,20 +9,41 @@ import {
   getGameTypeLabel
 } from '../../../utils/tournament.utils';
 import InfoCard from '../../../components/InfoCard';
+import Button from '../../../components/Button';
 
 interface TournamentInfoTabProps {
   tournament: Tournament;
 }
 
 const TournamentInfoTab: React.FC<TournamentInfoTabProps> = ({ tournament }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const isAdmin = user?.role === UserRoles.ADMIN;
+
   const { info } = tournament;
+  const isTournamentDraftOrPublished =
+    tournament.status === 'DRAFT' || tournament.status === 'PUBLISHED';
   const date = new Date(info.dateTime);
-  const formattedDate = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
-  const formattedTime = date.getUTCHours().toString().padStart(2, '0') + ':' +
+  const formattedDate =
+    date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+  const formattedTime =
+    date.getUTCHours().toString().padStart(2, '0') + ':' +
     date.getUTCMinutes().toString().padStart(2, '0');
 
   return (
     <div style={styles.content}>
+      {isAdmin && isTournamentDraftOrPublished && (
+        <div style={styles.adminActionContainer}>
+          <Button
+            variant="primary"
+            leftIcon="Edit"
+            onClick={() => navigate(`/torneos/${tournament.id}/edit`)}
+          >
+            Editar información
+          </Button>
+        </div>
+      )}
+
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>Información General</h2>
         <div style={styles.infoGrid}>
@@ -78,7 +101,11 @@ const styles: { [key: string]: any } = {
   content: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '3rem',
+    gap: '2rem',
+  },
+  adminActionContainer: {
+    display: 'flex',
+    justifyContent: 'flex-start',
   },
   section: {
     display: 'flex',

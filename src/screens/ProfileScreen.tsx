@@ -8,6 +8,7 @@ import Toast from '../components/Toast';
 import { useState, useEffect } from 'react';
 import ErrorMessage from '../components/ErrorMessage';
 import { getRoleLabel } from '../utils/auth.utils';
+import i18n from '../i18n';
 
 const ProfileScreen: React.FC = () => {
   const { user, updateEmail, updatePassword, updateAlias } = useAuth();
@@ -121,7 +122,7 @@ const ProfileScreen: React.FC = () => {
           </div>
           <div style={styles.headerInfo}>
             <h1 style={styles.title}>{user.alias}</h1>
-            <p style={styles.roleBadge}>{getRoleLabel(user.role)}</p>
+            <p style={styles.roleBadge}>{i18n.t(`auth.${getRoleLabel(user.role)}`)}</p>
           </div>
         </div>
 
@@ -134,7 +135,7 @@ const ProfileScreen: React.FC = () => {
             />
             <InfoCard
               title="Rol"
-              content={getRoleLabel(user.role)}
+              content={i18n.t(`auth.${getRoleLabel(user.role)}`)}
               icon="Shield"
             />
           </div>

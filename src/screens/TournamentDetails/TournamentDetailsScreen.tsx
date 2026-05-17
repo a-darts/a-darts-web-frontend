@@ -254,7 +254,7 @@ const TournamentDetailsScreen: React.FC = () => {
 
 const styles: { [key: string]: any } = {
   container: {
-    padding: '2rem 2rem',
+    padding: '2rem',
     margin: '0 auto',
     width: '100%',
     minHeight: '80vh',

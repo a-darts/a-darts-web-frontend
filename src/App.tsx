@@ -7,6 +7,7 @@ import TournamentDetailsScreen from './screens/TournamentDetails/TournamentDetai
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import EditTournamentInfoScreen from './screens/EditTournamentInfoScreen';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/" element={<HomeScreen />} />
         <Route path="/torneos" element={<TournamentsScreen />} />
         <Route path="/torneos/:id" element={<TournamentDetailsScreen />} />
+        <Route path="/torneos/:id/edit" element={<EditTournamentInfoScreen />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />

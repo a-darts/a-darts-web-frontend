@@ -3,8 +3,8 @@ import { authService } from '../services/auth.service';
 import { useNavigate } from 'react-router-dom';
 
 export enum UserRoles {
-  ADMIN = 'Administrador',
-  USER = 'Usuario',
+  ADMIN = 'ADMIN',
+  USER = 'USER',
 }
 
 interface User {
