@@ -62,7 +62,7 @@ const Modal: React.FC<ModalProps> = ({
 
         <footer style={styles.footer}>
           <Button
-            variant="danger"
+            variant="secondary"
             onClick={onClose}
             disabled={loading}
             leftIcon='X'

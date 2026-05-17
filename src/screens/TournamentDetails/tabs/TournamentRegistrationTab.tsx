@@ -157,6 +157,31 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
     }
   };
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [playerToDelete, setPlayerToDelete] = useState<Participant | null>(null);
+  const [isDeletingPlayer, setIsDeletingPlayer] = useState(false);
+
+  const handleOpenDeleteModal = (player: Participant) => {
+    setPlayerToDelete(player);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!playerToDelete) return;
+    try {
+      setIsDeletingPlayer(true);
+      await tournamentService.unregisterParticipant(tournament.id, playerToDelete.id);
+      showToast('Participante desinscrito correctamente.', 'success');
+      setIsDeleteModalOpen(false);
+      if (onRefresh) onRefresh();
+    } catch (err: any) {
+      console.error('Error deleting participant:', err);
+      showToast(err.message || 'Error al desinscribir al participante.', 'error');
+    } finally {
+      setIsDeletingPlayer(false);
+    }
+  };
+
   const { registration } = tournament;
   const registrationStartsAt = formatTournamentDateTime(registration.registrationPeriod.startsAt);
   const registrationEndsAt = formatTournamentDateTime(registration.registrationPeriod.endsAt);
@@ -193,7 +218,21 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
           <span>{getFederationLabel(item.federation)}</span>
         </div>
       )
-    }
+    },
+    ...(isAdmin ? [{
+      key: 'actions',
+      header: 'Acciones',
+      render: (item: Participant) => (
+        <Button
+          variant="danger"
+          onClick={() => handleOpenDeleteModal(item)}
+          leftIcon="X"
+          style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', height: '32px' }}
+        >
+          Desinscribir
+        </Button>
+      )
+    }] : [])
   ];
 
   return (
@@ -367,6 +406,24 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
         loading={isRegisteringPlayer || isLoadingUnregistered}
         confirmDisabled={!selectedPlayerId || unregisteredPlayers.length === 0}
         maxWidth='600px'
+      />
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="DESINSCRIBIR JUGADOR"
+        description={
+          playerToDelete ? (
+            <div style={{ textAlign: 'left' }}>
+              ¿Estás seguro de que deseas desinscribir a <strong>{playerToDelete.alias}</strong> de este torneo?
+            </div>
+          ) : ''
+        }
+        confirmLabel="Desinscribir"
+        cancelLabel="Cancelar"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        loading={isDeletingPlayer}
       />
     </div>
   );
