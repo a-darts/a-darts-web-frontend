@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { tournamentService, Tournament, TournamentStatus, RegistrationStatus, Participant } from '../../services/tournament.service';
-import { formatTournamentDate, formatTournamentTime, getSeasonEndYear } from '../../utils/tournament.utils';
+import { formatTournamentDate, formatTournamentTime, getSeasonEndYear, getFederationFlag, getFederationLabel } from '../../utils/tournament.utils';
 import Button from '../../components/Button';
 import ErrorMessage from '../../components/ErrorMessage';
 import Breadcrumbs from '../../components/Breadcrumbs';
@@ -176,13 +176,29 @@ const TournamentDetailsScreen: React.FC = () => {
         <Breadcrumbs items={breadcrumbItems} />
 
         <div style={styles.titleContainer}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-            <Title>{name}</Title>
-            <div style={styles.tagsContainer}>
-              <TournamentStatusTag status={status} size="medium" />
-              {status === TournamentStatus.PUBLISHED && (
-                <TournamentRegistrationStatusTag status={registration.status} size="medium" />
-              )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+              <Title>{name}</Title>
+              <div style={styles.tagsContainer}>
+                <TournamentStatusTag status={status} size="medium" />
+                {status === TournamentStatus.PUBLISHED && (
+                  <TournamentRegistrationStatusTag status={registration.status} size="medium" />
+                )}
+              </div>
+            </div>
+            <div style={styles.subtitleMetadata}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {getFederationFlag(info.federation) && (
+                  <img
+                    src={getFederationFlag(info.federation)!}
+                    alt="Flag"
+                    style={{ width: '16px', height: 'auto', borderRadius: '2px', opacity: 0.8 }}
+                  />
+                )}
+                <span>{getFederationLabel(info.federation)}</span>
+              </div>
+              <span style={styles.separator}>•</span>
+              <span>Temporada {tournament.seasonStartYear}/{getSeasonEndYear(tournament.seasonStartYear)}</span>
             </div>
           </div>
 
@@ -206,14 +222,6 @@ const TournamentDetailsScreen: React.FC = () => {
             )
           )}
         </div>
-        <span style={{
-          color: 'rgba(255, 255, 255, 0.4)',
-          fontSize: '0.875rem',
-          fontWeight: '500',
-          marginTop: '0.4rem',
-        }}>
-          Temporada {tournament.seasonStartYear}/{getSeasonEndYear(tournament.seasonStartYear)}
-        </span>
       </header>
 
       <Modal
@@ -279,7 +287,7 @@ const styles: { [key: string]: any } = {
     fontSize: '1.2rem',
   },
   header: {
-    marginBottom: '2rem',
+    marginBottom: '1rem',
     display: 'flex',
     flexDirection: 'column',
     gap: '1.5rem',
@@ -295,6 +303,17 @@ const styles: { [key: string]: any } = {
     display: 'flex',
     gap: '1rem',
     flexWrap: 'wrap',
+  },
+  subtitleMetadata: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: '0.875rem',
+    fontWeight: '500',
+  },
+  separator: {
+    color: 'rgba(255, 255, 255, 0.4)',
   },
 };
 
