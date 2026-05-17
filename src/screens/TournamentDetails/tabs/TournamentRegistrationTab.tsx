@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Tournament, Participant, tournamentService } from '../../../services/tournament.service';
 import Table, { Column } from '../../../components/Table';
-import { getFederationLabel, getFederationFlag, getRegistrationStatusLabel } from '../../../utils/tournament.utils';
+import { getFederationLabel, getFederationFlag, getRegistrationStatusLabel, formatTournamentDateTime } from '../../../utils/tournament.utils';
 import { useAuth, UserRoles } from '../../../context/AuthContext';
 import InfoCard from '../../../components/InfoCard';
 import Button from '../../../components/Button';
@@ -119,19 +119,9 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
     }
   };
 
-  const formatDateTime = (dateVal: any): string => {
-    if (!dateVal) return 'Sin programar';
-    const date = new Date(dateVal);
-    if (isNaN(date.getTime())) return 'Sin programar';
-    const formattedDate = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
-    const formattedTime = date.getUTCHours().toString().padStart(2, '0') + ':' +
-      date.getUTCMinutes().toString().padStart(2, '0');
-    return `${formattedDate} a las ${formattedTime}`;
-  };
-
   const { registration } = tournament;
-  const registrationStartsAt = formatDateTime(registration.registrationPeriod.startsAt);
-  const registrationEndsAt = formatDateTime(registration.registrationPeriod.endsAt);
+  const registrationStartsAt = formatTournamentDateTime(registration.registrationPeriod.startsAt);
+  const registrationEndsAt = formatTournamentDateTime(registration.registrationPeriod.endsAt);
 
   const columns: Column<Participant>[] = [
     {

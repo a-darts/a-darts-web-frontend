@@ -64,6 +64,7 @@ export enum RegistrationStatus {
 export interface Tournament {
   id: string;
   name: string;
+  seasonStartYear: number;
   createdAt: string;
   status: TournamentStatus;
   info: {

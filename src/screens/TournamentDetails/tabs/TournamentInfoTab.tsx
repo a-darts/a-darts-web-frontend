@@ -7,7 +7,9 @@ import {
   getFederationFlag,
   getModeLabel,
   getGameTypeLabel,
-  getScheduleTypeLabel
+  getScheduleTypeLabel,
+  formatTournamentDate,
+  formatTournamentTime
 } from '../../../utils/tournament.utils';
 import InfoCard from '../../../components/InfoCard';
 import Button from '../../../components/Button';
@@ -25,12 +27,8 @@ const TournamentInfoTab: React.FC<TournamentInfoTabProps> = ({ tournament }) => 
   const { info } = tournament;
   const isTournamentDraftOrPublished =
     tournament.status === 'DRAFT' || tournament.status === 'PUBLISHED';
-  const date = new Date(info.dateTime);
-  const formattedDate =
-    date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
-  const formattedTime =
-    date.getUTCHours().toString().padStart(2, '0') + ':' +
-    date.getUTCMinutes().toString().padStart(2, '0');
+  const formattedDate = formatTournamentDate(info.dateTime);
+  const formattedTime = formatTournamentTime(info.dateTime);
 
   return (
     <div style={styles.content}>

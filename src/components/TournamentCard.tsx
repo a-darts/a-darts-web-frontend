@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tournament } from '../services/tournament.service';
-import { getFederationLabel, getFederationFlag } from '../utils/tournament.utils';
+import { getFederationLabel, getFederationFlag, formatTournamentDate, formatTournamentTime } from '../utils/tournament.utils';
 import Icon from './Icon';
 import Button from './Button';
 import TournamentStatusTag from './TournamentStatusTag';
@@ -16,14 +16,8 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
   const { id, name, info } = tournament;
   const { place, dateTime, federation } = info;
 
-  const date = new Date(dateTime);
-  const formattedDate = date.toLocaleDateString('es-ES', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
-  const formattedTime = date.getUTCHours().toString().padStart(2, '0') + ':' +
-    date.getUTCMinutes().toString().padStart(2, '0');
+  const formattedDate = formatTournamentDate(dateTime);
+  const formattedTime = formatTournamentTime(dateTime);
 
   const handleSeeMore = () => {
     navigate(`/torneos/${id}`);

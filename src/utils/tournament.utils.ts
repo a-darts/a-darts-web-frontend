@@ -97,3 +97,41 @@ export const getFederationFlag = (federation: string): string | null => {
 export const getFederationLabel = (federation: string): string => {
   return Federations[federation as keyof typeof Federations] || federation;
 };
+
+/**
+ * Formats a Date object or date string to a localized Spanish date in UTC timezone
+ */
+export const formatTournamentDate = (dateVal: any): string => {
+  if (!dateVal) return '';
+  const date = new Date(dateVal);
+  if (isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+};
+
+/**
+ * Formats a Date object or date string to a string time (HH:MM) in UTC timezone
+ */
+export const formatTournamentTime = (dateVal: any): string => {
+  if (!dateVal) return '';
+  const date = new Date(dateVal);
+  if (isNaN(date.getTime())) return '';
+  const hh = date.getUTCHours().toString().padStart(2, '0');
+  const mm = date.getUTCMinutes().toString().padStart(2, '0');
+  return `${hh}:${mm}`;
+};
+
+/**
+ * Formats a Date object or date string to full Spanish date and time in UTC timezone
+ */
+export const formatTournamentDateTime = (dateVal: any): string => {
+  if (!dateVal) return 'Sin programar';
+  const formattedDate = formatTournamentDate(dateVal);
+  const formattedTime = formatTournamentTime(dateVal);
+  if (!formattedDate || !formattedTime) return 'Sin programar';
+  return `${formattedDate} a las ${formattedTime}`;
+};
