@@ -65,10 +65,10 @@ const Select: React.FC<SelectProps> = ({
     <div style={{ ...styles.selectContainer, ...style }} ref={selectRef}>
       {label && <label style={styles.selectLabel}>{label}</label>}
       <div style={{ position: 'relative', width: '100%' }}>
-        <div 
-          onClick={() => setIsOpen(!isOpen)} 
-          style={{ 
-            ...styles.selectWrapper, 
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            ...styles.selectWrapper,
             cursor: 'pointer',
             borderColor: isOpen ? '#C4E866' : 'rgba(255, 255, 255, 0.1)'
           }}
@@ -154,7 +154,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: 'column',
     gap: '0.5rem',
     width: '100%',
-    marginBottom: '1rem',
   },
   selectLabel: {
     fontSize: '0.875rem',
