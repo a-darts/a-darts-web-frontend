@@ -11,6 +11,7 @@ import Title from '../components/Title';
 import Select from '../components/Select';
 import DatePicker from '../components/DatePicker';
 import TimePicker from '../components/TimePicker';
+import TextArea from '../components/TextArea';
 
 const EditTournamentInfoScreen: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -307,31 +308,21 @@ const EditTournamentInfoScreen: React.FC = () => {
           />
         </div>
 
-        <div style={styles.textareaContainer}>
-          <label style={styles.textareaLabel}>Reglas específicas</label>
-          <div style={styles.textareaWrapper}>
-            <textarea
-              style={styles.textarea}
-              value={rules}
-              onChange={(e) => setRules(e.target.value)}
-              placeholder="Escribe aquí las reglas del torneo..."
-              rows={4}
-            />
-          </div>
-        </div>
+        <TextArea
+          label="Reglas específicas"
+          value={rules}
+          onChange={(e) => setRules(e.target.value)}
+          placeholder="Escribe aquí las reglas del torneo..."
+          rows={4}
+        />
 
-        <div style={styles.textareaContainer}>
-          <label style={styles.textareaLabel}>Más información / Notas</label>
-          <div style={styles.textareaWrapper}>
-            <textarea
-              style={styles.textarea}
-              value={info}
-              onChange={(e) => setInfo(e.target.value)}
-              placeholder="Detalles adicionales, enlaces, premios..."
-              rows={4}
-            />
-          </div>
-        </div>
+        <TextArea
+          label="Más información / Notas"
+          value={info}
+          onChange={(e) => setInfo(e.target.value)}
+          placeholder="Detalles adicionales, enlaces, premios..."
+          rows={4}
+        />
 
         <div style={styles.actionsContainer}>
           <Button
@@ -402,36 +393,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     gap: '1.5rem',
   },
 
-  textareaContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem',
-    width: '100%',
-    marginBottom: '1rem',
-  },
-  textareaLabel: {
-    fontSize: '0.875rem',
-    fontWeight: '600',
-    color: 'var(--text-secondary-color)',
-    marginLeft: '0.25rem',
-  },
-  textareaWrapper: {
-    backgroundColor: 'var(--header-bg)',
-    border: '1px solid var(--btn-secondary-border)',
-    borderRadius: '10px',
-    padding: '0.75rem 1rem',
-    transition: 'all 0.2s ease',
-  },
-  textarea: {
-    width: '100%',
-    background: 'transparent',
-    border: 'none',
-    outline: 'none',
-    color: 'var(--text-color)',
-    fontSize: '0.875rem',
-    fontFamily: 'inherit',
-    resize: 'vertical',
-  },
+
   actionsContainer: {
     display: 'flex',
     justifyContent: 'flex-end',

@@ -1,15 +1,12 @@
 import React from 'react';
-import Icon, { IconName } from './Icon';
 
-interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
-  icon?: IconName;
   error?: string;
 }
 
-const TextInput: React.FC<TextInputProps> = ({
+const TextArea: React.FC<TextAreaProps> = ({
   label,
-  icon,
   error,
   className = '',
   onFocus,
@@ -18,12 +15,12 @@ const TextInput: React.FC<TextInputProps> = ({
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
 
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     setIsFocused(true);
     if (onFocus) onFocus(e);
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     setIsFocused(false);
     if (onBlur) onBlur(e);
   };
@@ -32,12 +29,11 @@ const TextInput: React.FC<TextInputProps> = ({
     <div style={styles.container}>
       {label && <label style={styles.label}>{label}</label>}
       <div style={{
-        ...styles.inputWrapper,
+        ...styles.textareaWrapper,
         borderColor: error ? '#ff4d4f' : (isFocused ? '#C4E866' : 'var(--btn-secondary-border)')
       }}>
-        {icon && <Icon name={icon} size={18} style={styles.icon} />}
-        <input
-          style={styles.input}
+        <textarea
+          style={styles.textarea}
           className={className}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -46,7 +42,6 @@ const TextInput: React.FC<TextInputProps> = ({
       </div>
       {error &&
         <div style={styles.errorContainer}>
-          <Icon name="AlertCircle" size={14} style={styles.errorIcon} />
           <span style={styles.errorText}>{error}</span>
         </div>
       }
@@ -67,41 +62,29 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: '600',
     color: 'var(--text-secondary-color)',
     marginLeft: '0.25rem',
+    textAlign: 'left',
   },
-  inputWrapper: {
-    display: 'flex',
-    alignItems: 'center',
+  textareaWrapper: {
     backgroundColor: 'var(--header-bg)',
     border: '1px solid var(--btn-secondary-border)',
     borderRadius: '10px',
-    padding: '0 1rem',
+    padding: '0.75rem 1rem',
     transition: 'all 0.2s ease',
-    height: '48px',
   },
-  inputError: {
-    borderColor: '#ff4d4f',
-  },
-  icon: {
-    color: 'var(--text-secondary-color)',
-    marginRight: '0.75rem',
-  },
-  input: {
-    flex: 1,
+  textarea: {
+    width: '100%',
     background: 'transparent',
     border: 'none',
     outline: 'none',
     color: 'var(--text-color)',
     fontSize: '0.875rem',
     fontFamily: 'inherit',
-    height: '100%',
+    resize: 'vertical',
   },
   errorContainer: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  errorIcon: {
-    color: '#ff4d4f',
   },
   errorText: {
     fontSize: '0.75rem',
@@ -110,4 +93,4 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 };
 
-export default TextInput;
+export default TextArea;
