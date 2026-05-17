@@ -99,6 +99,15 @@ export interface Participant {
   federation: string;
 }
 
+export interface UnregisteredPlayer {
+  id: string;
+  userId: string;
+  registrationNumber: string;
+  federation: string;
+  seasonStartYear: number;
+  userAlias: string;
+}
+
 export interface BracketPosition {
   position: number;
   participantId: string | null;
@@ -198,6 +207,29 @@ export const tournamentService = {
         headers: {
           'accept': 'application/json',
         },
+      });
+
+      const result = await handleResponse(response);
+      return result.data;
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  getUnregisteredPlayers: async (id: string): Promise<UnregisteredPlayer[]> => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const headers: Record<string, string> = {
+        'accept': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/tournaments/${id}/unregisteredPlayers`, {
+        method: 'GET',
+        headers,
       });
 
       const result = await handleResponse(response);

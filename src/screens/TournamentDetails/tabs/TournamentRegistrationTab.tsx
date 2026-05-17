@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tournament, Participant, tournamentService } from '../../../services/tournament.service';
+import { Tournament, Participant, tournamentService, UnregisteredPlayer } from '../../../services/tournament.service';
 import Table, { Column } from '../../../components/Table';
 import { getFederationLabel, getFederationFlag, getRegistrationStatusLabel, formatTournamentDateTime } from '../../../utils/tournament.utils';
 import { useAuth, UserRoles } from '../../../context/AuthContext';
@@ -10,6 +10,7 @@ import Modal from '../../../components/Modal';
 import DatePicker from '../../../components/DatePicker';
 import TimePicker from '../../../components/TimePicker';
 import Select from '../../../components/Select';
+import ErrorMessage from '../../../components/ErrorMessage';
 
 const toUtcDateParts = (isoString: any) => {
   if (!isoString) return { date: '', time: '12:00' };
@@ -119,6 +120,46 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
     }
   };
 
+  const [isRegisterPlayerModalOpen, setIsRegisterPlayerModalOpen] = useState(false);
+  const [unregisteredPlayers, setUnregisteredPlayers] = useState<UnregisteredPlayer[]>([]);
+  const [selectedPlayerId, setSelectedPlayerId] = useState('');
+  const [isLoadingUnregistered, setIsLoadingUnregistered] = useState(false);
+  const [isRegisteringPlayer, setIsRegisteringPlayer] = useState(false);
+
+  const handleOpenRegisterPlayerModal = async () => {
+    try {
+      setIsLoadingUnregistered(true);
+      setSelectedPlayerId('');
+      setIsRegisterPlayerModalOpen(true);
+      const players = await tournamentService.getUnregisteredPlayers(tournament.id);
+      setUnregisteredPlayers(players);
+      if (players.length > 0) {
+        setSelectedPlayerId(players[0].id);
+      }
+    } catch (err: any) {
+      console.error('Error fetching unregistered players:', err);
+      showToast(err.message || 'Error al obtener los jugadores no inscritos.', 'error');
+    } finally {
+      setIsLoadingUnregistered(false);
+    }
+  };
+
+  const handleConfirmRegisterPlayer = async () => {
+    if (!selectedPlayerId) return;
+    try {
+      setIsRegisteringPlayer(true);
+      await tournamentService.registerParticipant(tournament.id, selectedPlayerId);
+      showToast('Participante inscrito correctamente.', 'success');
+      setIsRegisterPlayerModalOpen(false);
+      if (onRefresh) onRefresh();
+    } catch (err: any) {
+      console.error('Error registering participant:', err);
+      showToast(err.message || 'Error al inscribir al participante.', 'error');
+    } finally {
+      setIsRegisteringPlayer(false);
+    }
+  };
+
   const { registration } = tournament;
   const registrationStartsAt = formatTournamentDateTime(registration.registrationPeriod.startsAt);
   const registrationEndsAt = formatTournamentDateTime(registration.registrationPeriod.endsAt);
@@ -201,7 +242,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
             <Button
               variant="primary"
               leftIcon="Plus"
-            // onClick={() => navigate(`/torneos/${tournament.id}/edit`)}
+              onClick={handleOpenRegisterPlayerModal}
             >
               INSCRIBIR PARTICIPANTE
             </Button>
@@ -295,6 +336,40 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
         loading={isScheduling}
         maxWidth="700px"
       />
+
+      <Modal
+        isOpen={isRegisterPlayerModalOpen}
+        onClose={() => setIsRegisterPlayerModalOpen(false)}
+        title="INSCRIBIR PARTICIPANTE"
+        description={
+          <div style={styles.modalContainer}>
+            {unregisteredPlayers.length === 0 && !isLoadingUnregistered ? (
+              <ErrorMessage
+                message='No hay jugadores disponibles para inscribir (todos los jugadores con ficha en esta temporada ya están inscritos en este torneo).'
+              />
+            ) : (
+              <>
+                <p style={{ color: 'var(--text-secondary-color)', fontSize: '0.9rem', textAlign: 'left' }}>
+                  Elige el jugador al que inscribir al torneo <strong>{tournament.name}</strong>.
+                </p>
+                <Select
+                  label="Jugador"
+                  value={selectedPlayerId}
+                  options={unregisteredPlayers.map(p => ({ value: p.id, label: p.userAlias }))}
+                  onChange={(val) => setSelectedPlayerId(val)}
+                  icon="User"
+                />
+              </>
+            )}
+          </div>
+        }
+        confirmLabel="Confirmar"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmRegisterPlayer}
+        loading={isRegisteringPlayer || isLoadingUnregistered}
+        confirmDisabled={!selectedPlayerId || unregisteredPlayers.length === 0}
+        maxWidth='600px'
+      />
     </div>
   );
 };
@@ -348,10 +423,8 @@ const styles: { [key: string]: any } = {
   modalContainer: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1.5rem',
     width: '100%',
     textAlign: 'left',
-    marginTop: '0.5rem',
   },
   modalRow: {
     display: 'flex',

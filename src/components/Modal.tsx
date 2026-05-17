@@ -13,6 +13,7 @@ interface ModalProps {
   variant?: 'primary' | 'danger';
   loading?: boolean;
   maxWidth?: string;
+  confirmDisabled?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -26,6 +27,7 @@ const Modal: React.FC<ModalProps> = ({
   variant = 'primary',
   loading = false,
   maxWidth = '480px',
+  confirmDisabled = false,
 }) => {
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -71,6 +73,7 @@ const Modal: React.FC<ModalProps> = ({
             variant={variant === 'danger' ? 'danger' : 'primary'}
             onClick={onConfirm}
             loading={loading}
+            disabled={confirmDisabled}
             leftIcon='Check'
           >
             {confirmLabel}
