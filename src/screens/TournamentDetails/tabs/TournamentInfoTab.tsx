@@ -51,27 +51,11 @@ const TournamentInfoTab: React.FC<TournamentInfoTabProps> = ({ tournament }) => 
           <InfoCard title="Fecha" content={formattedDate} icon="Calendar" />
           <InfoCard title="Hora" content={formattedTime} icon="Clock" />
           <InfoCard title="Modalidad" content={getModeLabel(info.mode)} icon="Users" />
-          <InfoCard
-            title="Federación"
-            content={
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                {getFederationFlag(info.federation) && (
-                  <img
-                    src={getFederationFlag(info.federation)!}
-                    alt="Flag"
-                    style={{ width: '20px', height: 'auto', borderRadius: '2px' }}
-                  />
-                )}
-                <span>{getFederationLabel(info.federation)}</span>
-              </div>
-            }
-            icon="Flag"
-          />
+          <InfoCard title="Máx. Jugadores" content={info.maxPlayers ? info.maxPlayers.toString() : 'Sin máximo'} icon="UserPlus" />
         </div>
         <div style={styles.infoGrid}>
           <InfoCard title="Juego" content={info.game} icon="Target" />
           <InfoCard title="Tipo de cuadrante" content={getScheduleTypeLabel(info.schedule)} icon="List" />
-          <InfoCard title="Máx. Jugadores" content={info.maxPlayers ? info.maxPlayers.toString() : 'Sin máximo'} icon="UserPlus" />
           <InfoCard title="Legs" content={`${getGameTypeLabel(info.gameType)} ${info.numLegs} legs`} icon="Layers" />
           <InfoCard title="Sets" content={`${getGameTypeLabel(info.gameType)} ${info.numSets} sets`} icon="Layers" />
         </div>
