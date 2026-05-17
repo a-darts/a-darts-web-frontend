@@ -10,6 +10,7 @@ interface SelectProps {
   label?: string;
   align?: 'left' | 'right';
   style?: React.CSSProperties;
+  placeholder?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -20,6 +21,7 @@ const Select: React.FC<SelectProps> = ({
   label,
   align = 'left',
   style,
+  placeholder = 'Seleccionar...',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
@@ -46,7 +48,7 @@ const Select: React.FC<SelectProps> = ({
 
   if (Array.isArray(options)) {
     const selectedOpt = options.find((o) => o.value === value);
-    displayValue = selectedOpt ? selectedOpt.label : value;
+    displayValue = selectedOpt ? selectedOpt.label : (value || placeholder);
     dropdownItems = options.map((opt) => ({
       label: opt.label,
       icon: opt.icon,
@@ -54,7 +56,7 @@ const Select: React.FC<SelectProps> = ({
     }));
   } else {
     const recordOptions = options as { [key: string]: string };
-    displayValue = recordOptions[value] || value;
+    displayValue = recordOptions[value] || (value || placeholder);
     dropdownItems = Object.keys(recordOptions).map((key) => ({
       label: recordOptions[key],
       onClick: () => onChange(key)
@@ -75,7 +77,12 @@ const Select: React.FC<SelectProps> = ({
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             {icon && <Icon name={icon} size={16} style={styles.selectIcon} />}
-            <span style={{ color: '#fff', fontSize: '0.875rem' }}>{displayValue}</span>
+            <span style={{
+              color: value ? '#fff' : 'rgba(255, 255, 255, 0.4)',
+              fontSize: '0.875rem'
+            }}>
+              {displayValue}
+            </span>
           </div>
           <Icon name={isOpen ? "ChevronUp" : "ChevronDown"} size={16} style={{ color: 'rgba(255, 255, 255, 0.5)' }} />
         </div>

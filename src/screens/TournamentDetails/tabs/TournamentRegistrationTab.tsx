@@ -133,9 +133,6 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
       setIsRegisterPlayerModalOpen(true);
       const players = await tournamentService.getUnregisteredPlayers(tournament.id);
       setUnregisteredPlayers(players);
-      if (players.length > 0) {
-        setSelectedPlayerId(players[0].id);
-      }
     } catch (err: any) {
       console.error('Error fetching unregistered players:', err);
       showToast(err.message || 'Error al obtener los jugadores no inscritos.', 'error');
@@ -358,6 +355,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
                   options={unregisteredPlayers.map(p => ({ value: p.id, label: p.userAlias }))}
                   onChange={(val) => setSelectedPlayerId(val)}
                   icon="User"
+                  placeholder="Selecciona un jugador..."
                 />
               </>
             )}
