@@ -10,6 +10,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import Title from '../components/Title';
 import Icon, { IconName } from '../components/Icon';
 import Dropdown, { DropdownItem } from '../components/Dropdown';
+import DatePicker from '../components/DatePicker';
 
 interface CustomSelectProps {
   label: string;
@@ -261,25 +262,15 @@ const EditTournamentInfoScreen: React.FC = () => {
           required
         />
 
-        <div style={styles.grid2Col}>
-          <TextInput
-            label="Fecha"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            icon="Calendar"
-            required
-          />
-
-          <TextInput
-            label="Hora"
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            icon="Clock"
-            required
-          />
-        </div>
+        <DatePicker
+          dateLabel="Fecha"
+          timeLabel="Hora"
+          dateValue={date}
+          timeValue={time}
+          onDateChange={setDate}
+          onTimeChange={setTime}
+          required
+        />
 
         <CustomDropdownSelect
           label="Federación"

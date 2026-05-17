@@ -7,6 +7,7 @@ import InfoCard from '../../../components/InfoCard';
 import Button from '../../../components/Button';
 import { useToast } from '../../../context/ToastContext';
 import Modal from '../../../components/Modal';
+import DatePicker from '../../../components/DatePicker';
 
 const toUtcDateParts = (isoString: any) => {
   if (!isoString) return { date: '', time: '12:00' };
@@ -239,10 +240,6 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
         title="PROGRAMAR CIERRE/APERTURA DE INSCRIPCIONES"
         description={
           <div style={styles.modalContainer}>
-            <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.95rem', margin: 0 }}>
-              Elige la fecha y hora de apertura y/o cierre de las inscripciones.
-            </p>
-
             {/* APERTURA ROW */}
             <div style={styles.modalRow}>
               <h3 style={styles.modalRowTitle}>Apertura</h3>
@@ -259,28 +256,16 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
               </div>
 
               {isStartProgrammed === 'SI' && (
-                <div style={styles.dateTimeGrid}>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.inputLabel}>Fecha de Apertura</label>
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      style={styles.modalInput}
-                      required
-                    />
-                  </div>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.inputLabel}>Hora de Apertura</label>
-                    <input
-                      type="time"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                      style={styles.modalInput}
-                      required
-                    />
-                  </div>
-                </div>
+                <DatePicker
+                  dateLabel="Fecha de apertura"
+                  timeLabel="Hora de apertura"
+                  dateValue={startDate}
+                  timeValue={startTime}
+                  onDateChange={setStartDate}
+                  onTimeChange={setStartTime}
+                  required
+                  style={{ marginTop: '0.5rem' }}
+                />
               )}
             </div>
 
@@ -300,28 +285,16 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
               </div>
 
               {isEndProgrammed === 'SI' && (
-                <div style={styles.dateTimeGrid}>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.inputLabel}>Fecha de Cierre</label>
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      style={styles.modalInput}
-                      required
-                    />
-                  </div>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.inputLabel}>Hora de Cierre</label>
-                    <input
-                      type="time"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                      style={styles.modalInput}
-                      required
-                    />
-                  </div>
-                </div>
+                <DatePicker
+                  dateLabel="Fecha de cierre"
+                  timeLabel="Hora de cierre"
+                  dateValue={endDate}
+                  timeValue={endTime}
+                  onDateChange={setEndDate}
+                  onTimeChange={setEndTime}
+                  required
+                  style={{ marginTop: '0.5rem' }}
+                />
               )}
             </div>
           </div>
