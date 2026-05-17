@@ -3,13 +3,13 @@ import { Tournament, Participant } from '../../../services/tournament.service';
 import Table, { Column } from '../../../components/Table';
 import { getFederationLabel, getFederationFlag } from '../../../utils/tournament.utils';
 
-interface TournamentInscriptionsTabProps {
+interface TournamentRegistrationTabProps {
   tournament: Tournament;
   participants: Participant[];
   loading?: boolean;
 }
 
-const TournamentInscriptionsTab: React.FC<TournamentInscriptionsTabProps> = ({
+const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
   tournament,
   participants,
   loading = false
@@ -106,4 +106,4 @@ const styles: { [key: string]: any } = {
   },
 };
 
-export default TournamentInscriptionsTab;
+export default TournamentRegistrationTab;

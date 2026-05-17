@@ -11,7 +11,7 @@ import Tabs from '../../components/Tabs';
 import InfoCard from '../../components/InfoCard';
 
 import TournamentInfoTab from './tabs/TournamentInfoTab';
-import TournamentInscriptionsTab from './tabs/TournamentInscriptionsTab';
+import TournamentRegistrationTab from './tabs/TournamentRegistrationTab';
 import TournamentBracketTab from './tabs/TournamentBracketTab';
 import TournamentRegistrationStatusTag from '../../components/TournamentRegistrationStatusTag';
 import Modal from '../../components/Modal';
@@ -163,7 +163,7 @@ const TournamentDetailsScreen: React.FC = () => {
 
   const tabs = [
     { id: 'info', label: 'Información' },
-    { id: 'inscriptions', label: 'Inscripciones' },
+    { id: 'registration', label: 'Inscripciones' },
     { id: 'bracket', label: 'Cuadrante' },
   ];
 
@@ -239,8 +239,8 @@ const TournamentDetailsScreen: React.FC = () => {
       {activeTab === 'info' &&
         <TournamentInfoTab tournament={tournament} />
       }
-      {activeTab === 'inscriptions' && (
-        <TournamentInscriptionsTab
+      {activeTab === 'registration' && (
+        <TournamentRegistrationTab
           tournament={tournament}
           participants={participants}
         />
