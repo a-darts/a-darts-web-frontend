@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth, UserRoles } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { tournamentService, Tournament, Federations, GameModes, GameTypes } from '../services/tournament.service';
+import { tournamentService, Tournament, Federations, GameModes, GameTypes, ScheduleTypes } from '../services/tournament.service';
 import Button from '../components/Button';
 import TextInput from '../components/TextInput';
 import ErrorMessage from '../components/ErrorMessage';
@@ -95,11 +95,11 @@ const EditTournamentInfoScreen: React.FC = () => {
     setSaveError(null);
 
     try {
-      const promises = [];
-
       // Check if name has changed
+      let nameChanged = false;
       if (name !== tournament.name) {
-        promises.push(tournamentService.updateTournamentName(id, name));
+        await tournamentService.updateTournamentName(id, name);
+        nameChanged = true;
       }
 
       // Check if any info fields have changed
@@ -137,11 +137,10 @@ const EditTournamentInfoScreen: React.FC = () => {
         originalInfo.federation !== newInfo.federation;
 
       if (infoChanged) {
-        promises.push(tournamentService.updateTournamentInfo(id, newInfo));
+        await tournamentService.updateTournamentInfo(id, newInfo);
       }
 
-      if (promises.length > 0) {
-        await Promise.all(promises);
+      if (nameChanged || infoChanged) {
         showToast('Torneo actualizado correctamente', 'success');
       } else {
         showToast('No se realizaron cambios', 'info');
@@ -193,57 +192,54 @@ const EditTournamentInfoScreen: React.FC = () => {
       <form onSubmit={handleSave} style={styles.formCard}>
         {saveError && <ErrorMessage message={saveError} />}
 
-        <div style={styles.grid2Col}>
-          <TextInput
-            label="Nombre del Torneo"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            icon="Type"
-            required
-          />
-          <TextInput
-            label="Lugar / Ubicación"
-            value={place}
-            onChange={(e) => setPlace(e.target.value)}
-            icon="MapPin"
-            required
-          />
-        </div>
+        <TextInput
+          label="Nombre del Torneo"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          icon="Type"
+          required
+        />
 
-        <div style={styles.grid2Col}>
-          <TextInput
-            label="Fecha y Hora (Local)"
-            type="datetime-local"
-            value={dateTime}
-            onChange={(e) => setDateTime(e.target.value)}
-            icon="Calendar"
-            required
-          />
-          <div style={styles.selectContainer}>
-            <label style={styles.selectLabel}>Federación</label>
-            <div style={styles.selectWrapper}>
-              <Icon name="Flag" size={18} style={styles.selectIcon} />
-              <select
-                style={styles.select}
-                value={federation}
-                onChange={(e) => setFederation(e.target.value)}
-                required
-              >
-                {Object.keys(Federations).map((key) => (
-                  <option key={key} value={key} style={styles.option}>
-                    {Federations[key as keyof typeof Federations]}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <TextInput
+          label="Lugar / Ubicación"
+          value={place}
+          onChange={(e) => setPlace(e.target.value)}
+          icon="MapPin"
+          required
+        />
+        <TextInput
+          label="Fecha y Hora (Local)"
+          type="datetime-local"
+          value={dateTime}
+          onChange={(e) => setDateTime(e.target.value)}
+          icon="Calendar"
+          required
+        />
+
+        <div style={styles.selectContainer}>
+          <label style={styles.selectLabel}>Federación</label>
+          <div style={styles.selectWrapper}>
+            <Icon name="Flag" size={16} style={styles.selectIcon} />
+            <select
+              style={styles.select}
+              value={federation}
+              onChange={(e) => setFederation(e.target.value)}
+              required
+            >
+              {Object.keys(Federations).map((key) => (
+                <option key={key} value={key} style={styles.option}>
+                  {Federations[key as keyof typeof Federations]}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
-        <div style={styles.grid3Col}>
+        <div style={styles.grid2Col}>
           <div style={styles.selectContainer}>
             <label style={styles.selectLabel}>Modalidad de Juego</label>
             <div style={styles.selectWrapper}>
-              <Icon name="Users" size={18} style={styles.selectIcon} />
+              <Icon name="Users" size={16} style={styles.selectIcon} />
               <select
                 style={styles.select}
                 value={mode}
@@ -260,24 +256,6 @@ const EditTournamentInfoScreen: React.FC = () => {
           </div>
 
           <TextInput
-            label="Juego (ej. 501, 301, Cricket)"
-            value={game}
-            onChange={(e) => setGame(e.target.value)}
-            icon="Target"
-            required
-          />
-
-          <TextInput
-            label="Estructura / Horario (ej. KO, Grupos)"
-            value={schedule}
-            onChange={(e) => setSchedule(e.target.value)}
-            icon="Clock"
-            required
-          />
-        </div>
-
-        <div style={styles.grid4Col}>
-          <TextInput
             label="Máx. Jugadores"
             type="number"
             value={maxPlayers}
@@ -285,11 +263,42 @@ const EditTournamentInfoScreen: React.FC = () => {
             placeholder="Sin límite"
             icon="UserPlus"
           />
+        </div>
 
+        <div style={styles.grid2Col}>
+          <TextInput
+            label="Juego (ej. 501, 301, Cricket)"
+            value={game}
+            onChange={(e) => setGame(e.target.value)}
+            icon="Target"
+            required
+          />
+
+          <div style={styles.selectContainer}>
+            <label style={styles.selectLabel}>Tipo de cuadrante</label>
+            <div style={styles.selectWrapper}>
+              <Icon name="List" size={16} style={styles.selectIcon} />
+              <select
+                style={styles.select}
+                value={schedule}
+                onChange={(e) => setSchedule(e.target.value)}
+                required
+              >
+                {Object.keys(ScheduleTypes).map((key) => (
+                  <option key={key} value={key} style={styles.option}>
+                    {ScheduleTypes[key as keyof typeof ScheduleTypes]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style={styles.grid3Col}>
           <div style={styles.selectContainer}>
             <label style={styles.selectLabel}>Formato del Juego</label>
             <div style={styles.selectWrapper}>
-              <Icon name="Layers" size={18} style={styles.selectIcon} />
+              <Icon name="Layers" size={16} style={styles.selectIcon} />
               <select
                 style={styles.select}
                 value={gameType}
@@ -403,6 +412,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     gap: '1.5rem',
+    maxWidth: '900px'
   },
   grid2Col: {
     display: 'grid',

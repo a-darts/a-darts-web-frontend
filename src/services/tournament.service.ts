@@ -52,6 +52,10 @@ export enum GameTypes {
   FIRST_TO = 'A ganar',
 }
 
+export enum ScheduleTypes {
+  KO = 'K.O. directo',
+}
+
 export enum RegistrationStatus {
   OPEN = 'OPEN',
   CLOSED = 'CLOSED',

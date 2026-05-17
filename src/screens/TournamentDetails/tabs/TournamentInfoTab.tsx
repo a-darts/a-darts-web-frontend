@@ -6,7 +6,8 @@ import {
   getFederationLabel,
   getFederationFlag,
   getModeLabel,
-  getGameTypeLabel
+  getGameTypeLabel,
+  getScheduleTypeLabel
 } from '../../../utils/tournament.utils';
 import InfoCard from '../../../components/InfoCard';
 import Button from '../../../components/Button';
@@ -70,6 +71,7 @@ const TournamentInfoTab: React.FC<TournamentInfoTabProps> = ({ tournament }) => 
         </div>
         <div style={styles.infoGrid}>
           <InfoCard title="Juego" content={info.game} icon="Target" />
+          <InfoCard title="Tipo de cuadrante" content={getScheduleTypeLabel(info.schedule)} icon="List" />
           <InfoCard title="Máx. Jugadores" content={info.maxPlayers ? info.maxPlayers.toString() : 'Sin máximo'} icon="UserPlus" />
           <InfoCard title="Legs" content={`${getGameTypeLabel(info.gameType)} ${info.numLegs} legs`} icon="Layers" />
           <InfoCard title="Sets" content={`${getGameTypeLabel(info.gameType)} ${info.numSets} sets`} icon="Layers" />
