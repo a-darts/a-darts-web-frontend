@@ -46,7 +46,6 @@ const ProfileScreen: React.FC = () => {
   }
 
   const formatDate = (dateString: string) => {
-    console.log(dateString);
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',

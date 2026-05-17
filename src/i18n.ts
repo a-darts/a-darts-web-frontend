@@ -55,6 +55,10 @@ const resources = {
           'All fields are required': 'Todos los campos son obligatorios',
           //
 
+          // TournamentExceptions
+          'Tournament not found': 'Torneo no encontrado',
+          //
+
           // Errores con tokens
           'No token provided': 'Token no proporcionado',
           'User not authenticated': 'Usuario no autenticado',

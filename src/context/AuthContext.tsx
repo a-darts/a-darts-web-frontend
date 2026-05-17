@@ -38,7 +38,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       if (authService.isAuthenticated()) {
         const userData = await authService.getMe();
-        console.log('AuthContext: User refreshed:', userData);
         setUser(userData);
       } else {
         setUser(null);
@@ -58,21 +57,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const login = async (email: string, password: string) => {
-    console.log('AuthContext: Attempting login...');
     await authService.login(email, password);
-    console.log('AuthContext: Login success, refreshing user...');
     await refreshUser();
   };
 
   const register = async (email: string, password: string, alias: string) => {
-    console.log('AuthContext: Attempting registration...');
     await authService.register(email, password, alias);
-    console.log('AuthContext: Registration success, logging in...');
     await login(email, password);
   };
 
   const logout = async () => {
-    console.log('AuthContext: Logging out...');
     await authService.logout();
     setUser(null);
     navigate('/');
