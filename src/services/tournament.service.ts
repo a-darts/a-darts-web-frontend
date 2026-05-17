@@ -439,4 +439,11 @@ export const tournamentService = {
       throw handleFetchError(error);
     }
   },
+
+  saveBracketPositions: async (id: string, positions: BracketPosition[]): Promise<void> => {
+    // MIRAR CAMBIAR
+    // MOCK API CALL - Will be connected to actual endpoint later
+    console.log('Mock: Saving bracket positions to API:', { tournamentId: id, positions });
+    return new Promise(resolve => setTimeout(resolve, 800));
+  },
 };

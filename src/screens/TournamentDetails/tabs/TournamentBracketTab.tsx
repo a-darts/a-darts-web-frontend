@@ -9,9 +9,15 @@ import Button from '../../../components/Button';
 
 interface TournamentBracketTabProps {
   tournament: Tournament;
+  onStartEditing?: () => void;
+  onBracketGenerated?: () => void;
 }
 
-const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({ tournament }) => {
+const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
+  tournament,
+  onStartEditing,
+  onBracketGenerated,
+}) => {
   const [bracket, setBracket] = useState<Bracket | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,14 +34,18 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({ tournament 
       await tournamentService.generateBracket(tournament.id);
       showToast('¡Cuadrante generado correctamente!', 'success');
 
-      // Re-fetch data
-      const [bracketData, matchesData] = await Promise.all([
-        tournamentService.getTournamentBracket(tournament.id),
-        tournamentService.getTournamentMatches(tournament.id)
-      ]);
-      setBracket(bracketData);
-      setMatches(matchesData);
-      setIsNotPublished(false);
+      if (onBracketGenerated) {
+        onBracketGenerated();
+      } else {
+        // Re-fetch data if parent callback is not provided
+        const [bracketData, matchesData] = await Promise.all([
+          tournamentService.getTournamentBracket(tournament.id),
+          tournamentService.getTournamentMatches(tournament.id)
+        ]);
+        setBracket(bracketData);
+        setMatches(matchesData);
+        setIsNotPublished(false);
+      }
     } catch (err: any) {
       console.error('Error generating bracket:', err);
       showToast(err.message || 'Error al generar el cuadrante.', 'error');
@@ -151,6 +161,17 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({ tournament 
 
   return (
     <div style={styles.container}>
+      {isAdmin && tournament.status === 'PUBLISHED' && onStartEditing && (
+        <div style={styles.editButtonContainer}>
+          <Button
+            variant="secondary"
+            leftIcon="Edit3"
+            onClick={onStartEditing}
+          >
+            Editar posiciones
+          </Button>
+        </div>
+      )}
       <div style={styles.bracketWrapper}>
         {roundsData.map((round, roundIndex) => {
           const roundMatchContainerHeight = (matchHeight + initialGap) * Math.pow(2, roundIndex);
@@ -325,6 +346,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     maxWidth: '400px',
     margin: '0 auto',
     lineHeight: '1.6',
+  },
+  editButtonContainer: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    width: '100%',
+    marginBottom: '1.5rem',
   },
 };
 

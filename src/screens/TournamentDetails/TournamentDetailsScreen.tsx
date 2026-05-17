@@ -12,6 +12,7 @@ import Tabs from '../../components/Tabs';
 import TournamentInfoTab from './tabs/TournamentInfoTab';
 import TournamentRegistrationTab from './tabs/TournamentRegistrationTab';
 import TournamentBracketTab from './tabs/TournamentBracketTab';
+import TournamentCreateBracketTab from './tabs/TournamentCreateBracketTab';
 import TournamentRegistrationStatusTag from '../../components/TournamentRegistrationStatusTag';
 import Modal from '../../components/Modal';
 import { useAuth, UserRoles } from '../../context/AuthContext';
@@ -36,6 +37,29 @@ const TournamentDetailsScreen: React.FC = () => {
   const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
   const [isStartModalOpen, setIsStartModalOpen] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
+  const [isEditingBracket, setIsEditingBracket] = useState(false);
+
+  const handleBracketGenerated = () => {
+    setIsEditingBracket(true);
+    setActiveTab('create-bracket');
+  };
+
+  const handleBracketSaved = () => {
+    setIsEditingBracket(false);
+    setActiveTab('bracket');
+    refreshData();
+  };
+
+  const handleBracketCanceled = () => {
+    setIsEditingBracket(false);
+    setActiveTab('bracket');
+  };
+
+  const handleStartEditing = () => {
+    setIsEditingBracket(true);
+    setActiveTab('create-bracket');
+  };
+
 
   useEffect(() => {
     const fetchTournament = async () => {
@@ -190,6 +214,7 @@ const TournamentDetailsScreen: React.FC = () => {
     { id: 'info', label: 'Información' },
     { id: 'registration', label: 'Inscripciones' },
     { id: 'bracket', label: 'Cuadrante' },
+    ...(isAdmin && isEditingBracket ? [{ id: 'create-bracket', label: 'Configurar cuadrante' }] : []),
   ];
 
   return (
@@ -315,9 +340,21 @@ const TournamentDetailsScreen: React.FC = () => {
           onRefresh={refreshData}
         />
       )}
-      {activeTab === 'bracket' &&
-        <TournamentBracketTab tournament={tournament} />
-      }
+      {activeTab === 'create-bracket' && (
+        <TournamentCreateBracketTab
+          tournament={tournament}
+          participants={participants}
+          onSave={handleBracketSaved}
+          onCancel={handleBracketCanceled}
+        />
+      )}
+      {activeTab === 'bracket' && (
+        <TournamentBracketTab
+          tournament={tournament}
+          onStartEditing={handleStartEditing}
+          onBracketGenerated={handleBracketGenerated}
+        />
+      )}
     </div>
   );
 };
