@@ -8,7 +8,53 @@ import TextInput from '../components/TextInput';
 import ErrorMessage from '../components/ErrorMessage';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Title from '../components/Title';
-import Icon from '../components/Icon';
+import Icon, { IconName } from '../components/Icon';
+import Dropdown, { DropdownItem } from '../components/Dropdown';
+
+interface CustomSelectProps {
+  label: string;
+  value: string;
+  options: { [key: string]: string };
+  onChange: (value: string) => void;
+  icon: IconName;
+  style?: React.CSSProperties;
+}
+
+const CustomDropdownSelect: React.FC<CustomSelectProps> = ({
+  label,
+  value,
+  options,
+  onChange,
+  icon,
+  style,
+}) => {
+  const selectedLabel = options[value] || value;
+
+  const dropdownItems: DropdownItem[] = Object.keys(options).map((key) => ({
+    label: options[key],
+    onClick: () => onChange(key),
+  }));
+
+  return (
+    <div style={{ ...styles.selectContainer, ...style }}>
+      {label && <label style={styles.selectLabel}>{label}</label>}
+      <Dropdown
+        align="left"
+        style={{ width: '100%' }}
+        trigger={(isOpen) => (
+          <div style={{ ...styles.selectWrapper, width: '100%', justifyContent: 'space-between', cursor: 'pointer' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <Icon name={icon} size={16} style={styles.selectIcon} />
+              <span style={{ color: 'var(--text-color)', fontSize: '0.875rem' }}>{selectedLabel}</span>
+            </div>
+            <Icon name={isOpen ? "ChevronUp" : "ChevronDown"} size={16} style={{ color: 'var(--text-secondary-color)' }} />
+          </div>
+        )}
+        items={dropdownItems}
+      />
+    </div>
+  );
+};
 
 const EditTournamentInfoScreen: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +71,8 @@ const EditTournamentInfoScreen: React.FC = () => {
   // Form State
   const [name, setName] = useState('');
   const [place, setPlace] = useState('');
-  const [dateTime, setDateTime] = useState('');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [mode, setMode] = useState('');
   const [game, setGame] = useState('');
   const [schedule, setSchedule] = useState('');
@@ -37,12 +84,15 @@ const EditTournamentInfoScreen: React.FC = () => {
   const [info, setInfo] = useState('');
   const [federation, setFederation] = useState('');
 
-  const toLocalDatetimeString = (isoString: string): string => {
+  const toUtcDatetimeString = (isoString: string): string => {
     if (!isoString) return '';
     const date = new Date(isoString);
-    const offset = date.getTimezoneOffset();
-    const localDate = new Date(date.getTime() - (offset * 60 * 1000));
-    return localDate.toISOString().substring(0, 16);
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
 
   useEffect(() => {
@@ -63,7 +113,10 @@ const EditTournamentInfoScreen: React.FC = () => {
         // Initialize Form State
         setName(data.name);
         setPlace(data.info.place);
-        setDateTime(toLocalDatetimeString(data.info.dateTime));
+        const utcDt = toUtcDatetimeString(data.info.dateTime);
+        const [d, t] = utcDt.split('T');
+        setDate(d || '');
+        setTime(t || '');
         setMode(data.info.mode);
         setGame(data.info.game);
         setSchedule(data.info.schedule);
@@ -105,7 +158,7 @@ const EditTournamentInfoScreen: React.FC = () => {
       // Check if any info fields have changed
       const originalInfo = tournament.info;
       const formattedMaxPlayers = maxPlayers === '' ? null : Number(maxPlayers);
-      const isoDateTimeString = new Date(dateTime).toISOString();
+      const isoDateTimeString = `${date}T${time}:00.000Z`;
 
       const newInfo = {
         place,
@@ -207,53 +260,43 @@ const EditTournamentInfoScreen: React.FC = () => {
           icon="MapPin"
           required
         />
-        <TextInput
-          label="Fecha y Hora (Local)"
-          type="datetime-local"
-          value={dateTime}
-          onChange={(e) => setDateTime(e.target.value)}
-          icon="Calendar"
-          required
-        />
-
-        <div style={styles.selectContainer}>
-          <label style={styles.selectLabel}>Federación</label>
-          <div style={styles.selectWrapper}>
-            <Icon name="Flag" size={16} style={styles.selectIcon} />
-            <select
-              style={styles.select}
-              value={federation}
-              onChange={(e) => setFederation(e.target.value)}
-              required
-            >
-              {Object.keys(Federations).map((key) => (
-                <option key={key} value={key} style={styles.option}>
-                  {Federations[key as keyof typeof Federations]}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
 
         <div style={styles.grid2Col}>
-          <div style={styles.selectContainer}>
-            <label style={styles.selectLabel}>Modalidad de Juego</label>
-            <div style={styles.selectWrapper}>
-              <Icon name="Users" size={16} style={styles.selectIcon} />
-              <select
-                style={styles.select}
-                value={mode}
-                onChange={(e) => setMode(e.target.value)}
-                required
-              >
-                {Object.keys(GameModes).map((key) => (
-                  <option key={key} value={key} style={styles.option}>
-                    {GameModes[key as keyof typeof GameModes]}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          <TextInput
+            label="Fecha"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            icon="Calendar"
+            required
+          />
+
+          <TextInput
+            label="Hora"
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            icon="Clock"
+            required
+          />
+        </div>
+
+        <CustomDropdownSelect
+          label="Federación"
+          value={federation}
+          options={Federations}
+          onChange={setFederation}
+          icon="Flag"
+        />
+
+        <div style={styles.grid2Col}>
+          <CustomDropdownSelect
+            label="Modalidad de Juego"
+            value={mode}
+            options={GameModes}
+            onChange={setMode}
+            icon="Users"
+          />
 
           <TextInput
             label="Máx. Jugadores"
@@ -274,45 +317,23 @@ const EditTournamentInfoScreen: React.FC = () => {
             required
           />
 
-          <div style={styles.selectContainer}>
-            <label style={styles.selectLabel}>Tipo de cuadrante</label>
-            <div style={styles.selectWrapper}>
-              <Icon name="List" size={16} style={styles.selectIcon} />
-              <select
-                style={styles.select}
-                value={schedule}
-                onChange={(e) => setSchedule(e.target.value)}
-                required
-              >
-                {Object.keys(ScheduleTypes).map((key) => (
-                  <option key={key} value={key} style={styles.option}>
-                    {ScheduleTypes[key as keyof typeof ScheduleTypes]}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          <CustomDropdownSelect
+            label="Tipo de cuadrante"
+            value={schedule}
+            options={ScheduleTypes}
+            onChange={setSchedule}
+            icon="List"
+          />
         </div>
 
         <div style={styles.grid3Col}>
-          <div style={styles.selectContainer}>
-            <label style={styles.selectLabel}>Formato del Juego</label>
-            <div style={styles.selectWrapper}>
-              <Icon name="Layers" size={16} style={styles.selectIcon} />
-              <select
-                style={styles.select}
-                value={gameType}
-                onChange={(e) => setGameType(e.target.value)}
-                required
-              >
-                {Object.keys(GameTypes).map((key) => (
-                  <option key={key} value={key} style={styles.option}>
-                    {GameTypes[key as keyof typeof GameTypes]}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          <CustomDropdownSelect
+            label="Formato del Juego"
+            value={gameType}
+            options={GameTypes}
+            onChange={setGameType}
+            icon="Layers"
+          />
 
           <TextInput
             label="Número de Legs"

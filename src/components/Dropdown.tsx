@@ -12,9 +12,10 @@ interface DropdownProps {
   trigger: React.ReactNode | ((isOpen: boolean) => React.ReactNode);
   items: DropdownItem[];
   align?: 'left' | 'right';
+  style?: React.CSSProperties;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ trigger, items, align = 'right' }) => {
+const Dropdown: React.FC<DropdownProps> = ({ trigger, items, align = 'right', style }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -35,13 +36,18 @@ const Dropdown: React.FC<DropdownProps> = ({ trigger, items, align = 'right' }) 
   }, [isOpen]);
 
   return (
-    <div style={styles.container} ref={dropdownRef}>
-      <div onClick={() => setIsOpen(!isOpen)} style={styles.trigger}>
+    <div style={{ ...styles.container, ...style }} ref={dropdownRef}>
+      <div onClick={() => setIsOpen(!isOpen)} style={{ ...styles.trigger, width: style?.width === '100%' ? '100%' : undefined }}>
         {typeof trigger === 'function' ? trigger(isOpen) : trigger}
       </div>
 
       {isOpen && (
-        <div style={{ ...styles.menu, ...(align === 'right' ? { right: 0 } : { left: 0 }) }}>
+        <div style={{
+          ...styles.menu,
+          ...(align === 'right' ? { right: 0 } : { left: 0 }),
+          width: style?.width === '100%' ? '100%' : undefined,
+          minWidth: style?.width === '100%' ? '100%' : '180px'
+        }}>
           {items.map((item, index) => (
             <button
               key={index}
