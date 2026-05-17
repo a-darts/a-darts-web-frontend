@@ -34,6 +34,8 @@ const TournamentDetailsScreen: React.FC = () => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [modalMode, setModalMode] = useState<'register' | 'unregister'>('register');
   const [currentPlayerId, setCurrentPlayerId] = useState<string | null>(null);
+  const [isStartModalOpen, setIsStartModalOpen] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
 
   useEffect(() => {
     const fetchTournament = async () => {
@@ -155,6 +157,26 @@ const TournamentDetailsScreen: React.FC = () => {
     }
   };
 
+  const handleInitTournament = () => {
+    setIsStartModalOpen(true);
+  };
+
+  const handleConfirmStartTournament = async () => {
+    if (!tournament) return;
+    try {
+      setIsStarting(true);
+      await tournamentService.startTournament(tournament.id);
+      showToast('¡Torneo iniciado correctamente!', 'success');
+      setIsStartModalOpen(false);
+      await refreshData();
+    } catch (err: any) {
+      console.error('Error starting tournament:', err);
+      showToast(err.message || 'Error al iniciar el torneo.', 'error');
+    } finally {
+      setIsStarting(false);
+    }
+  };
+
   const formattedDate = formatTournamentDate(info.dateTime);
   const formattedTime = formatTournamentTime(info.dateTime);
 
@@ -221,6 +243,16 @@ const TournamentDetailsScreen: React.FC = () => {
               </Button>
             )
           )}
+
+          {isAdmin && status === TournamentStatus.PUBLISHED && (
+            <Button
+              variant="primary"
+              leftIcon="Play"
+              onClick={handleInitTournament}
+            >
+              INICIAR TORNEO
+            </Button>
+          )}
         </div>
       </header>
 
@@ -248,6 +280,23 @@ const TournamentDetailsScreen: React.FC = () => {
         variant='danger'
         onConfirm={handleConfirmRegistration}
         loading={isRegistering}
+      />
+
+      <Modal
+        isOpen={isStartModalOpen}
+        onClose={() => setIsStartModalOpen(false)}
+        title="INICIAR TORNEO"
+        description={
+          <div style={{ textAlign: 'left' }}>
+            ¿Estás seguro de que deseas iniciar el torneo <strong>{name}</strong>?
+            <br /><br />
+            Una vez iniciado, las inscripciones no podrán volver a abrirse y el cuadrante no podrá modificarse.
+          </div>
+        }
+        confirmLabel="Iniciar"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmStartTournament}
+        loading={isStarting}
       />
 
       <Tabs
