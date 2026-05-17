@@ -135,3 +135,10 @@ export const formatTournamentDateTime = (dateVal: any): string => {
   if (!formattedDate || !formattedTime) return 'Sin programar';
   return `${formattedDate} a las ${formattedTime}`;
 };
+
+/**
+ * Returns the end year of a season based on its start year (simply adds 1)
+ */
+export const getSeasonEndYear = (startYear: number): number => {
+  return startYear + 1;
+};

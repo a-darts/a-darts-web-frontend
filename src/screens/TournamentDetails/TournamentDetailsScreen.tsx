@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { tournamentService, Tournament, TournamentStatus, RegistrationStatus, Participant } from '../../services/tournament.service';
-import { getStatusLabel, getFederationLabel, getFederationFlag, getModeLabel, getGameTypeLabel, formatTournamentDate, formatTournamentTime } from '../../utils/tournament.utils';
+import { formatTournamentDate, formatTournamentTime, getSeasonEndYear } from '../../utils/tournament.utils';
 import Button from '../../components/Button';
 import ErrorMessage from '../../components/ErrorMessage';
 import Breadcrumbs from '../../components/Breadcrumbs';
 import Title from '../../components/Title';
 import TournamentStatusTag from '../../components/TournamentStatusTag';
 import Tabs from '../../components/Tabs';
-import InfoCard from '../../components/InfoCard';
 
 import TournamentInfoTab from './tabs/TournamentInfoTab';
 import TournamentRegistrationTab from './tabs/TournamentRegistrationTab';
@@ -177,7 +176,7 @@ const TournamentDetailsScreen: React.FC = () => {
         <Breadcrumbs items={breadcrumbItems} />
 
         <div style={styles.titleContainer}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
             <Title>{name}</Title>
             <div style={styles.tagsContainer}>
               <TournamentStatusTag status={status} size="medium" />
@@ -207,6 +206,14 @@ const TournamentDetailsScreen: React.FC = () => {
             )
           )}
         </div>
+        <span style={{
+          color: 'rgba(255, 255, 255, 0.4)',
+          fontSize: '0.875rem',
+          fontWeight: '500',
+          marginTop: '0.4rem',
+        }}>
+          Temporada {tournament.seasonStartYear}/{getSeasonEndYear(tournament.seasonStartYear)}
+        </span>
       </header>
 
       <Modal
@@ -216,7 +223,7 @@ const TournamentDetailsScreen: React.FC = () => {
         description={modalMode === 'register'
           ? (
             <>
-              Confirma la inscripción al <strong>{name}</strong>
+              Confirma la inscripción al torneo <strong>{name}</strong>
               <br /><br />
               <strong>Fecha:</strong> {formattedDate}<br />
               <strong>Hora:</strong> {formattedTime}<br />
@@ -224,12 +231,13 @@ const TournamentDetailsScreen: React.FC = () => {
             </>
           ) : (
             <>
-              ¿Estás seguro de que deseas desinscribirte de <strong>{name}</strong>?
+              ¿Estás seguro de que deseas desinscribirte del torneo <strong>{name}</strong>?
             </>
           )
         }
         confirmLabel={modalMode === 'register' ? "Confirmar" : "Desinscribirse"}
         cancelLabel="Cancelar"
+        variant='danger'
         onConfirm={handleConfirmRegistration}
         loading={isRegistering}
       />

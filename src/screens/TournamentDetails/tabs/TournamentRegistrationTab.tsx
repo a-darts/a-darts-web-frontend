@@ -415,7 +415,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
         description={
           playerToDelete ? (
             <div style={{ textAlign: 'left' }}>
-              ¿Estás seguro de que deseas desinscribir a <strong>{playerToDelete.alias}</strong> de este torneo?
+              ¿Estás seguro de que deseas desinscribir a <strong>{playerToDelete.alias}</strong> del torneo <strong>{tournament.name}</strong>?
             </div>
           ) : ''
         }
