@@ -10,7 +10,6 @@ import Modal from '../../../components/Modal';
 import DatePicker from '../../../components/DatePicker';
 import TimePicker from '../../../components/TimePicker';
 import Dropdown from '../../../components/Dropdown';
-import Icon from '../../../components/Icon';
 
 const toUtcDateParts = (isoString: any) => {
   if (!isoString) return { date: '', time: '12:00' };
@@ -109,7 +108,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
         endsAt
       });
 
-      showToast('Programación de inscripciones actualizada correctamente.', 'success');
+      showToast('Inscripciones programadas correctamente', 'success');
       setIsScheduleModalOpen(false);
       if (onRefresh) onRefresh();
     } catch (err: any) {
@@ -246,36 +245,23 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
             {/* APERTURA ROW */}
             <div style={styles.modalRow}>
               <h3 style={styles.modalRowTitle}>Apertura</h3>
-              <div style={styles.inputGroup}>
-                <label style={styles.inputLabel}>¿Deseas programar la apertura de las inscripciones?</label>
-                <Dropdown
-                  align="left"
-                  style={{ width: '100%' }}
-                  trigger={(isOpen) => (
-                    <div style={styles.modalSelectWrapper}>
-                      <span style={{ color: '#fff', fontSize: '0.9rem' }}>
-                        {isStartProgrammed === 'SI' ? 'Sí' : 'No'}
-                      </span>
-                      <Icon name={isOpen ? "ChevronUp" : "ChevronDown"} size={16} style={{ color: 'rgba(255, 255, 255, 0.5)' }} />
-                    </div>
-                  )}
-                  items={[
-                    { label: 'No', onClick: () => setIsStartProgrammed('NO') },
-                    { label: 'Sí', onClick: () => setIsStartProgrammed('SI') }
-                  ]}
-                />
-              </div>
+              <Dropdown
+                label="¿Deseas programar la apertura de las inscripciones?"
+                value={isStartProgrammed}
+                options={{ NO: 'No', SI: 'Sí' }}
+                onChange={(val) => setIsStartProgrammed(val as 'SI' | 'NO')}
+              />
 
               {isStartProgrammed === 'SI' && (
                 <div style={styles.dateTimeGrid}>
                   <DatePicker
-                    label="Fecha de cierre"
+                    label="Fecha de apertura"
                     value={startDate}
                     onChange={setStartDate}
                     required
                   />
                   <TimePicker
-                    label="Hora de cierre"
+                    label="Hora de apertura"
                     value={startTime}
                     onChange={setStartTime}
                     required
@@ -287,25 +273,12 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
             {/* CIERRE ROW */}
             <div style={styles.modalRow}>
               <h3 style={styles.modalRowTitle}>Cierre</h3>
-              <div style={styles.inputGroup}>
-                <label style={styles.inputLabel}>¿Deseas programar el cierre de las inscripciones?</label>
-                <Dropdown
-                  align="left"
-                  style={{ width: '100%' }}
-                  trigger={(isOpen) => (
-                    <div style={styles.modalSelectWrapper}>
-                      <span style={{ color: '#fff', fontSize: '0.9rem' }}>
-                        {isEndProgrammed === 'SI' ? 'Sí' : 'No'}
-                      </span>
-                      <Icon name={isOpen ? "ChevronUp" : "ChevronDown"} size={16} style={{ color: 'rgba(255, 255, 255, 0.5)' }} />
-                    </div>
-                  )}
-                  items={[
-                    { label: 'No', onClick: () => setIsEndProgrammed('NO') },
-                    { label: 'Sí', onClick: () => setIsEndProgrammed('SI') }
-                  ]}
-                />
-              </div>
+              <Dropdown
+                label="¿Deseas programar el cierre de las inscripciones?"
+                value={isEndProgrammed}
+                options={{ NO: 'No', SI: 'Sí' }}
+                onChange={(val) => setIsEndProgrammed(val as 'SI' | 'NO')}
+              />
 
               {isEndProgrammed === 'SI' && (
                 <div style={styles.dateTimeGrid}>
@@ -404,34 +377,7 @@ const styles: { [key: string]: any } = {
     letterSpacing: '1px',
     margin: 0,
   },
-  inputGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem',
-    width: '100%',
-  },
-  inputLabel: {
-    fontSize: '0.8rem',
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.5)',
-    textAlign: 'left',
-  },
-  modalSelectWrapper: {
-    padding: '0.75rem 1rem',
-    backgroundColor: '#1E1E1E',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '8px',
-    color: '#fff',
-    fontSize: '0.9rem',
-    outline: 'none',
-    width: '100%',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    boxSizing: 'border-box',
-  },
+
   modalInput: {
     padding: '0.75rem 1rem',
     backgroundColor: '#1E1E1E',

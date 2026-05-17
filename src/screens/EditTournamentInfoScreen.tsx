@@ -8,55 +8,9 @@ import TextInput from '../components/TextInput';
 import ErrorMessage from '../components/ErrorMessage';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Title from '../components/Title';
-import Icon, { IconName } from '../components/Icon';
-import Dropdown, { DropdownItem } from '../components/Dropdown';
+import Dropdown from '../components/Dropdown';
 import DatePicker from '../components/DatePicker';
 import TimePicker from '../components/TimePicker';
-
-interface CustomSelectProps {
-  label: string;
-  value: string;
-  options: { [key: string]: string };
-  onChange: (value: string) => void;
-  icon: IconName;
-  style?: React.CSSProperties;
-}
-
-const CustomDropdownSelect: React.FC<CustomSelectProps> = ({
-  label,
-  value,
-  options,
-  onChange,
-  icon,
-  style,
-}) => {
-  const selectedLabel = options[value] || value;
-
-  const dropdownItems: DropdownItem[] = Object.keys(options).map((key) => ({
-    label: options[key],
-    onClick: () => onChange(key),
-  }));
-
-  return (
-    <div style={{ ...styles.selectContainer, ...style }}>
-      {label && <label style={styles.selectLabel}>{label}</label>}
-      <Dropdown
-        align="left"
-        style={{ width: '100%' }}
-        trigger={(isOpen) => (
-          <div style={{ ...styles.selectWrapper, width: '100%', justifyContent: 'space-between', cursor: 'pointer' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <Icon name={icon} size={16} style={styles.selectIcon} />
-              <span style={{ color: 'var(--text-color)', fontSize: '0.875rem' }}>{selectedLabel}</span>
-            </div>
-            <Icon name={isOpen ? "ChevronUp" : "ChevronDown"} size={16} style={{ color: 'var(--text-secondary-color)' }} />
-          </div>
-        )}
-        items={dropdownItems}
-      />
-    </div>
-  );
-};
 
 const EditTournamentInfoScreen: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -278,7 +232,7 @@ const EditTournamentInfoScreen: React.FC = () => {
           />
         </div>
 
-        <CustomDropdownSelect
+        <Dropdown
           label="Federación"
           value={federation}
           options={Federations}
@@ -287,7 +241,7 @@ const EditTournamentInfoScreen: React.FC = () => {
         />
 
         <div style={styles.grid2Col}>
-          <CustomDropdownSelect
+          <Dropdown
             label="Modalidad de Juego"
             value={mode}
             options={GameModes}
@@ -314,7 +268,7 @@ const EditTournamentInfoScreen: React.FC = () => {
             required
           />
 
-          <CustomDropdownSelect
+          <Dropdown
             label="Tipo de cuadrante"
             value={schedule}
             options={ScheduleTypes}
@@ -324,7 +278,7 @@ const EditTournamentInfoScreen: React.FC = () => {
         </div>
 
         <div style={styles.grid3Col}>
-          <CustomDropdownSelect
+          <Dropdown
             label="Formato del Juego"
             value={gameType}
             options={GameTypes}
@@ -447,48 +401,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
     gap: '1.5rem',
   },
-  selectContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem',
-    width: '100%',
-    marginBottom: '1rem',
-  },
-  selectLabel: {
-    fontSize: '0.875rem',
-    fontWeight: '600',
-    color: 'var(--text-secondary-color)',
-    marginLeft: '0.25rem',
-  },
-  selectWrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    backgroundColor: 'var(--header-bg)',
-    border: '1px solid var(--btn-secondary-border)',
-    borderRadius: '10px',
-    padding: '0 1rem',
-    transition: 'all 0.2s ease',
-    height: '48px',
-  },
-  selectIcon: {
-    color: 'var(--text-secondary-color)',
-    marginRight: '0.75rem',
-  },
-  select: {
-    flex: 1,
-    background: 'transparent',
-    border: 'none',
-    outline: 'none',
-    color: 'var(--text-color)',
-    fontSize: '0.875rem',
-    fontFamily: 'inherit',
-    height: '100%',
-    cursor: 'pointer',
-  },
-  option: {
-    backgroundColor: 'var(--bg-color)',
-    color: 'var(--text-color)',
-  },
+
   textareaContainer: {
     display: 'flex',
     flexDirection: 'column',
