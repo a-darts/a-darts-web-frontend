@@ -8,6 +8,7 @@ import Button from '../../../components/Button';
 import { useToast } from '../../../context/ToastContext';
 import Modal from '../../../components/Modal';
 import DatePicker from '../../../components/DatePicker';
+import TimePicker from '../../../components/TimePicker';
 
 const toUtcDateParts = (isoString: any) => {
   if (!isoString) return { date: '', time: '12:00' };
@@ -256,16 +257,22 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
               </div>
 
               {isStartProgrammed === 'SI' && (
-                <DatePicker
-                  dateLabel="Fecha de apertura"
-                  timeLabel="Hora de apertura"
-                  dateValue={startDate}
-                  timeValue={startTime}
-                  onDateChange={setStartDate}
-                  onTimeChange={setStartTime}
-                  required
-                  style={{ marginTop: '0.5rem' }}
-                />
+                <div style={styles.dateTimeGrid}>
+                  <DatePicker
+                    label="Fecha de cierre"
+                    value={startDate}
+                    onChange={setStartDate}
+                    required
+                    style={{ marginTop: '0.5rem' }}
+                  />
+                  <TimePicker
+                    label="Hora de cierre"
+                    value={startTime}
+                    onChange={setStartTime}
+                    required
+                    style={{ marginTop: '0.5rem' }}
+                  />
+                </div>
               )}
             </div>
 
@@ -285,16 +292,22 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
               </div>
 
               {isEndProgrammed === 'SI' && (
-                <DatePicker
-                  dateLabel="Fecha de cierre"
-                  timeLabel="Hora de cierre"
-                  dateValue={endDate}
-                  timeValue={endTime}
-                  onDateChange={setEndDate}
-                  onTimeChange={setEndTime}
-                  required
-                  style={{ marginTop: '0.5rem' }}
-                />
+                <div style={styles.dateTimeGrid}>
+                  <DatePicker
+                    label="Fecha de cierre"
+                    value={endDate}
+                    onChange={setEndDate}
+                    required
+                    style={{ marginTop: '0.5rem' }}
+                  />
+                  <TimePicker
+                    label="Hora de cierre"
+                    value={endTime}
+                    onChange={setEndTime}
+                    required
+                    style={{ marginTop: '0.5rem' }}
+                  />
+                </div>
               )}
             </div>
           </div>

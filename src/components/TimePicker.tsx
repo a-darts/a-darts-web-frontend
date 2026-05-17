@@ -1,7 +1,7 @@
 import React from 'react';
 import TextInput from './TextInput';
 
-interface DatePickerProps {
+interface TimePickerProps {
   label?: string;
   value: string;
   onChange: (val: string) => void;
@@ -9,8 +9,8 @@ interface DatePickerProps {
   style?: React.CSSProperties;
 }
 
-const DatePicker: React.FC<DatePickerProps> = ({
-  label = 'Fecha',
+const TimePicker: React.FC<TimePickerProps> = ({
+  label = 'Hora',
   value,
   onChange,
   required = false,
@@ -20,14 +20,14 @@ const DatePicker: React.FC<DatePickerProps> = ({
     <div style={style}>
       <TextInput
         label={label}
-        type="date"
+        type="time"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        icon="Calendar"
+        icon="Clock"
         required={required}
       />
     </div>
   );
 };
 
-export default DatePicker;
+export default TimePicker;
