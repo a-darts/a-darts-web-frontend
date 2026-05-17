@@ -174,7 +174,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   container: {
     width: '100%',
     overflowX: 'auto',
-    padding: '2rem 0',
     msOverflowStyle: 'none',
     scrollbarWidth: 'none',
   },
@@ -182,7 +181,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     gap: '0',
     minWidth: 'max-content',
-    padding: '0 2rem',
     alignItems: 'flex-start',
   },
   roundColumn: {
@@ -195,12 +193,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: 'center',
     fontSize: '0.8rem',
     fontWeight: '800',
-    color: 'rgba(255, 255, 255, 0.3)',
+    color: 'rgba(255, 255, 255, 0.7)',
     textTransform: 'uppercase',
     letterSpacing: '2px',
-    marginBottom: '2rem',
+    marginBottom: '1rem',
     padding: '0.5rem',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
   },
   matchesContainer: {
     display: 'flex',
