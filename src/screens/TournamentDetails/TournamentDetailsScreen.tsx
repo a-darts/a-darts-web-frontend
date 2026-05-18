@@ -411,7 +411,7 @@ const TournamentDetailsScreen: React.FC = () => {
         />
       )}
       {activeTab === 'matches' && (
-        <TournamentMatchesTab tournamentId={tournament.id} />
+        <TournamentMatchesTab tournamentId={tournament.id} isAdmin={isAdmin} />
       )}
     </div>
   );

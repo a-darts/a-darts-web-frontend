@@ -595,4 +595,42 @@ export const tournamentService = {
       throw handleFetchError(error);
     }
   },
+
+  startMatch: async (matchId: string): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/matches/${matchId}/start`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  assignMatchBoard: async (matchId: string, boardNumber: number): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/matches/${matchId}/boardNumber`, {
+        method: 'PUT',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ newBoardNumber: boardNumber }),
+      });
+      await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
 };

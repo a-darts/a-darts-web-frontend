@@ -5,12 +5,15 @@ import Icon from '../../../components/Icon';
 import Select from '../../../components/Select';
 import MatchCard from '../../../components/MatchCard';
 import Button from '../../../components/Button';
+import { useToast } from '../../../context/ToastContext';
 
 interface TournamentMatchesTabProps {
   tournamentId: string;
+  isAdmin?: boolean;
 }
 
-const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentId }) => {
+const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentId, isAdmin }) => {
+  const { showToast } = useToast();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,22 +28,53 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
     );
   };
 
-  useEffect(() => {
-    const fetchMatches = async () => {
-      try {
-        setLoading(true);
-        const data = await tournamentService.getTournamentMatches(tournamentId);
-        setMatches(data);
-      } catch (err: any) {
-        console.error('Error fetching matches:', err);
-        setError(err.message || 'Error al cargar las partidas');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchMatches = async (showLoading = false) => {
+    try {
+      if (showLoading) setLoading(true);
+      const data = await tournamentService.getTournamentMatches(tournamentId);
+      setMatches(data);
+    } catch (err: any) {
+      console.error('Error fetching matches:', err);
+      setError(err.message || 'Error al cargar las partidas');
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  };
 
-    fetchMatches();
+  useEffect(() => {
+    fetchMatches(true);
   }, [tournamentId]);
+
+  const handleStartMatch = async (matchId: string) => {
+    try {
+      await tournamentService.startMatch(matchId);
+      showToast('Partida iniciada con éxito.', 'success');
+      await fetchMatches();
+    } catch (err: any) {
+      console.error('Error starting match:', err);
+      showToast(err.message || 'Error al iniciar la partida.', 'error');
+    }
+  };
+
+  const handleAssignBoard = async (matchId: string) => {
+    const boardStr = window.prompt('Introduce el número de diana para la partida:');
+    if (boardStr === null) return;
+
+    const boardNum = Number(boardStr.trim());
+    if (isNaN(boardNum) || boardNum <= 0) {
+      showToast('Por favor, introduce un número de diana válido mayor que 0.', 'error');
+      return;
+    }
+
+    try {
+      await tournamentService.assignMatchBoard(matchId, boardNum);
+      showToast(`Diana ${boardNum} asignada con éxito.`, 'success');
+      await fetchMatches();
+    } catch (err: any) {
+      console.error('Error assigning board:', err);
+      showToast(err.message || 'Error al asignar la diana.', 'error');
+    }
+  };
 
   if (loading) {
     return (
@@ -95,7 +129,13 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
         {list.length > 0 ? (
           <div style={styles.list}>
             {list.map(match => (
-              <MatchCard key={match.id} match={match} />
+              <MatchCard
+                key={match.id}
+                match={match}
+                isAdmin={isAdmin}
+                onStartMatch={handleStartMatch}
+                onAssignBoard={handleAssignBoard}
+              />
             ))}
           </div>
         ) : (

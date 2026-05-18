@@ -2,13 +2,23 @@ import React from 'react';
 import { Match } from '../services/tournament.service';
 import { getFederationFlag } from '../utils/tournament.utils';
 import TournamentMatchStatusTag from './TournamentMatchStatusTag';
+import Button from './Button';
 
 interface MatchCardProps {
   match: Match;
+  isAdmin?: boolean;
+  onStartMatch?: (matchId: string) => void;
+  onAssignBoard?: (matchId: string) => void;
   style?: React.CSSProperties;
 }
 
-const MatchCard: React.FC<MatchCardProps> = ({ match, style }) => {
+const MatchCard: React.FC<MatchCardProps> = ({
+  match,
+  isAdmin,
+  onStartMatch,
+  onAssignBoard,
+  style
+}) => {
   const isFinished = match.status === 'FINISHED';
   const isInProgress = match.status === 'IN_PROGRESS';
 
@@ -17,13 +27,13 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, style }) => {
       {/* Row Header / Title */}
       <div style={styles.rowHeader}>
         <div style={styles.rowHeaderLeft}>
-          <span style={styles.roundText}>Ronda {match.round}</span>
-          {match.boardNumber !== null && (
-            <>
-              <span style={styles.bulletSeparator}>•</span>
-              <span style={styles.boardTextInline}>Diana {match.boardNumber}</span>
-            </>
-          )}
+          <span style={styles.roundText}>
+            Ronda {match.round}
+          </span>
+          <span style={styles.bulletSeparator}>•</span>
+          <span style={styles.boardTextInline}>
+            Diana {match.boardNumber ? match.boardNumber : 'sin asignar'}
+          </span>
         </div>
         <TournamentMatchStatusTag status={match.status} />
       </div>
@@ -87,6 +97,31 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, style }) => {
           </span>
         </div>
       </div>
+
+      {/* Admin Quick Action Buttons */}
+      {isAdmin && (
+        <div style={styles.actionButtonsContainer}>
+          {match.status === 'READY' && (
+            <Button
+              variant="primary"
+              size="small"
+              leftIcon="Play"
+              onClick={() => onStartMatch && onStartMatch(match.id)}
+            >
+              Iniciar partida
+            </Button>
+          )}
+          {(match.status === 'PENDING' || match.status === 'READY') && match.boardNumber === null && (
+            <Button
+              variant="secondary"
+              size="small"
+              onClick={() => onAssignBoard && onAssignBoard(match.id)}
+            >
+              Asignar Diana
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -229,6 +264,14 @@ const styles: { [key: string]: any } = {
     fontWeight: '800',
     color: 'rgba(255, 255, 255, 0.2)',
     letterSpacing: '1px',
+  },
+  actionButtonsContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    borderTop: '1px solid rgba(255, 255, 255, 0.03)',
+    paddingTop: '0.75rem',
+    marginTop: '0.25rem',
   },
 };
 
