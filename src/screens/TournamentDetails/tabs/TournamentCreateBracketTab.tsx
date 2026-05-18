@@ -188,8 +188,8 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      await tournamentService.saveBracketPositions(tournament.id, temporaryPositions);
-      showToast('¡Posiciones del cuadrante guardadas correctamente (localmente)!', 'success');
+      await tournamentService.saveBracketPositions(bracket.id, temporaryPositions);
+      showToast('¡Posiciones del cuadrante guardadas correctamente!', 'success');
       onSave();
     } catch (err: any) {
       console.error('Error saving bracket positions:', err);
@@ -335,7 +335,7 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
         <div style={styles.actionsPanel}>
           <Button
             variant="primary"
-            leftIcon="Check"
+            leftIcon="Save"
             onClick={handleSave}
             loading={isSaving}
             fullWidth

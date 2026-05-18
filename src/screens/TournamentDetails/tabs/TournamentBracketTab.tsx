@@ -28,10 +28,10 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
   const { showToast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleGenerateBracket = async () => {
+  const handleGenerateBracketAutomatically = async () => {
     try {
       setIsGenerating(true);
-      await tournamentService.generateBracket(tournament.id);
+      await tournamentService.generateBracketAutomatically(tournament.id);
       showToast('¡Cuadrante generado correctamente!', 'success');
 
       if (onBracketGenerated) {
@@ -53,6 +53,34 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       setIsGenerating(false);
     }
   };
+
+
+  const handleGenerateBracketManually = async () => {
+    try {
+      setIsGenerating(true);
+      await tournamentService.generateBracketManually(tournament.id);
+      showToast('¡Cuadrante generado correctamente!', 'success');
+
+      if (onBracketGenerated) {
+        onBracketGenerated();
+      } else {
+        // Re-fetch data if parent callback is not provided
+        const [bracketData, matchesData] = await Promise.all([
+          tournamentService.getTournamentBracket(tournament.id),
+          tournamentService.getTournamentMatches(tournament.id)
+        ]);
+        setBracket(bracketData);
+        setMatches(matchesData);
+        setIsNotPublished(false);
+      }
+    } catch (err: any) {
+      console.error('Error generating bracket:', err);
+      showToast(err.message || 'Error al generar el cuadrante.', 'error');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,15 +117,27 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
           : 'Aún no se ha publicado el cuadrante para este torneo. Por favor, vuelve a consultar más tarde.'}
       </p>
       {isAdmin && (
-        <Button
-          variant="primary"
-          leftIcon="Network"
-          onClick={handleGenerateBracket}
-          loading={isGenerating}
-          style={{ marginTop: '1.5rem' }}
-        >
-          Generar cuadrante
-        </Button>
+        <>
+          <Button
+            variant="primary"
+            leftIcon="Network"
+            onClick={handleGenerateBracketAutomatically}
+            loading={isGenerating}
+            style={{ marginTop: '1.5rem' }}
+          >
+            Generar cuadrante automáticamente
+          </Button>
+
+          <Button
+            variant="primary"
+            leftIcon="Network"
+            onClick={handleGenerateBracketManually}
+            loading={isGenerating}
+            style={{ marginTop: '1rem' }}
+          >
+            Configurar cuadrante manualmente
+          </Button>
+        </>
       )}
     </div>
   );

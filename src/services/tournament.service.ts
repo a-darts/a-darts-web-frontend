@@ -255,12 +255,31 @@ export const tournamentService = {
     }
   },
 
-  generateBracket: async (id: string): Promise<void> => {
+
+  generateBracketAutomatically: async (id: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
 
     try {
-      const response = await fetch(`${API_BASE_URL}/tournaments/${id}/bracket`, {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${id}/bracket/automatic`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  generateBracketManually: async (id: string): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${id}/bracket/manual`, {
         method: 'POST',
         headers: {
           'accept': 'application/json',
@@ -440,10 +459,33 @@ export const tournamentService = {
     }
   },
 
-  saveBracketPositions: async (id: string, positions: BracketPosition[]): Promise<void> => {
-    // MIRAR CAMBIAR
-    // MOCK API CALL - Will be connected to actual endpoint later
-    console.log('Mock: Saving bracket positions to API:', { tournamentId: id, positions });
-    return new Promise(resolve => setTimeout(resolve, 800));
+  saveBracketPositions: async (bracketId: string, positions: BracketPosition[]): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/brackets/${bracketId}/setupPositions`, {
+        method: 'PUT',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          newPositions: positions.map(pos => {
+            const isEmpty = !pos.participantId ||
+              pos.participantAlias === 'Por determinar' ||
+              pos.participantAlias === 'Bye';
+            return {
+              participantId: isEmpty ? null : pos.participantId,
+              position: pos.position
+            };
+          })
+        })
+      });
+      await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
   },
 };

@@ -29,8 +29,8 @@ const BracketMatchEditable: React.FC<BracketMatchEditableProps> = ({
   const idx1 = position1 - 1;
   const idx2 = position2 - 1;
 
-  const hasPlayer1 = !!(player1.alias && player1.alias !== 'Bye');
-  const hasPlayer2 = !!(player2.alias && player2.alias !== 'Bye');
+  const hasPlayer1 = !!(player1.alias && player1.alias !== 'Bye' && player1.alias !== 'Por determinar');
+  const hasPlayer2 = !!(player2.alias && player2.alias !== 'Bye' && player2.alias !== 'Por determinar');
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -121,7 +121,7 @@ const BracketMatchEditable: React.FC<BracketMatchEditableProps> = ({
             <div style={styles.dashedBorder}>
               <span style={styles.plusIcon}>+</span>
               <span style={styles.placeholderText}>
-                {selectedPlayerToPlace ? `Colocar a ${selectedPlayerToPlace.alias}` : 'Vacío (Bye)'}
+                {selectedPlayerToPlace ? `Colocar a ${selectedPlayerToPlace.alias}` : 'Vacío'}
               </span>
             </div>
           </div>
