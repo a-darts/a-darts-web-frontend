@@ -4,6 +4,7 @@ import SearchInput from '../../../components/SearchInput';
 import Icon from '../../../components/Icon';
 import UserRoleTag from '../../../components/UserRoleTag';
 import UserStatusTag from '../../../components/UserStatusTag';
+import { UserStatus } from '../../../context/AuthContext';
 
 interface MockUser {
   id: string;
@@ -111,16 +112,35 @@ const AdminUsersTab: React.FC = () => {
                   </td>
                   <td style={styles.td}>
                     <div style={styles.actionGroup}>
-                      <button
-                        style={styles.actionBtn}
-                      >
-                        <Icon name="Edit" size={16} />
-                      </button>
-                      <button
-                        style={styles.actionBtn}
-                      >
-                        <Icon name={u.status === 'ACTIVE' ? 'Lock' : 'Unlock'} size={16} />
-                      </button>
+                      {u.status !== UserStatus.DELETED && (
+                        <button
+                          style={styles.actionBtn}
+                        >
+                          <Icon name="Edit" size={16} />
+                        </button>
+                      )}
+                      {(u.status === UserStatus.ACTIVE || u.status === UserStatus.INACTIVE) && (
+                        <button
+                          style={styles.actionBtn}
+                        >
+                          <Icon name={u.status === 'ACTIVE' ? 'Lock' : 'Unlock'} size={16} />
+                        </button>
+                      )}
+                      {u.status === UserStatus.BLOCKED && (
+                        <button
+                          style={styles.actionBtn}
+                        >
+                          <Icon name={'Unlock'} size={16} />
+                        </button>
+                      )}
+                      {u.status !== UserStatus.DELETED && (
+                        <button
+                          style={styles.actionBtn}
+                        >
+                          <Icon name={'Trash'} size={16} />
+                        </button>
+                      )}
+
                     </div>
                   </td>
                 </tr>
