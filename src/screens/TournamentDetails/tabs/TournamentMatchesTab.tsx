@@ -6,6 +6,8 @@ import Select from '../../../components/Select';
 import MatchCard from '../../../components/MatchCard';
 import Button from '../../../components/Button';
 import { useToast } from '../../../context/ToastContext';
+import Modal from '../../../components/Modal';
+import TextInput from '../../../components/TextInput';
 
 interface TournamentMatchesTabProps {
   tournamentId: string;
@@ -19,6 +21,12 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
   const [error, setError] = useState<string | null>(null);
   const [selectedRound, setSelectedRound] = useState<number | 'all'>('all');
   const [activeFilters, setActiveFilters] = useState<string[]>(['in_progress', 'pending', 'finished']);
+
+  // Assign board modal states
+  const [isAssignBoardModalOpen, setIsAssignBoardModalOpen] = useState(false);
+  const [assigningMatchId, setAssigningMatchId] = useState<string | null>(null);
+  const [newBoardValue, setNewBoardValue] = useState('');
+  const [assigningBoardLoading, setAssigningBoardLoading] = useState(false);
 
   const toggleFilter = (filterKey: string) => {
     setActiveFilters(prev =>
@@ -56,23 +64,32 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
     }
   };
 
-  const handleAssignBoard = async (matchId: string) => {
-    const boardStr = window.prompt('Introduce el número de diana para la partida:');
-    if (boardStr === null) return;
+  const handleAssignBoard = (matchId: string) => {
+    setAssigningMatchId(matchId);
+    setNewBoardValue('');
+    setIsAssignBoardModalOpen(true);
+  };
 
-    const boardNum = Number(boardStr.trim());
-    if (isNaN(boardNum) || boardNum <= 0) {
+  const handleConfirmAssignBoard = async () => {
+    if (!assigningMatchId) return;
+
+    const boardNum = Number(newBoardValue.trim());
+    if (!newBoardValue.trim() || isNaN(boardNum) || boardNum <= 0) {
       showToast('Por favor, introduce un número de diana válido mayor que 0.', 'error');
       return;
     }
 
     try {
-      await tournamentService.assignMatchBoard(matchId, boardNum);
+      setAssigningBoardLoading(true);
+      await tournamentService.assignMatchBoard(assigningMatchId, boardNum);
       showToast(`Diana ${boardNum} asignada con éxito.`, 'success');
+      setIsAssignBoardModalOpen(false);
       await fetchMatches();
     } catch (err: any) {
       console.error('Error assigning board:', err);
       showToast(err.message || 'Error al asignar la diana.', 'error');
+    } finally {
+      setAssigningBoardLoading(false);
     }
   };
 
@@ -205,6 +222,35 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
         {activeFilters.includes('finished') && renderSection('Partidas finalizadas', finishedList, 'CheckCircle2', '#f87171')}
         {renderSection('Otras partidas', othersList, 'AlertTriangle', '#60a5fa')}
       </div>
+
+      {/* Modal para asignar diana */}
+      <Modal
+        isOpen={isAssignBoardModalOpen}
+        onClose={() => setIsAssignBoardModalOpen(false)}
+        title="Asignar Diana"
+        description={
+          <div style={{ marginTop: '1rem', width: '100%' }}>
+            <p style={{ color: 'rgba(255, 255, 255, 0.6)', marginBottom: '1.5rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
+              Introduce el número de la diana donde se disputará este enfrentamiento.
+            </p>
+            <TextInput
+              label="Número de diana"
+              placeholder="Ej. 1, 2, 3..."
+              type="number"
+              min="1"
+              value={newBoardValue}
+              onChange={(e) => setNewBoardValue(e.target.value)}
+              icon="Target"
+              autoFocus
+            />
+          </div>
+        }
+        confirmLabel="Asignar"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmAssignBoard}
+        loading={assigningBoardLoading}
+        confirmDisabled={!newBoardValue.trim()}
+      />
     </div>
   );
 };

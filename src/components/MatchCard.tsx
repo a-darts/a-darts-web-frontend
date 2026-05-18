@@ -111,13 +111,24 @@ const MatchCard: React.FC<MatchCardProps> = ({
               Iniciar partida
             </Button>
           )}
-          {(match.status === 'PENDING' || match.status === 'READY') && match.boardNumber === null && (
+          {(match.status === 'PENDING' || match.status === 'READY') && (
             <Button
-              variant="secondary"
+              variant="primary"
               size="small"
+              leftIcon={match.boardNumber === null ? 'Plus' : 'Edit'}
               onClick={() => onAssignBoard && onAssignBoard(match.id)}
             >
-              Asignar Diana
+              {match.boardNumber === null ? 'Asignar diana' : 'Reasignar diana'}
+            </Button>
+          )}
+          {(match.status === 'IN_PROGRESS') && (
+            <Button
+              variant="primary"
+              size="small"
+              leftIcon="Plus"
+            // onClick={() => onAssignBoard && onAssignBoard(match.id)}
+            >
+              Añadir resultado
             </Button>
           )}
         </div>
