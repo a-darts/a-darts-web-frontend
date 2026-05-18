@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Tournament, Bracket, tournamentService, Match } from '../../../services/tournament.service';
+import { Tournament, Bracket, tournamentService, Match, TournamentStatus, BracketStatus } from '../../../services/tournament.service';
 import ErrorMessage from '../../../components/ErrorMessage';
 import BracketMatch, { BracketParticipant } from '../../../components/BracketMatch';
 import TournamentMatchStatusTag from '../../../components/TournamentMatchStatusTag';
 import { useAuth, UserRoles } from '../../../context/AuthContext';
 import { useToast } from '../../../context/ToastContext';
 import Button from '../../../components/Button';
+import TournamentBracketStatusTag from '../../../components/TournamentBracketStatusTag';
 
 interface TournamentBracketTabProps {
   tournament: Tournament;
@@ -78,6 +79,30 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       showToast(err.message || 'Error al generar el cuadrante.', 'error');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const [isPublishing, setIsPublishing] = useState(false);
+
+  const handlePublishBracket = async () => {
+    if (!bracket) return;
+    try {
+      setIsPublishing(true);
+      await tournamentService.publishBracket(bracket.id);
+      showToast('¡Cuadrante publicado correctamente!', 'success');
+
+      // Re-fetch bracket data to reflect the new status
+      const [bracketData, matchesData] = await Promise.all([
+        tournamentService.getTournamentBracket(tournament.id),
+        tournamentService.getTournamentMatches(tournament.id)
+      ]);
+      setBracket(bracketData);
+      setMatches(matchesData);
+    } catch (err: any) {
+      console.error('Error publishing bracket:', err);
+      showToast(err.message || 'Error al publicar el cuadrante.', 'error');
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -217,7 +242,28 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
 
   return (
     <div style={styles.container}>
-      {isAdmin && tournament.status === 'PUBLISHED' && onStartEditing && (
+
+      {isAdmin && (
+        <div style={styles.bracketStatusActionsContainer}>
+          <TournamentBracketStatusTag
+            status={bracket.status}
+            size="medium"
+          />
+
+          {bracket.status === BracketStatus.DRAFT && (
+            <Button
+              variant="primary"
+              leftIcon="Megaphone"
+              onClick={handlePublishBracket}
+              loading={isPublishing}
+            >
+              Publicar cuadrante
+            </Button>
+          )}
+        </div>
+      )}
+
+      {isAdmin && tournament.status === TournamentStatus.PUBLISHED && onStartEditing && (
         <div style={styles.editButtonContainer}>
           <div style={styles.progressContainer}>
             <div style={styles.progressMeta}>
@@ -240,6 +286,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
           </Button>
         </div>
       )}
+
       <div style={styles.bracketWrapper}>
         {roundsData.map((round, roundIndex) => {
           const roundMatchContainerHeight = (matchHeight + initialGap) * Math.pow(2, roundIndex);
@@ -414,6 +461,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     maxWidth: '400px',
     margin: '0 auto',
     lineHeight: '1.6',
+  },
+  bracketStatusActionsContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    width: '100%',
+    marginBottom: '1.5rem',
+    gap: '2rem',
+    flexWrap: 'wrap',
   },
   editButtonContainer: {
     display: 'flex',

@@ -29,6 +29,7 @@ export const getMatchStatusLabel = (status: string): string => {
   return matchStatusLabels[status] || status;
 };
 
+
 /**
  * Returns the localized label for a tournament registration status
  */
@@ -38,6 +39,20 @@ export const getRegistrationStatusLabel = (status: string): string => {
     'CLOSED': 'Inscripciones cerradas',
   };
   return registrationLabels[status] || status;
+};
+
+/**
+ * Returns the localized label for a tournament bracket status
+ */
+export const getBracketStatusLabel = (status: string): string => {
+  switch (status) {
+    case 'DRAFT': return 'Borrador';
+    case 'PUBLISHED': return 'Publicado';
+    case 'IN_PROGRESS': return 'En curso';
+    case 'FINISHED': return 'Finalizado';
+    case 'CANCELLED': return 'Cancelado';
+    default: return status;
+  }
 };
 
 /**

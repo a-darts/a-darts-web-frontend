@@ -61,6 +61,15 @@ export enum RegistrationStatus {
   CLOSED = 'CLOSED',
 }
 
+export enum BracketStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  FINISHED = 'FINISHED',
+  CANCELLED = 'CANCELLED',
+}
+
+
 export interface Tournament {
   id: string;
   name: string;
@@ -482,6 +491,24 @@ export const tournamentService = {
             };
           })
         })
+      });
+      await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  publishBracket: async (bracketId: string): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/brackets/${bracketId}/publish`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
       });
       await handleResponse(response);
     } catch (error: any) {
