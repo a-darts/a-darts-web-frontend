@@ -52,7 +52,7 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
     };
 
     fetchData();
-  }, [tournament.id]);
+  }, [tournament.id, tournament.status]);
 
   // Initialize temporary positions once bracket is loaded
   useEffect(() => {

@@ -105,7 +105,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
     };
 
     fetchData();
-  }, [tournament.id]);
+  }, [tournament.id, tournament.status]);
 
   if (loading) return <div style={styles.message}>Cargando cuadrante...</div>;
   if (isNotPublished) return (
