@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { authService } from '../../../services/auth.service';
 import SearchInput from '../../../components/SearchInput';
 import Icon from '../../../components/Icon';
-import { getUserStatusLabel } from '../../../utils/auth.utils';
-import i18n from '../../../i18n';
 import UserRoleTag from '../../../components/UserRoleTag';
+import UserStatusTag from '../../../components/UserStatusTag';
 
 interface MockUser {
   id: string;
@@ -45,22 +44,6 @@ const AdminUsersTab: React.FC = () => {
     (u.alias || '').toLowerCase().includes(userQuery.toLowerCase()) ||
     (u.email || '').toLowerCase().includes(userQuery.toLowerCase())
   );
-
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case 'ACTIVE':
-        return styles.activeBadge;
-      case 'BLOCKED':
-        return styles.suspendedBadge;
-      case 'INACTIVE':
-        return styles.inactiveBadgeStyle;
-      case 'DELETED':
-        return styles.deletedBadgeStyle;
-      default:
-        return styles.suspendedBadge;
-    }
-  };
-
 
   const formatDate = (dateStr: string) => {
     try {
@@ -122,9 +105,9 @@ const AdminUsersTab: React.FC = () => {
                   </td>
                   <td style={styles.td}>{formatDate(u.registeredAt)}</td>
                   <td style={styles.td}>
-                    <span style={getStatusStyle(u.status)}>
-                      {i18n.t(`auth.${getUserStatusLabel(u.status)}`)}
-                    </span>
+                    <UserStatusTag
+                      status={u.status}
+                    />
                   </td>
                   <td style={styles.td}>
                     <div style={styles.actionGroup}>
@@ -270,66 +253,6 @@ const styles: { [key: string]: any } = {
   aliasName: {
     fontWeight: '600',
     color: '#ffffff',
-  },
-  adminBadge: {
-    padding: '0.3rem 0.75rem',
-    borderRadius: '100px',
-    fontSize: '0.7rem',
-    fontWeight: '800',
-    backgroundColor: 'rgba(253, 96, 93, 0.1)',
-    border: '1px solid rgba(253, 96, 93, 0.2)',
-    color: '#FD605D',
-    letterSpacing: '0.5px',
-  },
-  playerBadge: {
-    padding: '0.3rem 0.75rem',
-    borderRadius: '100px',
-    fontSize: '0.7rem',
-    fontWeight: '800',
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    color: 'rgba(255, 255, 255, 0.6)',
-    letterSpacing: '0.5px',
-  },
-  activeBadge: {
-    padding: '0.3rem 0.75rem',
-    borderRadius: '100px',
-    fontSize: '0.7rem',
-    fontWeight: '800',
-    backgroundColor: 'rgba(196, 232, 102, 0.1)',
-    border: '1px solid rgba(196, 232, 102, 0.2)',
-    color: '#C4E866',
-    letterSpacing: '0.5px',
-  },
-  suspendedBadge: {
-    padding: '0.3rem 0.75rem',
-    borderRadius: '100px',
-    fontSize: '0.7rem',
-    fontWeight: '800',
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    color: 'rgba(255, 255, 255, 0.4)',
-    letterSpacing: '0.5px',
-  },
-  inactiveBadgeStyle: {
-    padding: '0.3rem 0.75rem',
-    borderRadius: '100px',
-    fontSize: '0.7rem',
-    fontWeight: '800',
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
-    color: 'rgba(255, 255, 255, 0.3)',
-    letterSpacing: '0.5px',
-  },
-  deletedBadgeStyle: {
-    padding: '0.3rem 0.75rem',
-    borderRadius: '100px',
-    fontSize: '0.7rem',
-    fontWeight: '800',
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    border: '1px solid rgba(239, 68, 68, 0.2)',
-    color: '#ef4444',
-    letterSpacing: '0.5px',
   },
   actionGroup: {
     display: 'flex',

@@ -1,29 +1,31 @@
 import React from 'react';
 import Icon, { IconName } from './Icon';
-import { getRoleLabel } from '../utils/auth.utils';
-import { UserRoles } from '../context/AuthContext';
+import { getUserStatusLabel } from '../utils/auth.utils';
+import { UserStatus } from '../context/AuthContext';
 import i18n from '../i18n';
 
-interface UserRoleTagProps {
-  role: UserRoles | string;
+interface UserStatusTagProps {
+  status: UserStatus | string;
   size?: 'small' | 'medium';
 }
 
-const UserRoleTag: React.FC<UserRoleTagProps> = ({ role, size = 'small' }) => {
-  const label = i18n.t(`auth.${getRoleLabel(role)}`);
+const UserStatusTag: React.FC<UserStatusTagProps> = ({ status, size = 'small' }) => {
+  const label = i18n.t(`auth.${getUserStatusLabel(status)}`);
 
   const getIconName = (s: string): IconName => {
     switch (s) {
-      case UserRoles.ADMIN: return 'Shield';
-      case UserRoles.PLAYER: return 'User';
+      case UserStatus.ACTIVE: return 'CheckCircle';
+      case UserStatus.INACTIVE: return 'MinusCircle';
+      case UserStatus.BLOCKED: return 'Lock';
+      case UserStatus.DELETED: return 'Trash';
       default: return 'Info';
     }
   };
 
   return (
-    <span style={styles.badge(role, size)}>
+    <span style={styles.badge(status, size)}>
       <Icon
-        name={getIconName(role)}
+        name={getIconName(status)}
         size={size === 'small' ? 12 : 14}
         style={{ marginRight: size === 'small' ? '4px' : '6px' }}
       />
@@ -40,15 +42,25 @@ const styles: { [key: string]: any } = {
     let borderColor = 'rgba(255, 255, 255, 0.1)';
 
     switch (status) {
-      case UserRoles.PLAYER:
+      case UserStatus.ACTIVE:
+        color = '#C4E866';
+        bgColor = 'rgba(196, 232, 102, 0.1)';
+        borderColor = 'rgba(196, 232, 102, 0.2)';
+        break;
+      case UserStatus.INACTIVE:
         color = '#a1a1a1';
         bgColor = 'rgba(255, 255, 255, 0.05)';
         borderColor = 'rgba(255, 255, 255, 0.1)';
         break;
-      case UserRoles.ADMIN:
-        color = '#60a5fa';
-        bgColor = 'rgba(59, 130, 246, 0.1)';
-        borderColor = 'rgba(59, 130, 246, 0.2)';
+      case UserStatus.BLOCKED:
+        color = '#f87171';
+        bgColor = 'rgba(239, 68, 68, 0.1)';
+        borderColor = 'rgba(239, 68, 68, 0.2)';
+        break;
+      case UserStatus.DELETED:
+        color = '#f87171';
+        bgColor = 'rgba(239, 68, 68, 0.1)';
+        borderColor = 'rgba(239, 68, 68, 0.2)';
         break;
     }
 
@@ -70,4 +82,4 @@ const styles: { [key: string]: any } = {
   },
 };
 
-export default UserRoleTag;
+export default UserStatusTag;
