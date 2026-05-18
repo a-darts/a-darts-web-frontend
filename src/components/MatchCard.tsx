@@ -121,16 +121,6 @@ const MatchCard: React.FC<MatchCardProps> = ({
               {match.boardNumber === null ? 'Asignar diana' : 'Reasignar diana'}
             </Button>
           )}
-          {(match.status === 'IN_PROGRESS') && (
-            <Button
-              variant="primary"
-              size="small"
-              leftIcon="Plus"
-            // onClick={() => onAssignBoard && onAssignBoard(match.id)}
-            >
-              Añadir resultado
-            </Button>
-          )}
         </div>
       )}
     </div>
