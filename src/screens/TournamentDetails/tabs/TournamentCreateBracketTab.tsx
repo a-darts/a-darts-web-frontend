@@ -81,7 +81,9 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
     (player) => !temporaryPositions.some((pos) => pos.participantId === player.id)
   );
 
-  const assignedCount = temporaryPositions.filter((p) => p.participantId !== null).length;
+  const assignedCount = temporaryPositions.filter(
+    (p) => p.participantId && p.participantAlias && p.participantAlias !== 'Por determinar' && p.participantAlias !== 'Bye'
+  ).length;
   // Progress depends on total registered participants since that is the maximum we can place
   const totalToAssign = participants.length;
   const progressPercent = totalToAssign > 0 ? Math.round((assignedCount / totalToAssign) * 100) : 0;
