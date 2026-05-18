@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tournament, Participant, tournamentService, UnregisteredPlayer } from '../../../services/tournament.service';
+import { Tournament, Participant, tournamentService, UnregisteredPlayer, TournamentStatus } from '../../../services/tournament.service';
 import Table, { Column } from '../../../components/Table';
 import { getFederationLabel, getFederationFlag, getRegistrationStatusLabel, formatTournamentDateTime } from '../../../utils/tournament.utils';
 import { useAuth, UserRoles } from '../../../context/AuthContext';
@@ -224,7 +224,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
         </div>
       )
     },
-    ...(isAdmin ? [{
+    ...(isAdmin && (tournament.status === TournamentStatus.DRAFT || tournament.status === TournamentStatus.PUBLISHED) ? [{
       key: 'actions',
       header: 'Acciones',
       render: (item: Participant) => (
@@ -242,7 +242,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
 
   return (
     <div style={styles.content}>
-      {isAdmin && (
+      {isAdmin && (tournament.status === TournamentStatus.DRAFT || tournament.status === TournamentStatus.PUBLISHED) && (
         <section style={styles.section}>
           <div style={styles.infoGrid}>
             <InfoCard
