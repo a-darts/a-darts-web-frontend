@@ -250,11 +250,18 @@ export const tournamentService = {
 
   getTournamentBracket: async (id: string): Promise<Bracket> => {
     try {
+      const token = localStorage.getItem('auth_token');
+      const headers: Record<string, string> = {
+        'accept': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/bracket`, {
         method: 'GET',
-        headers: {
-          'accept': 'application/json',
-        },
+        headers,
       });
 
       const result = await handleResponse(response);
