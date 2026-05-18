@@ -75,12 +75,6 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
     ? matches
     : matches.filter(m => m.round === selectedRound);
 
-  // Statistics
-  const totalMatches = matches.length;
-  const finishedMatches = matches.filter(m => m.status === 'FINISHED').length;
-  const inProgressMatches = matches.filter(m => m.status === 'IN_PROGRESS').length;
-  const readyMatches = matches.filter(m => m.status === 'READY').length;
-
   const inProgressList = filteredMatches.filter(m => m.status === 'IN_PROGRESS');
   const pendingList = filteredMatches.filter(m => m.status === 'PENDING' || m.status === 'READY');
   const finishedList = filteredMatches.filter(m => m.status === 'FINISHED');
@@ -117,50 +111,10 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
 
   return (
     <div style={styles.container}>
-      {/* Metrics Section */}
-      <div style={styles.metricsGrid}>
-        <div style={styles.metricCard}>
-          <div style={styles.metricIconContainer('primary')}>
-            <Icon name="Target" size={20} />
-          </div>
-          <div style={styles.metricInfo}>
-            <span style={styles.metricValue}>{totalMatches}</span>
-            <span style={styles.metricLabel}>Total Partidas</span>
-          </div>
-        </div>
-        <div style={styles.metricCard}>
-          <div style={styles.metricIconContainer('success')}>
-            <Icon name="CheckCircle2" size={20} />
-          </div>
-          <div style={styles.metricInfo}>
-            <span style={styles.metricValue}>{finishedMatches}</span>
-            <span style={styles.metricLabel}>Finalizados</span>
-          </div>
-        </div>
-        <div style={styles.metricCard}>
-          <div style={styles.metricIconContainer('warning')}>
-            <Icon name="PlayCircle" size={20} />
-          </div>
-          <div style={styles.metricInfo}>
-            <span style={styles.metricValue}>{inProgressMatches}</span>
-            <span style={styles.metricLabel}>En Curso</span>
-          </div>
-        </div>
-        <div style={styles.metricCard}>
-          <div style={styles.metricIconContainer('info')}>
-            <Icon name="Hourglass" size={20} />
-          </div>
-          <div style={styles.metricInfo}>
-            <span style={styles.metricValue}>{readyMatches}</span>
-            <span style={styles.metricLabel}>Listos / Pendientes</span>
-          </div>
-        </div>
-      </div>
-
       {/* Round Selector Dropdown & Toggle Filters */}
       <div style={styles.filterContainer}>
         <Select
-          label="Filtrar por ronda"
+          label="Ronda"
           value={String(selectedRound)}
           options={[
             { value: 'all', label: 'Todas las rondas' },
@@ -172,7 +126,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
           onChange={(val) => {
             setSelectedRound(val === 'all' ? 'all' : Number(val));
           }}
-          icon="Filter"
+          // icon="Filter"
           style={{ maxWidth: '200px' }}
         />
 
@@ -181,7 +135,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
             variant={activeFilters.includes('in_progress') ? 'primary' : 'secondary'}
             leftIcon={activeFilters.includes('in_progress') ? 'Check' : undefined}
             onClick={() => toggleFilter('in_progress')}
-            size="small"
+            size="medium"
           >
             En juego
           </Button>
@@ -189,7 +143,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
             variant={activeFilters.includes('pending') ? 'primary' : 'secondary'}
             leftIcon={activeFilters.includes('pending') ? 'Check' : undefined}
             onClick={() => toggleFilter('pending')}
-            size="small"
+            size="medium"
           >
             Pendientes
           </Button>
@@ -197,7 +151,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
             variant={activeFilters.includes('finished') ? 'primary' : 'secondary'}
             leftIcon={activeFilters.includes('finished') ? 'Check' : undefined}
             onClick={() => toggleFilter('finished')}
-            size="small"
+            size="medium"
           >
             Finalizadas
           </Button>
@@ -207,9 +161,9 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
       {/* Categorized Matches Lists */}
       <div style={styles.sectionsWrapper}>
         {activeFilters.includes('in_progress') && renderSection('Partidas en juego', inProgressList, 'Play', '#fbbf24')}
-        {activeFilters.includes('pending') && renderSection('Partidas pendientes', pendingList, 'Clock', '#3b82f6')}
-        {activeFilters.includes('finished') && renderSection('Partidas finalizadas', finishedList, 'CheckCircle2', '#10b981')}
-        {renderSection('Otras partidas', othersList, 'AlertTriangle', '#a1a1a1')}
+        {activeFilters.includes('pending') && renderSection('Partidas pendientes', pendingList, 'Clock', '#C4E866')}
+        {activeFilters.includes('finished') && renderSection('Partidas finalizadas', finishedList, 'CheckCircle2', '#f87171')}
+        {renderSection('Otras partidas', othersList, 'AlertTriangle', '#60a5fa')}
       </div>
     </div>
   );
@@ -292,61 +246,6 @@ const styles: { [key: string]: any } = {
     maxWidth: '400px',
     lineHeight: '1.5',
     margin: 0,
-  },
-  metricsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-    gap: '1rem',
-  },
-  metricCard: {
-    background: 'rgba(255, 255, 255, 0.02)',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
-    borderRadius: '12px',
-    padding: '1.25rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  metricIconContainer: (type: 'primary' | 'success' | 'warning' | 'info') => {
-    let color = '#fff';
-    let bgColor = 'rgba(255, 255, 255, 0.05)';
-    if (type === 'primary') {
-      color = 'var(--btn-primary-bg, #C4E866)';
-      bgColor = 'rgba(196, 232, 102, 0.1)';
-    } else if (type === 'success') {
-      color = '#10b981';
-      bgColor = 'rgba(16, 185, 129, 0.1)';
-    } else if (type === 'warning') {
-      color = '#fbbf24';
-      bgColor = 'rgba(251, 191, 36, 0.1)';
-    } else if (type === 'info') {
-      color = '#3b82f6';
-      bgColor = 'rgba(59, 130, 246, 0.1)';
-    }
-    return {
-      width: '40px',
-      height: '40px',
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color,
-      backgroundColor: bgColor,
-    };
-  },
-  metricInfo: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  metricValue: {
-    fontSize: '1.25rem',
-    fontWeight: '700',
-    color: '#fff',
-  },
-  metricLabel: {
-    fontSize: '0.75rem',
-    color: 'rgba(255, 255, 255, 0.4)',
-    fontWeight: '500',
   },
   filterContainer: {
     display: 'flex',
