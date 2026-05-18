@@ -106,6 +106,28 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
     }
   };
 
+  const handleUnpublishBracket = async () => {
+    if (!bracket) return;
+    try {
+      setIsPublishing(true);
+      await tournamentService.unpublishBracket(bracket.id);
+      showToast('¡Cuadrante ocultado correctamente!', 'success');
+
+      // Re-fetch bracket data to reflect the new status
+      const [bracketData, matchesData] = await Promise.all([
+        tournamentService.getTournamentBracket(tournament.id),
+        tournamentService.getTournamentMatches(tournament.id)
+      ]);
+      setBracket(bracketData);
+      setMatches(matchesData);
+    } catch (err: any) {
+      console.error('Error unpublishing bracket:', err);
+      showToast(err.message || 'Error al ocultar el cuadrante.', 'error');
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -258,6 +280,17 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
               loading={isPublishing}
             >
               Publicar cuadrante
+            </Button>
+          )}
+
+          {bracket.status === BracketStatus.PUBLISHED && (
+            <Button
+              variant="secondary"
+              leftIcon="EyeOff"
+              onClick={handleUnpublishBracket}
+              loading={isPublishing}
+            >
+              Ocultar cuadrante
             </Button>
           )}
         </div>

@@ -516,6 +516,24 @@ export const tournamentService = {
     }
   },
 
+  unpublishBracket: async (bracketId: string): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/brackets/${bracketId}/unpublish`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
   reshuffleBracket: async (bracketId: string): Promise<Bracket> => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
