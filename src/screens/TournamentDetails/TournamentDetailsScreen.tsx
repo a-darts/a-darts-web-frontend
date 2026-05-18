@@ -247,7 +247,7 @@ const TournamentDetailsScreen: React.FC = () => {
     { id: 'info', label: 'Información' },
     { id: 'registration', label: 'Inscripciones' },
     { id: 'bracket', label: 'Cuadrante' },
-    { id: 'matches', label: 'Partidos' },
+    { id: 'matches', label: 'Partidas' },
     ...(isAdmin && isEditingBracket ? [{ id: 'create-bracket', label: 'Configurar cuadrante' }] : []),
   ];
 
