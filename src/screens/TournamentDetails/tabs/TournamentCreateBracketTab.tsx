@@ -6,6 +6,7 @@ import BracketMatch, { BracketParticipant } from '../../../components/BracketMat
 import BracketMatchEditable from '../../../components/BracketMatchEditable';
 import Button from '../../../components/Button';
 import { useToast } from '../../../context/ToastContext';
+import { applyStandardSeeding } from '../../../utils/tournament.seeding.utils';
 
 interface TournamentCreateBracketTabProps {
   tournament: Tournament;
@@ -201,41 +202,9 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
     }
   };
 
-  /**
-   * Builds the standard single-elimination seeding order for a bracket of `size` slots.
-   * Result maps slot index 0..size-1 to seed number, so that:
-   *   - Seed 1 and Seed 2 can only meet in the Final
-   *   - Seed 1 meets Seed 3/4 in the Semis, etc.
-   * Example for 8 slots: [1, 8, 5, 4, 3, 6, 7, 2]
-   */
-  const buildStandardSeedOrder = (size: number): number[] => {
-    let result = [1, 2];
-    let currentSize = 2;
-    while (currentSize < size) {
-      currentSize *= 2;
-      const next: number[] = [];
-      for (let i = 0; i < result.length; i += 2) {
-        const s1 = result[i];
-        const s2 = result[i + 1];
-        // s1 stays top of its quarter, s2 stays bottom of its quarter
-        next.push(s1, currentSize + 1 - s1, currentSize + 1 - s2, s2);
-      }
-      result = next;
-    }
-    return result;
-  };
-
-  /**
-   * Re-arranges all currently-placed participants into a standard seeding layout.
-   * Participants are randomly shuffled first (no seeding data available),
-   * then placed into positions following the canonical bracket seeding order.
-   * This is a pure local operation — no API call. The user must click Save to persist.
-   */
+  /** Re-sorts only the currently-placed participants (all assigned state). */
   const handleReshuffle = () => {
-    const seedOrder = buildStandardSeedOrder(bracket.totalPositions);
-
-    // Collect the participants that are currently placed (skip byes / empty)
-    const placedParticipants = participants.filter((p) =>
+    const placed = participants.filter((p) =>
       temporaryPositions.some(
         (pos) =>
           pos.participantId === p.id &&
@@ -243,43 +212,18 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
           pos.participantAlias !== 'Por determinar'
       )
     );
-
-    if (placedParticipants.length === 0) return;
-
-    // Fisher-Yates shuffle for a truly random draw
-    const shuffled = [...placedParticipants];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-
-    setTemporaryPositions((prev) => {
-      // Start from a cleared slate, preserving position metadata
-      const updated: BracketPosition[] = prev.map((pos) => ({
-        ...pos,
-        participantId: null,
-        participantAlias: null,
-        participantFederation: null,
-      }));
-
-      // Place each participant at the slot dictated by the seed order
-      shuffled.forEach((participant, seedIndex) => {
-        const slotIndex = seedOrder[seedIndex] - 1; // seedOrder is 1-based
-        if (slotIndex >= 0 && slotIndex < updated.length) {
-          updated[slotIndex] = {
-            ...updated[slotIndex],
-            participantId: participant.id,
-            participantAlias: participant.alias,
-            participantFederation: participant.federation,
-          };
-        }
-      });
-
-      return updated;
-    });
-
+    const newPositions = applyStandardSeeding(bracket.totalPositions, placed, temporaryPositions);
+    setTemporaryPositions(newPositions);
     setSelectedPlayerToPlace(null);
-    showToast('¡Cuadrante re-sorteado correctamente!', 'success');
+    showToast('¡Cuadrante re-sorteado con el sistema estándar de cabezas de serie!', 'success');
+  };
+
+  /** Auto-assigns ALL registered participants from scratch (first draw / partial state). */
+  const handleAutoAssign = () => {
+    const newPositions = applyStandardSeeding(bracket.totalPositions, participants, temporaryPositions);
+    setTemporaryPositions(newPositions);
+    setSelectedPlayerToPlace(null);
+    showToast('¡Sorteo automático completado con el sistema estándar de cabezas de serie!', 'success');
   };
 
   // Re-build matches rounded structure for rendering using local temporary positions
@@ -425,7 +369,18 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
           >
             Guardar cuadrante
           </Button>
-          {unassignedPlayers.length === 0 && (
+          {unassignedPlayers.length > 0 ? (
+            <Button
+              variant="secondary"
+              leftIcon="Shuffle"
+              onClick={handleAutoAssign}
+              disabled={isSaving}
+              fullWidth
+              style={styles.reshuffleButton}
+            >
+              Sortear aleatoriamente
+            </Button>
+          ) : (
             <Button
               variant="secondary"
               leftIcon="Shuffle"
