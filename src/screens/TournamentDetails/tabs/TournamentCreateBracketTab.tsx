@@ -255,7 +255,7 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
 
     setTemporaryPositions((prev) => {
       // Start from a cleared slate, preserving position metadata
-      const updated = prev.map((pos) => ({
+      const updated: BracketPosition[] = prev.map((pos) => ({
         ...pos,
         participantId: null,
         participantAlias: null,
