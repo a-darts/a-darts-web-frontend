@@ -6,10 +6,16 @@ const resources = {
   es: {
     translation: {
       auth: {
-        admin: 'Administrador',
-        player: 'Jugador',
+        // UserRoles
         ADMIN: 'Administrador',
         PLAYER: 'Jugador',
+        //
+        // UserStatus
+        ACTIVE: 'Activo',
+        INACTIVE: 'Inactivo',
+        BLOCKED: 'Bloqueado',
+        DELETED: 'Eliminado',
+        //
         login_title: 'Bienvenido de nuevo',
         login_subtitle: 'Ingresa tus credenciales para acceder',
         register_title: 'Crea tu cuenta',
@@ -97,10 +103,16 @@ const resources = {
   en: {
     translation: {
       auth: {
-        admin: 'Administrator',
-        player: 'Player',
+        // UserRoles
         ADMIN: 'Administrator',
         PLAYER: 'Player',
+        //
+        // UserStatus
+        ACTIVE: 'Active',
+        INACTIVE: 'Inactive',
+        BLOCKED: 'Blocked',
+        DELETED: 'Deleted',
+        //
         login_title: 'Welcome back',
         login_subtitle: 'Enter your credentials to access',
         register_title: 'Create your account',

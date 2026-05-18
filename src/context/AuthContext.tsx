@@ -7,6 +7,13 @@ export enum UserRoles {
   PLAYER = 'PLAYER',
 }
 
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  BLOCKED = 'BLOCKED',
+  DELETED = 'DELETED',
+}
+
 interface User {
   id: string;
   email: string;

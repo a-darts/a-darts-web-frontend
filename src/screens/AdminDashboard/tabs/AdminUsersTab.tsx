@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { authService } from '../../../services/auth.service';
 import SearchInput from '../../../components/SearchInput';
 import Icon from '../../../components/Icon';
-import { useToast } from '../../../context/ToastContext';
-import { getRoleLabel } from '../../../utils/auth.utils';
+import { getUserStatusLabel } from '../../../utils/auth.utils';
 import i18n from '../../../i18n';
+import UserRoleTag from '../../../components/UserRoleTag';
 
 interface MockUser {
   id: string;
@@ -16,7 +16,6 @@ interface MockUser {
 }
 
 const AdminUsersTab: React.FC = () => {
-  const { showToast } = useToast();
   const [users, setUsers] = useState<MockUser[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
@@ -42,10 +41,6 @@ const AdminUsersTab: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const triggerDemoToast = (action: string) => {
-    showToast(`Acción "${action}" no disponible en modo demostración.`, 'info');
-  };
-
   const filtered = users.filter(u =>
     (u.alias || '').toLowerCase().includes(userQuery.toLowerCase()) ||
     (u.email || '').toLowerCase().includes(userQuery.toLowerCase())
@@ -66,20 +61,6 @@ const AdminUsersTab: React.FC = () => {
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'ACTIVE':
-        return 'Activo';
-      case 'BLOCKED':
-        return 'Bloqueado';
-      case 'INACTIVE':
-        return 'Inactivo';
-      case 'DELETED':
-        return 'Eliminado';
-      default:
-        return status;
-    }
-  };
 
   const formatDate = (dateStr: string) => {
     try {
@@ -135,23 +116,27 @@ const AdminUsersTab: React.FC = () => {
                   </td>
                   <td style={styles.td}>{u.email}</td>
                   <td style={styles.td}>
-                    <span style={u.role === 'ADMIN' ? styles.adminBadge : styles.playerBadge}>
-                      {i18n.t(`auth.${getRoleLabel(u.role)}`)}
-                    </span>
+                    <UserRoleTag
+                      role={u.role}
+                    />
                   </td>
                   <td style={styles.td}>{formatDate(u.registeredAt)}</td>
                   <td style={styles.td}>
                     <span style={getStatusStyle(u.status)}>
-                      {getStatusLabel(u.status)}
+                      {i18n.t(`auth.${getUserStatusLabel(u.status)}`)}
                     </span>
                   </td>
                   <td style={styles.td}>
                     <div style={styles.actionGroup}>
-                      <button onClick={() => triggerDemoToast('Editar Rol')} style={styles.actionBtn} title="Editar Rol">
-                        <Icon name="ShieldAlert" size={16} />
+                      <button
+                        style={styles.actionBtn}
+                      >
+                        <Icon name="Edit" size={16} />
                       </button>
-                      <button onClick={() => triggerDemoToast(u.status === 'ACTIVE' ? 'Bloquear' : 'Desbloquear')} style={styles.actionBtn} title={u.status === 'ACTIVE' ? 'Bloquear' : 'Desbloquear'}>
-                        <Icon name={u.status === 'ACTIVE' ? 'UserX' : 'UserCheck'} size={16} />
+                      <button
+                        style={styles.actionBtn}
+                      >
+                        <Icon name={u.status === 'ACTIVE' ? 'Lock' : 'Unlock'} size={16} />
                       </button>
                     </div>
                   </td>
