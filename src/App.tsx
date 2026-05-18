@@ -8,7 +8,7 @@ import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import EditTournamentInfoScreen from './screens/EditTournamentInfoScreen';
-import AdminDashboardScreen from './screens/AdminDashboardScreen';
+import AdminDashboardScreen from './screens/AdminDashboard/AdminDashboardScreen';
 
 function App() {
   return (
