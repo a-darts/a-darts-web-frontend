@@ -57,7 +57,6 @@ const styles: { [key: string]: any } = {
       fontWeight: '700',
       padding: size === 'small' ? '0.25rem 0.6rem' : '0.4rem 1rem',
       borderRadius: '100px',
-      textTransform: 'uppercase',
       letterSpacing: size === 'small' ? '0.5px' : '1px',
       backgroundColor: bgColor,
       color: color,
