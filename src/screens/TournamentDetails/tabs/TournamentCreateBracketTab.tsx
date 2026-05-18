@@ -353,7 +353,7 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
         {/* Helper instruction */}
         {selectedPlayerToPlace && (
           <div style={styles.selectionTip}>
-            👉 Haz clic en una ranura <strong>+</strong> en el cuadrante para colocar a{' '}
+            Haz clic en una ranura <strong>+</strong> en el cuadrante para colocar a{' '}
             <strong>{selectedPlayerToPlace.alias}</strong>.
           </div>
         )}

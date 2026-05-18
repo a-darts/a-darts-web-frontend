@@ -38,6 +38,8 @@ const TournamentDetailsScreen: React.FC = () => {
   const [isStartModalOpen, setIsStartModalOpen] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [isEditingBracket, setIsEditingBracket] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isUnpublishing, setIsUnpublishing] = useState(false);
 
   const handleBracketGenerated = () => {
     setIsEditingBracket(true);
@@ -201,6 +203,36 @@ const TournamentDetailsScreen: React.FC = () => {
     }
   };
 
+  const handlePublishTournament = async () => {
+    if (!tournament) return;
+    try {
+      setIsPublishing(true);
+      await tournamentService.publishTournament(tournament.id);
+      showToast('¡Torneo publicado correctamente!', 'success');
+      await refreshData();
+    } catch (err: any) {
+      console.error('Error publishing tournament:', err);
+      showToast(err.message || 'Error al publicar el torneo.', 'error');
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleUnpublishTournament = async () => {
+    if (!tournament) return;
+    try {
+      setIsUnpublishing(true);
+      await tournamentService.unpublishTournament(tournament.id);
+      showToast('¡Torneo ocultado correctamente!', 'success');
+      await refreshData();
+    } catch (err: any) {
+      console.error('Error unpublishing tournament:', err);
+      showToast(err.message || 'Error al ocultar el torneo.', 'error');
+    } finally {
+      setIsUnpublishing(false);
+    }
+  };
+
   const formattedDate = formatTournamentDate(info.dateTime);
   const formattedTime = formatTournamentTime(info.dateTime);
 
@@ -269,14 +301,35 @@ const TournamentDetailsScreen: React.FC = () => {
             )
           )}
 
-          {isAdmin && status === TournamentStatus.PUBLISHED && (
+          {isAdmin && status === TournamentStatus.DRAFT && (
             <Button
-              variant="primary"
-              leftIcon="Play"
-              onClick={handleInitTournament}
+              variant="secondary"
+              leftIcon="Megaphone"
+              onClick={handlePublishTournament}
+              loading={isPublishing}
             >
-              INICIAR TORNEO
+              PUBLICAR TORNEO
             </Button>
+          )}
+
+          {isAdmin && status === TournamentStatus.PUBLISHED && (
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <Button
+                variant="secondary"
+                leftIcon="EyeOff"
+                onClick={handleUnpublishTournament}
+                loading={isUnpublishing}
+              >
+                OCULTAR TORNEO
+              </Button>
+              <Button
+                variant="primary"
+                leftIcon="Play"
+                onClick={handleInitTournament}
+              >
+                INICIAR TORNEO
+              </Button>
+            </div>
           )}
         </div>
       </header>

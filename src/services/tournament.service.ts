@@ -475,6 +475,42 @@ export const tournamentService = {
     }
   },
 
+  publishTournament: async (id: string): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${id}/publish`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  unpublishTournament: async (id: string): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${id}/unpublish`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
   saveBracketPositions: async (bracketId: string, positions: BracketPosition[]): Promise<void> => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));

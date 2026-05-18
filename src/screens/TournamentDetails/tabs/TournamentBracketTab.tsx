@@ -264,61 +264,65 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
 
   return (
     <div style={styles.container}>
-
-      {isAdmin && (
+      {isAdmin && bracket.status === BracketStatus.DRAFT && (
         <div style={styles.bracketStatusActionsContainer}>
           <TournamentBracketStatusTag
             status={bracket.status}
             size="medium"
           />
-
-          {bracket.status === BracketStatus.DRAFT && (
-            <Button
-              variant="primary"
-              leftIcon="Megaphone"
-              onClick={handlePublishBracket}
-              loading={isPublishing}
-            >
-              Publicar cuadrante
-            </Button>
-          )}
-
-          {bracket.status === BracketStatus.PUBLISHED && (
-            <Button
-              variant="secondary"
-              leftIcon="EyeOff"
-              onClick={handleUnpublishBracket}
-              loading={isPublishing}
-            >
-              Ocultar cuadrante
-            </Button>
-          )}
-        </div>
-      )}
-
-      {isAdmin && tournament.status === TournamentStatus.PUBLISHED && onStartEditing && (
-        <div style={styles.editButtonContainer}>
-          <div style={styles.progressContainer}>
-            <div style={styles.progressMeta}>
-              <span style={styles.progressText}>
-                Asignados: <strong>{assignedCount}</strong> de <strong>{totalToAssign}</strong>
-              </span>
-              <span style={styles.progressPercent}>{progressPercent}%</span>
-            </div>
-            <div style={styles.progressBarBg}>
-              <div style={{ ...styles.progressBarFill, width: `${progressPercent}%` }} />
-            </div>
-          </div>
-
           <Button
-            variant="secondary"
-            leftIcon="Edit3"
-            onClick={onStartEditing}
+            variant="primary"
+            leftIcon="Megaphone"
+            onClick={handlePublishBracket}
+            loading={isPublishing}
           >
-            Editar posiciones
+            Publicar cuadrante
           </Button>
         </div>
       )}
+
+      {isAdmin && bracket.status === BracketStatus.PUBLISHED && (
+        <div style={styles.bracketStatusActionsContainer}>
+          <TournamentBracketStatusTag
+            status={bracket.status}
+            size="medium"
+          />
+          <Button
+            variant="secondary"
+            leftIcon="EyeOff"
+            onClick={handleUnpublishBracket}
+            loading={isPublishing}
+          >
+            Ocultar cuadrante
+          </Button>
+        </div>
+      )}
+
+      {
+        isAdmin && tournament.status === TournamentStatus.PUBLISHED && onStartEditing && (
+          <div style={styles.editButtonContainer}>
+            <div style={styles.progressContainer}>
+              <div style={styles.progressMeta}>
+                <span style={styles.progressText}>
+                  Asignados: <strong>{assignedCount}</strong> de <strong>{totalToAssign}</strong>
+                </span>
+                <span style={styles.progressPercent}>{progressPercent}%</span>
+              </div>
+              <div style={styles.progressBarBg}>
+                <div style={{ ...styles.progressBarFill, width: `${progressPercent}%` }} />
+              </div>
+            </div>
+
+            <Button
+              variant="secondary"
+              leftIcon="Edit3"
+              onClick={onStartEditing}
+            >
+              Editar posiciones
+            </Button>
+          </div>
+        )
+      }
 
       <div style={styles.bracketWrapper}>
         {roundsData.map((round, roundIndex) => {
@@ -380,7 +384,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
         })}
       </div>
     </div>
-  );
+  )
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
@@ -500,7 +504,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'center',
     justifyContent: 'flex-start',
     width: '100%',
-    marginBottom: '1.5rem',
+    marginBottom: '1rem',
     gap: '2rem',
     flexWrap: 'wrap',
   },
