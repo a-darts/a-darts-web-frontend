@@ -144,6 +144,12 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
   if (error) return <ErrorMessage message={error} />;
   if (!bracket || !bracket.positions) return <div style={styles.message}>No hay datos del cuadrante</div>;
 
+  const assignedCount = bracket.positions.filter(
+    (p) => p.participantId && p.participantAlias && p.participantAlias !== 'Por determinar' && p.participantAlias !== 'Bye'
+  ).length;
+  const totalToAssign = tournament.registration.registeredParticipantsIds.length;
+  const progressPercent = totalToAssign > 0 ? Math.round((assignedCount / totalToAssign) * 100) : 0;
+
   const totalPositions = bracket.totalPositions;
   const numRounds = Math.log2(totalPositions);
   const matchHeight = 110;
@@ -193,8 +199,18 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       const pos2 = bracket.positions[i * 2 + 1];
       return {
         ...m,
-        player1: { ...m.player1, position: pos1?.position || 0 },
-        player2: { ...m.player2, position: pos2?.position || 0 }
+        player1: {
+          ...m.player1,
+          position: pos1?.position || 0,
+          alias: m.player1.alias || pos1?.participantAlias || null,
+          federation: m.player1.federation || pos1?.participantFederation || null
+        },
+        player2: {
+          ...m.player2,
+          position: pos2?.position || 0,
+          alias: m.player2.alias || pos2?.participantAlias || null,
+          federation: m.player2.federation || pos2?.participantFederation || null
+        }
       };
     });
   }
@@ -203,6 +219,18 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
     <div style={styles.container}>
       {isAdmin && tournament.status === 'PUBLISHED' && onStartEditing && (
         <div style={styles.editButtonContainer}>
+          <div style={styles.progressContainer}>
+            <div style={styles.progressMeta}>
+              <span style={styles.progressText}>
+                Asignados: <strong>{assignedCount}</strong> de <strong>{totalToAssign}</strong>
+              </span>
+              <span style={styles.progressPercent}>{progressPercent}%</span>
+            </div>
+            <div style={styles.progressBarBg}>
+              <div style={{ ...styles.progressBarFill, width: `${progressPercent}%` }} />
+            </div>
+          </div>
+
           <Button
             variant="secondary"
             leftIcon="Edit3"
@@ -389,9 +417,49 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   editButtonContainer: {
     display: 'flex',
+    alignItems: 'center',
     justifyContent: 'flex-start',
     width: '100%',
     marginBottom: '1.5rem',
+    gap: '2rem',
+    flexWrap: 'wrap',
+  },
+  progressContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.4rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.01)',
+    border: '1px solid rgba(255, 255, 255, 0.04)',
+    borderRadius: '10px',
+    padding: '0.6rem 1rem',
+    minWidth: '240px',
+  },
+  progressMeta: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: '0.75rem',
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  progressText: {
+    fontWeight: '500',
+  },
+  progressPercent: {
+    color: 'var(--btn-primary-bg)',
+    fontWeight: '800',
+  },
+  progressBarBg: {
+    height: '6px',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: '100px',
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: 'var(--btn-primary-bg)',
+    borderRadius: '100px',
+    transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    boxShadow: '0 0 10px rgba(196, 232, 102, 0.3)',
   },
 };
 
