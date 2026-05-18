@@ -13,7 +13,12 @@ interface TabsProps {
 
 const Tabs: React.FC<TabsProps> = ({ tabs, activeTabId, onTabChange }) => {
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="responsive-tabs-nav">
+      <style>{`
+        .responsive-tabs-nav::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -34,6 +39,11 @@ const styles: { [key: string]: any } = {
     gap: '2rem',
     borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
     marginBottom: '2rem',
+    overflowX: 'auto',
+    scrollbarWidth: 'none',
+    msOverflowStyle: 'none',
+    WebkitOverflowScrolling: 'touch',
+    width: '100%',
   },
   tab: (active: boolean) => ({
     background: 'none',
@@ -48,6 +58,8 @@ const styles: { [key: string]: any } = {
     letterSpacing: '1.5px',
     borderRadius: 0,
     outline: 'none',
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
   }),
   activeIndicator: {
     position: 'absolute',
