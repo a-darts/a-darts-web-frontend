@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 export enum UserRoles {
   ADMIN = 'ADMIN',
-  USER = 'USER',
+  PLAYER = 'PLAYER',
 }
 
 interface User {

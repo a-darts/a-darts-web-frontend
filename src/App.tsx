@@ -8,6 +8,7 @@ import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import EditTournamentInfoScreen from './screens/EditTournamentInfoScreen';
+import AdminDashboardScreen from './screens/AdminDashboardScreen';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/admin" element={<AdminDashboardScreen />} />
       </Routes>
 
       <footer style={styles.footer}>

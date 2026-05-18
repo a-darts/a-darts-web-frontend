@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Button from './Button';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, UserRoles } from '../context/AuthContext';
 import Icon from './Icon';
 import Dropdown, { DropdownItem } from './Dropdown';
 
@@ -12,6 +12,13 @@ const Navbar: React.FC = () => {
   const { t } = useTranslation();
 
   const userMenuItems: DropdownItem[] = [
+    ...(user?.role === UserRoles.ADMIN ? [
+      {
+        label: 'Administración',
+        icon: 'Shield' as any,
+        onClick: () => navigate('/admin')
+      }
+    ] : []),
     {
       label: t('common.dropdown.profile'),
       icon: 'User',
@@ -26,7 +33,7 @@ const Navbar: React.FC = () => {
       label: t('common.dropdown.logout'),
       icon: 'LogOut',
       onClick: logout,
-      variant: 'danger'
+      variant: 'danger' as const
     },
   ];
 
@@ -39,6 +46,9 @@ const Navbar: React.FC = () => {
 
         <div style={styles.tabs}>
           <Link to="/torneos" style={styles.tabLink}>{t('common.navbar.tournaments')}</Link>
+          {user?.role === UserRoles.ADMIN && (
+            <Link to="/admin" style={styles.tabLink}>Panel de administración</Link>
+          )}
         </div>
 
         <div style={styles.auth}>
