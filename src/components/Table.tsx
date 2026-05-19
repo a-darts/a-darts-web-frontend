@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from './Button';
 
 export interface Column<T> {
   key: keyof T | string;
@@ -11,13 +12,19 @@ interface TableProps<T> {
   columns: Column<T>[];
   loading?: boolean;
   emptyMessage?: string;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+  };
 }
 
 const Table = <T extends { id: string | number }>({
   data,
   columns,
   loading,
-  emptyMessage = 'No hay datos disponibles'
+  emptyMessage = 'No hay datos disponibles',
+  pagination
 }: TableProps<T>) => {
   if (loading) {
     return <div style={styles.message}>Cargando datos...</div>;
@@ -28,40 +35,75 @@ const Table = <T extends { id: string | number }>({
   }
 
   return (
-    <div style={styles.container}>
-      <table style={styles.table}>
-        <thead>
-          <tr style={styles.headerRow}>
-            {columns.map((column) => (
-              <th key={column.header} style={styles.th}>
-                {column.header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, index) => (
-            <tr
-              key={item.id}
-              style={{
-                ...styles.tr,
-                backgroundColor: index % 2 === 0 ? 'transparent' : 'rgba(255, 255, 255, 0.01)'
-              }}
-            >
+    <div style={styles.wrapper}>
+      <div style={styles.container}>
+        <table style={styles.table}>
+          <thead>
+            <tr style={styles.headerRow}>
               {columns.map((column) => (
-                <td key={column.header} style={styles.td}>
-                  {column.render ? column.render(item, index) : (item as any)[column.key]}
-                </td>
+                <th key={column.header} style={styles.th}>
+                  {column.header}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((item, index) => (
+              <tr
+                key={item.id}
+                style={{
+                  ...styles.tr,
+                  backgroundColor: index % 2 === 0 ? 'transparent' : 'rgba(255, 255, 255, 0.01)'
+                }}
+              >
+                {columns.map((column) => (
+                  <td key={column.header} style={styles.td}>
+                    {column.render ? column.render(item, index) : (item as any)[column.key]}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {pagination && pagination.totalPages > 1 && (
+        <div style={styles.paginationRow}>
+          <span style={styles.paginationText}>
+            Mostrando página <strong>{pagination.currentPage}</strong> de <strong>{pagination.totalPages}</strong>
+          </span>
+          <div style={styles.paginationButtons}>
+            <Button
+              variant="secondary"
+              size="small"
+              leftIcon="ChevronLeft"
+              disabled={pagination.currentPage === 1}
+              onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="secondary"
+              size="small"
+              rightIcon="ChevronRight"
+              disabled={pagination.currentPage === pagination.totalPages}
+              onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
+            >
+              Siguiente
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+  },
   container: {
     width: '100%',
     overflowX: 'auto',
@@ -105,6 +147,25 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '16px',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     fontSize: '0.95rem',
+  },
+  paginationRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: '1.5rem',
+    paddingTop: '1.5rem',
+    borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+    flexWrap: 'wrap',
+    gap: '1rem',
+  },
+  paginationText: {
+    fontSize: '0.85rem',
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  paginationButtons: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
   },
 };
 

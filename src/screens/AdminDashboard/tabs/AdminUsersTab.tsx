@@ -7,6 +7,7 @@ import UserRoleTag from '../../../components/UserRoleTag';
 import UserStatusTag from '../../../components/UserStatusTag';
 import { UserStatus } from '../../../context/AuthContext';
 import Button from '../../../components/Button';
+import Table, { Column } from '../../../components/Table';
 
 interface MockUser {
   id: string;
@@ -78,6 +79,61 @@ const AdminUsersTab: React.FC = () => {
     }
   };
 
+  const columns: Column<MockUser>[] = [
+    {
+      key: 'alias',
+      header: 'Alias',
+      render: (u) => <span style={styles.aliasName}>{u.alias || 'Sin alias'}</span>,
+    },
+    {
+      key: 'email',
+      header: 'Correo Electrónico',
+    },
+    {
+      key: 'role',
+      header: 'Rol',
+      render: (u) => <UserRoleTag role={u.role} />,
+    },
+    {
+      key: 'registeredAt',
+      header: 'Fecha Registro',
+      render: (u) => formatDate(u.registeredAt),
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      render: (u) => <UserStatusTag status={u.status} />,
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (u) => (
+        <div style={styles.actionGroup}>
+          {u.status !== UserStatus.DELETED && (
+            <button style={styles.actionBtn}>
+              <Icon name="Edit" size={16} />
+            </button>
+          )}
+          {(u.status === UserStatus.ACTIVE || u.status === UserStatus.INACTIVE) && (
+            <button style={styles.actionBtn}>
+              <Icon name={u.status === 'ACTIVE' ? 'Lock' : 'Unlock'} size={16} />
+            </button>
+          )}
+          {u.status === UserStatus.BLOCKED && (
+            <button style={styles.actionBtn}>
+              <Icon name={'Unlock'} size={16} />
+            </button>
+          )}
+          {u.status !== UserStatus.DELETED && (
+            <button style={styles.actionBtn}>
+              <Icon name={'Trash'} size={16} />
+            </button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div style={styles.contentCard}>
       <div style={styles.viewHeader}>
@@ -107,108 +163,16 @@ const AdminUsersTab: React.FC = () => {
           <span>{usersError}</span>
         </div>
       ) : (
-        <div style={styles.tableResponsive}>
-          <table style={styles.table}>
-            <thead>
-              <tr style={styles.tr}>
-                <th style={styles.th}>Alias</th>
-                <th style={styles.th}>Correo Electrónico</th>
-                <th style={styles.th}>Rol</th>
-                <th style={styles.th}>Fecha Registro</th>
-                <th style={styles.th}>Estado</th>
-                <th style={styles.th}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(u => (
-                <tr key={u.id} style={styles.trBody}>
-                  <td style={styles.td}>
-                    <span style={styles.aliasName}>{u.alias || 'Sin alias'}</span>
-                  </td>
-                  <td style={styles.td}>{u.email}</td>
-                  <td style={styles.td}>
-                    <UserRoleTag
-                      role={u.role}
-                    />
-                  </td>
-                  <td style={styles.td}>{formatDate(u.registeredAt)}</td>
-                  <td style={styles.td}>
-                    <UserStatusTag
-                      status={u.status}
-                    />
-                  </td>
-                  <td style={styles.td}>
-                    <div style={styles.actionGroup}>
-                      {u.status !== UserStatus.DELETED && (
-                        <button
-                          style={styles.actionBtn}
-                        >
-                          <Icon name="Edit" size={16} />
-                        </button>
-                      )}
-                      {(u.status === UserStatus.ACTIVE || u.status === UserStatus.INACTIVE) && (
-                        <button
-                          style={styles.actionBtn}
-                        >
-                          <Icon name={u.status === 'ACTIVE' ? 'Lock' : 'Unlock'} size={16} />
-                        </button>
-                      )}
-                      {u.status === UserStatus.BLOCKED && (
-                        <button
-                          style={styles.actionBtn}
-                        >
-                          <Icon name={'Unlock'} size={16} />
-                        </button>
-                      )}
-                      {u.status !== UserStatus.DELETED && (
-                        <button
-                          style={styles.actionBtn}
-                        >
-                          <Icon name={'Trash'} size={16} />
-                        </button>
-                      )}
-
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} style={styles.emptyTableTd}>
-                    No hay usuarios que coincidan con la búsqueda.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {totalPages > 1 && (
-        <div style={styles.paginationRow}>
-          <span style={styles.paginationText}>
-            Mostrando página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
-          </span>
-          <div style={styles.paginationButtons}>
-            <Button
-              variant="secondary"
-              size="small"
-              leftIcon="ChevronLeft"
-              disabled={currentPage === 1}
-              onClick={() => handlePageChange(currentPage - 1)}
-            >
-              Anterior
-            </Button>
-            <Button
-              variant="secondary"
-              size="small"
-              rightIcon="ChevronRight"
-              disabled={currentPage === totalPages}
-              onClick={() => handlePageChange(currentPage + 1)}
-            >
-              Siguiente
-            </Button>
-          </div>
-        </div>
+        <Table
+          data={filtered}
+          columns={columns}
+          emptyMessage="No hay usuarios que coincidan con la búsqueda."
+          pagination={{
+            currentPage,
+            totalPages,
+            onPageChange: handlePageChange
+          }}
+        />
       )}
     </div>
   );
@@ -259,66 +223,6 @@ const styles: { [key: string]: any } = {
     padding: '3rem',
     color: 'rgba(255, 255, 255, 0.6)',
   },
-  tableResponsive: {
-    width: '100%',
-    overflowX: 'auto',
-    borderRadius: '16px',
-    border: '1px solid rgba(255, 255, 255, 0.04)',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    textAlign: 'left',
-    fontSize: '0.9rem',
-  },
-  tr: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-  },
-  th: {
-    padding: '1.2rem 1.5rem',
-    color: 'rgba(255, 255, 255, 0.4)',
-    fontWeight: '700',
-    fontSize: '0.75rem',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-    background: 'rgba(255, 255, 255, 0.01)',
-  },
-  trBody: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
-    transition: 'background 0.2s ease',
-    ':hover': {
-      background: 'rgba(255, 255, 255, 0.01)',
-    },
-  },
-  td: {
-    padding: '1.2rem 1.5rem',
-    color: 'rgba(255, 255, 255, 0.8)',
-    verticalAlign: 'middle',
-  },
-  emptyTableTd: {
-    padding: '3rem',
-    textAlign: 'center',
-    color: 'rgba(255, 255, 255, 0.3)',
-    fontSize: '0.95rem',
-  },
-  aliasCell: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  avatarMini: {
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '0.8rem',
-    fontWeight: '700',
-    color: '#ffffff',
-  },
   aliasName: {
     fontWeight: '600',
     color: '#ffffff',
@@ -342,25 +246,6 @@ const styles: { [key: string]: any } = {
     transition: 'all 0.2s ease',
     padding: 0,
     outline: 'none',
-  },
-  paginationRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: '1.5rem',
-    paddingTop: '1.5rem',
-    borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-    flexWrap: 'wrap',
-    gap: '1rem',
-  },
-  paginationText: {
-    fontSize: '0.85rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-  },
-  paginationButtons: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.75rem',
   },
 };
 
