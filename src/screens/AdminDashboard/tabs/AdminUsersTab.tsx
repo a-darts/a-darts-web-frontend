@@ -8,8 +8,9 @@ import UserStatusTag from '../../../components/UserStatusTag';
 import { UserStatus } from '../../../context/AuthContext';
 import Button from '../../../components/Button';
 import Table, { Column } from '../../../components/Table';
-import { useToast } from '../../../context/ToastContext';
 import Modal from '../../../components/Modal';
+import TextInput from '../../../components/TextInput';
+import { useToast } from '../../../context/ToastContext';
 
 interface MockUser {
   id: string;
@@ -39,6 +40,11 @@ const AdminUsersTab: React.FC = () => {
   const [modalVariant, setModalVariant] = useState<'primary' | 'danger'>('primary');
   const [modalOnConfirm, setModalOnConfirm] = useState<(() => Promise<void>) | null>(null);
   const [modalLoading, setModalLoading] = useState(false);
+
+  // Restore Modal Specific States
+  const [restoreUserObj, setRestoreUserObj] = useState<MockUser | null>(null);
+  const [restoreEmail, setRestoreEmail] = useState('');
+  const [restoreEmailError, setRestoreEmailError] = useState('');
 
   const openConfirmModal = (
     title: string,
@@ -147,22 +153,9 @@ const AdminUsersTab: React.FC = () => {
   };
 
   const handleRestoreConfirm = (user: MockUser) => {
-    openConfirmModal(
-      'Restaurar usuario',
-      `¿Estás seguro de que deseas restaurar a ${user.alias || 'este usuario'}?\nEl usuario volverá a estar activo en la plataforma.`,
-      'Restaurar',
-      'primary',
-      async () => {
-        try {
-          await authService.restoreUser(user.id, user.email);
-          showToast('¡Usuario restaurado con éxito!', 'success');
-          fetchUsers(currentPage);
-        } catch (err: any) {
-          console.error('Error restoring user:', err);
-          showToast(err.message || 'Error al restaurar el usuario.', 'error');
-        }
-      }
-    );
+    setRestoreUserObj(user);
+    setRestoreEmail('');
+    setRestoreEmailError('');
   };
 
   const filtered = users.filter(u =>
@@ -321,6 +314,61 @@ const AdminUsersTab: React.FC = () => {
           }
         }}
         variant={modalVariant}
+        loading={modalLoading}
+      />
+
+      <Modal
+        isOpen={!!restoreUserObj}
+        onClose={() => {
+          setRestoreUserObj(null);
+          setRestoreEmail('');
+          setRestoreEmailError('');
+        }}
+        title="Restaurar usuario"
+        description={
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <span style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.95rem' }}>
+              Para restaurar al usuario <strong>{restoreUserObj?.alias || 'este usuario'}</strong>, por favor introduce su nuevo correo electrónico para confirmar la acción.
+            </span>
+            <TextInput
+              label="Correo electrónico"
+              placeholder="correo@ejemplo.com"
+              type="email"
+              icon="Mail"
+              value={restoreEmail}
+              onChange={(e) => {
+                setRestoreEmail(e.target.value);
+                setRestoreEmailError('');
+              }}
+              error={restoreEmailError}
+              autoFocus
+            />
+          </div>
+        }
+        confirmLabel="Restaurar"
+        onConfirm={async () => {
+          if (!restoreUserObj) return;
+          const trimmedEmail = restoreEmail.trim();
+          if (!trimmedEmail) {
+            setRestoreEmailError('El correo electrónico es requerido.');
+            return;
+          }
+
+          setModalLoading(true);
+          try {
+            await authService.restoreUser(restoreUserObj.id, trimmedEmail);
+            showToast('¡Usuario restaurado con éxito!', 'success');
+            setRestoreUserObj(null);
+            setRestoreEmail('');
+            fetchUsers(currentPage);
+          } catch (err: any) {
+            console.error('Error restoring user:', err);
+            showToast(err.message || 'Error al restaurar el usuario.', 'error');
+          } finally {
+            setModalLoading(false);
+          }
+        }}
+        variant="primary"
         loading={modalLoading}
       />
     </div>
