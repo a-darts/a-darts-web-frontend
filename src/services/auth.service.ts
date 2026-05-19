@@ -219,18 +219,16 @@ export const authService = {
     if (!token) throw new Error('No hay token de sesión');
 
     try {
-      const res = await authService.getUsers(1, 100);
-      let usersList: any[] = [];
-      if (res && res.data) {
-        if (Array.isArray(res.data)) {
-          usersList = res.data;
-        } else if (res.data.users && Array.isArray(res.data.users)) {
-          usersList = res.data.users;
-        }
-      }
-      const user = usersList.find((u: any) => u.id === userId);
-      if (!user) throw new Error('Usuario no encontrado');
-      return user;
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const result = await handleResponse(response);
+      return result.data || result;
     } catch (error: any) {
       throw handleFetchError(error);
     }
