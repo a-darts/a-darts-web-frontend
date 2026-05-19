@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
 import SearchInput from '../../../components/SearchInput';
 import Icon from '../../../components/Icon';
@@ -17,6 +18,7 @@ interface MockUser {
 }
 
 const AdminUsersTab: React.FC = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<MockUser[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
@@ -70,7 +72,7 @@ const AdminUsersTab: React.FC = () => {
           <Button
             leftIcon='Plus'
             variant='primary'
-            onClick={() => { }}
+            onClick={() => navigate('/admin/usuarios/crear')}
           >
             Crear usuario
           </Button>

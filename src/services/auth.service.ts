@@ -31,7 +31,7 @@ export const authService = {
     }
   },
 
-  register: async (email: string, password: string, alias: string) => {
+  register: async (email: string, password: string, alias: string, role: string = 'PLAYER') => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
@@ -39,7 +39,7 @@ export const authService = {
           'accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, alias, role: 'player' }),
+        body: JSON.stringify({ email, password, alias, role }),
       });
 
       return handleResponse(response);

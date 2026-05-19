@@ -9,6 +9,7 @@ import RegisterScreen from './screens/RegisterScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import EditTournamentInfoScreen from './screens/EditTournamentInfoScreen';
 import AdminDashboardScreen from './screens/AdminDashboard/AdminDashboardScreen';
+import AdminCreateUserScreen from './screens/AdminDashboard/AdminCreateUserScreen';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/register" element={<RegisterScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
         <Route path="/admin" element={<AdminDashboardScreen />} />
+        <Route path="/admin/usuarios/crear" element={<AdminCreateUserScreen />} />
       </Routes>
 
       <footer style={styles.footer}>
