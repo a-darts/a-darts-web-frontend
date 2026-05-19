@@ -118,19 +118,36 @@ const AdminUsersTab: React.FC = () => {
               <Icon name="Edit" size={16} />
             </button>
           )}
-          {(u.status === UserStatus.ACTIVE || u.status === UserStatus.INACTIVE) && (
-            <button style={styles.actionBtn}>
-              <Icon name={u.status === 'ACTIVE' ? 'Lock' : 'Unlock'} size={16} />
+          {(u.status === UserStatus.INACTIVE) && (
+            <button
+              style={styles.actionBtn}
+              title='Activar usuario'
+            >
+              <Icon name='CheckCircle' size={16} />
+            </button>
+          )}
+          {(u.status === UserStatus.ACTIVE) && (
+            <button
+              style={styles.actionBtn}
+              title='Bloquear usuario'
+            >
+              <Icon name='Lock' size={16} />
             </button>
           )}
           {u.status === UserStatus.BLOCKED && (
-            <button style={styles.actionBtn}>
-              <Icon name={'Unlock'} size={16} />
+            <button
+              style={styles.actionBtn}
+              title='Desbloquear usuario'
+            >
+              <Icon name='Unlock' size={16} />
             </button>
           )}
           {u.status !== UserStatus.DELETED && (
-            <button style={styles.actionBtn}>
-              <Icon name={'Trash'} size={16} />
+            <button
+              style={styles.actionBtn}
+              title='Eliminar usuario'
+            >
+              <Icon name='Trash' size={16} />
             </button>
           )}
         </div>
