@@ -91,11 +91,12 @@ const AdminPlayersTab: React.FC = () => {
       header: 'Acciones',
       render: (p) => (
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button style={styles.actionBtn} onClick={() => showToast('Ver ficha no disponible', 'info')} title="Ver ficha">
-            <Icon name="Eye" size={16} />
-          </button>
-          <button style={styles.actionBtn} onClick={() => showToast('Editar estadísticas no disponible', 'info')} title="Editar estadísticas">
-            <Icon name="Edit2" size={16} />
+          <button
+            style={styles.actionBtn}
+            onClick={() => navigate(`/admin/jugadores/editar/${p.id}`)}
+            title="Editar jugador"
+          >
+            <Icon name="Edit" size={16} />
           </button>
         </div>
       ),
