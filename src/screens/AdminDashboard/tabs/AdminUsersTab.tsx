@@ -5,6 +5,7 @@ import Icon from '../../../components/Icon';
 import UserRoleTag from '../../../components/UserRoleTag';
 import UserStatusTag from '../../../components/UserStatusTag';
 import { UserStatus } from '../../../context/AuthContext';
+import Button from '../../../components/Button';
 
 interface MockUser {
   id: string;
@@ -61,11 +62,18 @@ const AdminUsersTab: React.FC = () => {
   return (
     <div style={styles.contentCard}>
       <div style={styles.viewHeader}>
-        <div style={styles.viewHeaderLeft}>
-          <h2 style={styles.viewTitle}>Gestión de Usuarios</h2>
-        </div>
-        <div style={styles.searchWrapper}>
-          <SearchInput value={userQuery} onChange={setUserQuery} placeholder="Buscar por alias o correo..." />
+        <h2 style={styles.viewTitle}>Gestión de Usuarios</h2>
+        <div style={styles.viewActionsContainer}>
+          <div style={styles.searchWrapper}>
+            <SearchInput value={userQuery} onChange={setUserQuery} placeholder="Buscar por alias o correo..." />
+          </div>
+          <Button
+            leftIcon='Plus'
+            variant='primary'
+            onClick={() => { }}
+          >
+            Crear usuario
+          </Button>
         </div>
       </div>
 
@@ -172,18 +180,13 @@ const styles: { [key: string]: any } = {
     width: '100%',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
   },
-  viewHeader: {
+  viewActionsContainer: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: '1.5rem',
     flexWrap: 'wrap',
-  },
-  viewHeaderLeft: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.4rem',
   },
   viewTitle: {
     fontSize: '1.75rem',
@@ -199,7 +202,7 @@ const styles: { [key: string]: any } = {
   },
   searchWrapper: {
     width: '100%',
-    maxWidth: '360px',
+    maxWidth: '420px',
     minWidth: '240px',
   },
   loadingContainer: {

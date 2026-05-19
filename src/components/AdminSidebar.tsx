@@ -37,7 +37,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange }) =
 
         .admin-sidebar-header {
           padding: 0 1rem 1.5rem 1rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
           margin-bottom: 1.5rem;
         }
 
@@ -45,7 +45,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onTabChange }) =
           font-family: var(--font-title);
           font-size: 0.75rem;
           font-weight: 800;
-          color: rgba(255, 255, 255, 0.35);
+          color: rgba(255, 255, 255, 0.8);
           text-transform: uppercase;
           letter-spacing: 2.5px;
         }
