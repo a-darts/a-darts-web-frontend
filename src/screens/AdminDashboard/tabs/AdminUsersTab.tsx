@@ -9,6 +9,7 @@ import { UserStatus } from '../../../context/AuthContext';
 import Button from '../../../components/Button';
 import Table, { Column } from '../../../components/Table';
 import { useToast } from '../../../context/ToastContext';
+import Modal from '../../../components/Modal';
 
 interface MockUser {
   id: string;
@@ -29,6 +30,30 @@ const AdminUsersTab: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
+
+  // Confirmation Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalDescription, setModalDescription] = useState<React.ReactNode>('');
+  const [modalConfirmLabel, setModalConfirmLabel] = useState('Confirmar');
+  const [modalVariant, setModalVariant] = useState<'primary' | 'danger'>('primary');
+  const [modalOnConfirm, setModalOnConfirm] = useState<(() => Promise<void>) | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
+
+  const openConfirmModal = (
+    title: string,
+    description: React.ReactNode,
+    confirmLabel: string,
+    variant: 'primary' | 'danger',
+    onConfirm: () => Promise<void>
+  ) => {
+    setModalTitle(title);
+    setModalDescription(description);
+    setModalConfirmLabel(confirmLabel);
+    setModalVariant(variant);
+    setModalOnConfirm(() => onConfirm);
+    setModalOpen(true);
+  };
 
   const fetchUsers = async (page: number = currentPage) => {
     try {
@@ -64,49 +89,80 @@ const AdminUsersTab: React.FC = () => {
     fetchUsers(newPage);
   };
 
-  const handleBlock = async (userId: string) => {
-    try {
-      await authService.blockUser(userId);
-      showToast('¡Usuario bloqueado con éxito!', 'success');
-      fetchUsers(currentPage);
-    } catch (err: any) {
-      console.error('Error blocking user:', err);
-      showToast(err.message || 'Error al bloquear el usuario.', 'error');
-    }
+  const handleBlockConfirm = (user: MockUser) => {
+    openConfirmModal(
+      'Bloquear usuario',
+      `¿Estás seguro de que deseas bloquear a ${user.alias || 'este usuario'}?\nEl usuario perderá el acceso a la plataforma de inmediato.`,
+      'Bloquear',
+      'danger',
+      async () => {
+        try {
+          await authService.blockUser(user.id);
+          showToast('¡Usuario bloqueado con éxito!', 'success');
+          fetchUsers(currentPage);
+        } catch (err: any) {
+          console.error('Error blocking user:', err);
+          showToast(err.message || 'Error al bloquear el usuario.', 'error');
+        }
+      }
+    );
   };
 
-  const handleUnblock = async (userId: string) => {
-    try {
-      await authService.unblockUser(userId);
-      showToast('¡Usuario desbloqueado con éxito!', 'success');
-      fetchUsers(currentPage);
-    } catch (err: any) {
-      console.error('Error unblocking user:', err);
-      showToast(err.message || 'Error al desbloquear el usuario.', 'error');
-    }
+  const handleUnblockConfirm = (user: MockUser) => {
+    openConfirmModal(
+      'Desbloquear usuario',
+      `¿Estás seguro de que deseas desbloquear a ${user.alias || 'este usuario'}?\nEl usuario recuperará el acceso a la plataforma de inmediato.`,
+      'Desbloquear',
+      'primary',
+      async () => {
+        try {
+          await authService.unblockUser(user.id);
+          showToast('¡Usuario desbloqueado con éxito!', 'success');
+          fetchUsers(currentPage);
+        } catch (err: any) {
+          console.error('Error unblocking user:', err);
+          showToast(err.message || 'Error al desbloquear el usuario.', 'error');
+        }
+      }
+    );
   };
 
-  const handleDelete = async (userId: string) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) return;
-    try {
-      await authService.deleteUser(userId);
-      showToast('¡Usuario eliminado con éxito!', 'success');
-      fetchUsers(currentPage);
-    } catch (err: any) {
-      console.error('Error deleting user:', err);
-      showToast(err.message || 'Error al eliminar el usuario.', 'error');
-    }
+  const handleDeleteConfirm = (user: MockUser) => {
+    openConfirmModal(
+      'Eliminar usuario',
+      `¿Estás seguro de que deseas eliminar permanentemente al usuario ${user.alias || 'este usuario'}?`,
+      'Eliminar',
+      'danger',
+      async () => {
+        try {
+          await authService.deleteUser(user.id);
+          showToast('¡Usuario eliminado con éxito!', 'success');
+          fetchUsers(currentPage);
+        } catch (err: any) {
+          console.error('Error deleting user:', err);
+          showToast(err.message || 'Error al eliminar el usuario.', 'error');
+        }
+      }
+    );
   };
 
-  const handleRestore = async (userId: string, email: string) => {
-    try {
-      await authService.restoreUser(userId, email);
-      showToast('¡Usuario restaurado con éxito!', 'success');
-      fetchUsers(currentPage);
-    } catch (err: any) {
-      console.error('Error restoring user:', err);
-      showToast(err.message || 'Error al restaurar el usuario.', 'error');
-    }
+  const handleRestoreConfirm = (user: MockUser) => {
+    openConfirmModal(
+      'Restaurar usuario',
+      `¿Estás seguro de que deseas restaurar a ${user.alias || 'este usuario'}?\nEl usuario volverá a estar activo en la plataforma.`,
+      'Restaurar',
+      'primary',
+      async () => {
+        try {
+          await authService.restoreUser(user.id, user.email);
+          showToast('¡Usuario restaurado con éxito!', 'success');
+          fetchUsers(currentPage);
+        } catch (err: any) {
+          console.error('Error restoring user:', err);
+          showToast(err.message || 'Error al restaurar el usuario.', 'error');
+        }
+      }
+    );
   };
 
   const filtered = users.filter(u =>
@@ -168,7 +224,7 @@ const AdminUsersTab: React.FC = () => {
           {(u.status === UserStatus.ACTIVE) && (
             <button
               style={styles.actionBtn}
-              onClick={() => handleBlock(u.id)}
+              onClick={() => handleBlockConfirm(u)}
               title='Bloquear usuario'
             >
               <Icon name='Lock' size={16} />
@@ -177,7 +233,7 @@ const AdminUsersTab: React.FC = () => {
           {u.status === UserStatus.BLOCKED && (
             <button
               style={styles.actionBtn}
-              onClick={() => handleUnblock(u.id)}
+              onClick={() => handleUnblockConfirm(u)}
               title='Desbloquear usuario'
             >
               <Icon name='Unlock' size={16} />
@@ -186,7 +242,7 @@ const AdminUsersTab: React.FC = () => {
           {u.status !== UserStatus.DELETED && (
             <button
               style={styles.actionBtn}
-              onClick={() => handleDelete(u.id)}
+              onClick={() => handleDeleteConfirm(u)}
               title='Eliminar usuario'
             >
               <Icon name='Trash' size={16} />
@@ -195,7 +251,7 @@ const AdminUsersTab: React.FC = () => {
           {u.status === UserStatus.DELETED && (
             <button
               style={styles.actionBtn}
-              onClick={() => handleRestore(u.id, u.email)}
+              onClick={() => handleRestoreConfirm(u)}
               title='Restaurar usuario'
             >
               <Icon name='RefreshCw' size={16} />
@@ -246,6 +302,27 @@ const AdminUsersTab: React.FC = () => {
           }}
         />
       )}
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        description={modalDescription}
+        confirmLabel={modalConfirmLabel}
+        onConfirm={async () => {
+          if (modalOnConfirm) {
+            setModalLoading(true);
+            try {
+              await modalOnConfirm();
+              setModalOpen(false);
+            } finally {
+              setModalLoading(false);
+            }
+          }
+        }}
+        variant={modalVariant}
+        loading={modalLoading}
+      />
     </div>
   );
 };
