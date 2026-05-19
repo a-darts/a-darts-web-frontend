@@ -1,3 +1,4 @@
+import { UserRoles } from '../context/AuthContext';
 import i18n from '../i18n';
 import { API_BASE_URL, handleFetchError, handleResponse } from './api';
 
@@ -31,7 +32,7 @@ export const authService = {
     }
   },
 
-  register: async (email: string, password: string, alias: string, role: string = 'PLAYER') => {
+  register: async (email: string, password: string, alias: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
@@ -39,7 +40,28 @@ export const authService = {
           'accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, alias, role }),
+        body: JSON.stringify({ email, password, alias, role: UserRoles.PLAYER }),
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  registerByAdmin: async (email: string, alias: string, role: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, alias, role }),
       });
 
       return handleResponse(response);

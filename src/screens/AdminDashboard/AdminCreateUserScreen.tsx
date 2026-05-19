@@ -15,7 +15,6 @@ const AdminCreateUserScreen: React.FC = () => {
 
   const [alias, setAlias] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [role, setRole] = useState('PLAYER');
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -45,8 +44,6 @@ const AdminCreateUserScreen: React.FC = () => {
     if (!alias.trim()) newErrors.alias = 'El alias es obligatorio';
     if (!email.trim()) newErrors.email = 'El correo electrónico es obligatorio';
     else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'El correo electrónico no es válido';
-    if (!password) newErrors.password = 'La contraseña es obligatoria';
-    else if (password.length < 6) newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -58,7 +55,7 @@ const AdminCreateUserScreen: React.FC = () => {
     setSubmitting(true);
 
     try {
-      await authService.register(email, password, alias, role);
+      await authService.registerByAdmin(email, alias, role);
       showToast('¡Usuario creado con éxito!', 'success');
       navigate('/admin');
     } catch (err: any) {
@@ -78,7 +75,7 @@ const AdminCreateUserScreen: React.FC = () => {
             <span>Volver al panel</span>
           </button>
           <h1 style={styles.title}>Crear Nuevo Usuario</h1>
-          <p style={styles.subtitle}>Registra un nuevo usuario en la plataforma con privilegios de Administrador o Jugador.</p>
+          <p style={styles.subtitle}>Registra un nuevo usuario en la plataforma con privilegios de Administrador o Jugador. El sistema generará automáticamente una contraseña temporal, la cual se le enviará al correo electrónico proporcionado.</p>
         </div>
 
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -102,17 +99,6 @@ const AdminCreateUserScreen: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             disabled={submitting}
             error={errors.email}
-          />
-
-          <TextInput
-            label="Contraseña"
-            placeholder="••••••••"
-            type="password"
-            icon="Lock"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={submitting}
-            error={errors.password}
           />
 
           <Select
