@@ -274,5 +274,102 @@ export const authService = {
     } catch (error: any) {
       throw handleFetchError(error);
     }
+  },
+
+  activateUser: async (userId: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/activate`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  blockUser: async (userId: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/block`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  unblockUser: async (userId: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/unblock`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  deleteUser: async (userId: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/delete`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  restoreUser: async (userId: string, email: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/restore`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
   }
 };

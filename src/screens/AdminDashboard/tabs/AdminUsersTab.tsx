@@ -8,6 +8,7 @@ import UserStatusTag from '../../../components/UserStatusTag';
 import { UserStatus } from '../../../context/AuthContext';
 import Button from '../../../components/Button';
 import Table, { Column } from '../../../components/Table';
+import { useToast } from '../../../context/ToastContext';
 
 interface MockUser {
   id: string;
@@ -20,6 +21,7 @@ interface MockUser {
 
 const AdminUsersTab: React.FC = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [users, setUsers] = useState<MockUser[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
@@ -60,6 +62,51 @@ const AdminUsersTab: React.FC = () => {
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
     fetchUsers(newPage);
+  };
+
+  const handleBlock = async (userId: string) => {
+    try {
+      await authService.blockUser(userId);
+      showToast('¡Usuario bloqueado con éxito!', 'success');
+      fetchUsers(currentPage);
+    } catch (err: any) {
+      console.error('Error blocking user:', err);
+      showToast(err.message || 'Error al bloquear el usuario.', 'error');
+    }
+  };
+
+  const handleUnblock = async (userId: string) => {
+    try {
+      await authService.unblockUser(userId);
+      showToast('¡Usuario desbloqueado con éxito!', 'success');
+      fetchUsers(currentPage);
+    } catch (err: any) {
+      console.error('Error unblocking user:', err);
+      showToast(err.message || 'Error al desbloquear el usuario.', 'error');
+    }
+  };
+
+  const handleDelete = async (userId: string) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) return;
+    try {
+      await authService.deleteUser(userId);
+      showToast('¡Usuario eliminado con éxito!', 'success');
+      fetchUsers(currentPage);
+    } catch (err: any) {
+      console.error('Error deleting user:', err);
+      showToast(err.message || 'Error al eliminar el usuario.', 'error');
+    }
+  };
+
+  const handleRestore = async (userId: string, email: string) => {
+    try {
+      await authService.restoreUser(userId, email);
+      showToast('¡Usuario restaurado con éxito!', 'success');
+      fetchUsers(currentPage);
+    } catch (err: any) {
+      console.error('Error restoring user:', err);
+      showToast(err.message || 'Error al restaurar el usuario.', 'error');
+    }
   };
 
   const filtered = users.filter(u =>
@@ -118,17 +165,10 @@ const AdminUsersTab: React.FC = () => {
               <Icon name="Edit" size={16} />
             </button>
           )}
-          {(u.status === UserStatus.INACTIVE) && (
-            <button
-              style={styles.actionBtn}
-              title='Activar usuario'
-            >
-              <Icon name='CheckCircle' size={16} />
-            </button>
-          )}
           {(u.status === UserStatus.ACTIVE) && (
             <button
               style={styles.actionBtn}
+              onClick={() => handleBlock(u.id)}
               title='Bloquear usuario'
             >
               <Icon name='Lock' size={16} />
@@ -137,6 +177,7 @@ const AdminUsersTab: React.FC = () => {
           {u.status === UserStatus.BLOCKED && (
             <button
               style={styles.actionBtn}
+              onClick={() => handleUnblock(u.id)}
               title='Desbloquear usuario'
             >
               <Icon name='Unlock' size={16} />
@@ -145,9 +186,19 @@ const AdminUsersTab: React.FC = () => {
           {u.status !== UserStatus.DELETED && (
             <button
               style={styles.actionBtn}
+              onClick={() => handleDelete(u.id)}
               title='Eliminar usuario'
             >
               <Icon name='Trash' size={16} />
+            </button>
+          )}
+          {u.status === UserStatus.DELETED && (
+            <button
+              style={styles.actionBtn}
+              onClick={() => handleRestore(u.id, u.email)}
+              title='Restaurar usuario'
+            >
+              <Icon name='RefreshCw' size={16} />
             </button>
           )}
         </div>
