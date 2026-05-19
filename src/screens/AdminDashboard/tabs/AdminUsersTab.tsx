@@ -110,7 +110,11 @@ const AdminUsersTab: React.FC = () => {
       render: (u) => (
         <div style={styles.actionGroup}>
           {u.status !== UserStatus.DELETED && (
-            <button style={styles.actionBtn}>
+            <button
+              style={styles.actionBtn}
+              onClick={() => navigate(`/admin/usuarios/editar/${u.id}`)}
+              title="Editar usuario"
+            >
               <Icon name="Edit" size={16} />
             </button>
           )}

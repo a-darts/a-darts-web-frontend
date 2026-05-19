@@ -212,5 +212,69 @@ export const authService = {
     } catch (error: any) {
       throw handleFetchError(error);
     }
+  },
+
+  getUserById: async (userId: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const res = await authService.getUsers(1, 100);
+      let usersList: any[] = [];
+      if (res && res.data) {
+        if (Array.isArray(res.data)) {
+          usersList = res.data;
+        } else if (res.data.users && Array.isArray(res.data.users)) {
+          usersList = res.data.users;
+        }
+      }
+      const user = usersList.find((u: any) => u.id === userId);
+      if (!user) throw new Error('Usuario no encontrado');
+      return user;
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  updateUserEmailByAdmin: async (userId: string, newEmail: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/email`, {
+        method: 'PUT',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ newEmail }),
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  updateUserAliasByAdmin: async (userId: string, newAlias: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/alias`, {
+        method: 'PUT',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ newAlias }),
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
   }
 };
