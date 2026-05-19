@@ -387,6 +387,8 @@ const styles: { [key: string]: any } = {
     width: '100%',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
   },
+  viewHeader: {
+  },
   viewActionsContainer: {
     display: 'flex',
     flexDirection: 'row',

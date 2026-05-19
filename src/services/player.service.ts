@@ -30,4 +30,34 @@ export const playerService = {
       throw handleFetchError(error);
     }
   },
+
+  /**
+   * Fetches all players, with optional pagination.
+   */
+  async getPlayers(page?: number, limit?: number) {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const queryParams = new URLSearchParams();
+      if (page !== undefined) queryParams.append('page', page.toString());
+      if (limit !== undefined) queryParams.append('limit', limit.toString());
+
+      const url = queryParams.toString()
+        ? `${API_BASE_URL}/players?${queryParams.toString()}`
+        : `${API_BASE_URL}/players`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
 };

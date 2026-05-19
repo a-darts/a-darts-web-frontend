@@ -4,6 +4,7 @@ import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
 import { useToast } from '../../../context/ToastContext';
 import { getFederationFlag } from '../../../utils/tournament.utils';
+import Table, { Column } from '../../../components/Table';
 
 interface MockPlayer {
   id: string;
@@ -27,6 +28,9 @@ const AdminPlayersTab: React.FC = () => {
   const { showToast } = useToast();
   const [playerQuery, setPlayerQuery] = useState('');
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const triggerDemoToast = (action: string) => {
     showToast(`Acción "${action}" no disponible en modo demostración.`, 'info');
   };
@@ -37,66 +41,88 @@ const AdminPlayersTab: React.FC = () => {
     p.federation.toLowerCase().includes(playerQuery.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+  const paginatedPlayers = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const columns: Column<MockPlayer>[] = [
+    {
+      key: 'alias',
+      header: 'Alias',
+      render: (p) => <span style={styles.playerAlias}>{p.alias}</span>,
+    },
+    {
+      key: 'fullName',
+      header: 'Nombre Completo',
+      render: (p) => <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>{p.fullName}</span>,
+    },
+    {
+      key: 'federation',
+      header: 'Federación',
+      render: (p) => (
+        <div style={styles.playerFederationVal}>
+          {getFederationFlag(p.federation) && (
+            <img src={getFederationFlag(p.federation) || ''} alt="Flag" style={styles.flagIcon} />
+          )}
+          <span>{p.federation}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'federationYear',
+      header: 'Año Alta',
+    },
+    {
+      key: 'ppd',
+      header: 'Media PPD',
+      render: (p) => <span style={styles.playerStatValHighlight}>{p.ppd} pts</span>,
+    },
+    {
+      key: 'category',
+      header: 'Categoría',
+      render: (p) => <span style={styles.categoryBadge}>{p.category}</span>,
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (p) => (
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button style={styles.actionBtn} onClick={() => triggerDemoToast('Ver ficha')} title="Ver ficha">
+            <Icon name="Eye" size={16} />
+          </button>
+          <button style={styles.actionBtn} onClick={() => triggerDemoToast('Editar estadísticas')} title="Editar estadísticas">
+            <Icon name="Edit2" size={16} />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div style={styles.contentCard}>
       <div style={styles.viewHeader}>
-        <div style={styles.viewHeaderLeft}>
-          <h2 style={styles.viewTitle}>Jugadores Federados</h2>
-          <p style={styles.viewSub}>Control de estadísticas, federaciones y categorías de los jugadores oficiales.</p>
+        <h2 style={styles.viewTitle}>Jugadores Federados</h2>
+        <div style={styles.viewActionsContainer}>
+          <div style={styles.searchWrapper}>
+            <SearchInput value={playerQuery} onChange={setPlayerQuery} placeholder="Buscar por alias, nombre o federación..." />
+          </div>
         </div>
-        <div style={styles.searchWrapper}>
-          <SearchInput value={playerQuery} onChange={setPlayerQuery} placeholder="Buscar por alias, nombre o federación..." />
-        </div>
+        // Otros filtros
       </div>
 
-      <div style={styles.playersGrid}>
-        {filtered.map(p => (
-          <div key={p.id} style={styles.playerCard}>
-            <div style={styles.playerCardHeader}>
-              <div style={styles.playerCardInfo}>
-                <h3 style={styles.playerAlias}>{p.alias}</h3>
-                <span style={styles.playerFullName}>{p.fullName}</span>
-              </div>
-              <span style={styles.categoryBadge}>{p.category}</span>
-            </div>
-
-            <div style={styles.playerCardBody}>
-              <div style={styles.playerStatRow}>
-                <span style={styles.playerStatLabel}>Federación</span>
-                <div style={styles.playerFederationVal}>
-                  {getFederationFlag(p.federation) && (
-                    <img src={getFederationFlag(p.federation) || ''} alt="Flag" style={styles.flagIcon} />
-                  )}
-                  <span>{p.federation}</span>
-                </div>
-              </div>
-              <div style={styles.playerStatRow}>
-                <span style={styles.playerStatLabel}>Año de Alta</span>
-                <span style={styles.playerStatVal}>{p.federationYear}</span>
-              </div>
-              <div style={styles.playerStatRow}>
-                <span style={styles.playerStatLabel}>Media PPD</span>
-                <span style={styles.playerStatValHighlight}>{p.ppd} pts</span>
-              </div>
-            </div>
-
-            <div style={styles.playerCardFooter}>
-              <Button variant="secondary" size="small" onClick={() => triggerDemoToast('Ver ficha')} style={{ flex: 1 }}>
-                Ver ficha
-              </Button>
-              <Button variant="secondary" size="small" onClick={() => triggerDemoToast('Editar estadísticas')} style={{ flex: 1 }}>
-                Editar estad.
-              </Button>
-            </div>
-          </div>
-        ))}
-        {filtered.length === 0 && (
-          <div style={styles.emptyGridBox}>
-            <Icon name="UserMinus" size={48} style={{ color: 'rgba(255, 255, 255, 0.2)', marginBottom: '1rem' }} />
-            <p>No hay jugadores registrados que coincidan con el criterio.</p>
-          </div>
-        )}
-      </div>
+      <Table
+        data={paginatedPlayers}
+        columns={columns}
+        emptyMessage="No hay jugadores registrados que coincidan con el criterio."
+        pagination={{
+          currentPage,
+          totalPages,
+          onPageChange: handlePageChange
+        }}
+      />
     </div>
   );
 };
@@ -114,6 +140,8 @@ const styles: { [key: string]: any } = {
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
   },
   viewHeader: {
+  },
+  viewActionsContainer: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -227,23 +255,20 @@ const styles: { [key: string]: any } = {
     objectFit: 'cover',
     borderRadius: '2px',
   },
-  playerCardFooter: {
+  actionBtn: {
+    background: 'rgba(255, 255, 255, 0.02)',
+    border: '1px solid rgba(255, 255, 255, 0.06)',
+    color: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: '8px',
+    width: '32px',
+    height: '32px',
     display: 'flex',
-    flexDirection: 'row',
-    gap: '0.75rem',
-    marginTop: 'auto',
-  },
-  emptyGridBox: {
-    gridColumn: '1 / -1',
-    display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '4rem 2rem',
-    color: 'rgba(255, 255, 255, 0.3)',
-    fontSize: '0.95rem',
-    border: '1px dashed rgba(255, 255, 255, 0.06)',
-    borderRadius: '16px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    padding: 0,
+    outline: 'none',
   },
 };
 
