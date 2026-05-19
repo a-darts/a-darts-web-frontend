@@ -1,63 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SearchInput from '../../../components/SearchInput';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
 import { useToast } from '../../../context/ToastContext';
-import { getFederationFlag } from '../../../utils/tournament.utils';
+import { getFederationFlag, getSeasonEndYear } from '../../../utils/tournament.utils';
 import Table, { Column } from '../../../components/Table';
-
-interface MockPlayer {
-  id: string;
-  alias: string;
-  fullName: string;
-  federation: string;
-  federationYear: number;
-  ppd: number;
-  category: 'A' | 'B' | 'C' | 'Pro';
-}
-
-const mockPlayersData: MockPlayer[] = [
-  { id: 'p1', alias: 'DardoVeloz', fullName: 'Carlos Gómez Ruíz', federation: 'Madrid', federationYear: 2024, ppd: 24.5, category: 'A' },
-  { id: 'p2', alias: 'DianaMaster', fullName: 'Elena Martínez Vega', federation: 'Cataluña', federationYear: 2023, ppd: 28.2, category: 'Pro' },
-  { id: 'p3', alias: 'BullseyeKing', fullName: 'Javier López Soler', federation: 'Andalucía', federationYear: 2025, ppd: 21.0, category: 'B' },
-  { id: 'p4', alias: 'Triple20', fullName: 'Marcos Alonso Sanz', federation: 'Valencia', federationYear: 2024, ppd: 26.8, category: 'A' },
-  { id: 'p5', alias: 'DartsQueen', fullName: 'Sofia Castro Ortiz', federation: 'Galicia', federationYear: 2025, ppd: 19.5, category: 'C' }
-];
+import { playerService, Player } from '../../../services/player.service';
+import i18n from '../../../i18n';
 
 const AdminPlayersTab: React.FC = () => {
   const { showToast } = useToast();
   const [playerQuery, setPlayerQuery] = useState('');
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const triggerDemoToast = (action: string) => {
-    showToast(`Acción "${action}" no disponible en modo demostración.`, 'info');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 5;
+
+  const fetchPlayers = async (page: number = currentPage) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await playerService.getPlayers(page, limit);
+      if (res && res.data) {
+        if (Array.isArray(res.data)) {
+          setPlayers(res.data);
+          setTotalPages(1);
+        } else if (res.data.players && Array.isArray(res.data.players)) {
+          setPlayers(res.data.players);
+          if (res.data.pagination) {
+            setTotalPages(res.data.pagination.totalPages || 1);
+            setCurrentPage(res.data.pagination.page || 1);
+          }
+        }
+      }
+    } catch (err: any) {
+      console.error('Error fetching players:', err);
+      setError(err.message || 'Error al cargar los jugadores.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const filtered = mockPlayersData.filter(p =>
-    p.alias.toLowerCase().includes(playerQuery.toLowerCase()) ||
-    p.fullName.toLowerCase().includes(playerQuery.toLowerCase()) ||
-    p.federation.toLowerCase().includes(playerQuery.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
-  const paginatedPlayers = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  useEffect(() => {
+    fetchPlayers(1);
+  }, []);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    fetchPlayers(page);
   };
 
-  const columns: Column<MockPlayer>[] = [
+  const columns: Column<Player>[] = [
     {
-      key: 'alias',
+      key: 'userAlias',
       header: 'Alias',
-      render: (p) => <span style={styles.playerAlias}>{p.alias}</span>,
+      render: (p) => <span style={styles.playerAlias}>{p.userAlias || 'Sin alias'}</span>,
     },
     {
-      key: 'fullName',
-      header: 'Nombre Completo',
-      render: (p) => <span style={{ color: 'rgba(255, 255, 255, 0.7)' }}>{p.fullName}</span>,
+      key: 'registrationNumber',
+      header: 'Número de ficha',
+      render: (p) => <span>{p.registrationNumber}</span>,
     },
     {
       key: 'federation',
@@ -67,39 +73,38 @@ const AdminPlayersTab: React.FC = () => {
           {getFederationFlag(p.federation) && (
             <img src={getFederationFlag(p.federation) || ''} alt="Flag" style={styles.flagIcon} />
           )}
-          <span>{p.federation}</span>
+          <span>{i18n.t(`federations.${p.federation}`)}</span>
         </div>
       ),
     },
     {
-      key: 'federationYear',
-      header: 'Año Alta',
-    },
-    {
-      key: 'ppd',
-      header: 'Media PPD',
-      render: (p) => <span style={styles.playerStatValHighlight}>{p.ppd} pts</span>,
-    },
-    {
-      key: 'category',
-      header: 'Categoría',
-      render: (p) => <span style={styles.categoryBadge}>{p.category}</span>,
+      key: 'seasonStartYear',
+      header: 'Temporada',
+      render: (p) => (
+        <span>{p.seasonStartYear} - {getSeasonEndYear(p.seasonStartYear)}</span>
+      ),
     },
     {
       key: 'actions',
       header: 'Acciones',
       render: (p) => (
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button style={styles.actionBtn} onClick={() => triggerDemoToast('Ver ficha')} title="Ver ficha">
+          <button style={styles.actionBtn} onClick={() => showToast('Ver ficha no disponible', 'info')} title="Ver ficha">
             <Icon name="Eye" size={16} />
           </button>
-          <button style={styles.actionBtn} onClick={() => triggerDemoToast('Editar estadísticas')} title="Editar estadísticas">
+          <button style={styles.actionBtn} onClick={() => showToast('Editar estadísticas no disponible', 'info')} title="Editar estadísticas">
             <Icon name="Edit2" size={16} />
           </button>
         </div>
       ),
     },
   ];
+
+  const filtered = players.filter(p =>
+    (p.userAlias || '').toLowerCase().includes(playerQuery.toLowerCase()) ||
+    (p.federation || '').toLowerCase().includes(playerQuery.toLowerCase()) ||
+    (p.registrationNumber || '').toLowerCase().includes(playerQuery.toLowerCase())
+  );
 
   return (
     <div style={styles.contentCard}>
@@ -113,16 +118,28 @@ const AdminPlayersTab: React.FC = () => {
         // Otros filtros
       </div>
 
-      <Table
-        data={paginatedPlayers}
-        columns={columns}
-        emptyMessage="No hay jugadores registrados que coincidan con el criterio."
-        pagination={{
-          currentPage,
-          totalPages,
-          onPageChange: handlePageChange
-        }}
-      />
+      {loading ? (
+        <div style={styles.loadingContainer}>
+          <Icon name="Loader" className="animate-spin" size={24} style={{ color: 'var(--btn-primary-bg)', marginBottom: '1rem' }} />
+          <span>Cargando jugadores...</span>
+        </div>
+      ) : error ? (
+        <div style={{ ...styles.loadingContainer, color: '#FD605D' }}>
+          <Icon name="AlertCircle" size={24} style={{ marginBottom: '1rem' }} />
+          <span>{error}</span>
+        </div>
+      ) : (
+        <Table
+          data={filtered}
+          columns={columns}
+          emptyMessage="No hay jugadores registrados que coincidan con el criterio."
+          pagination={{
+            currentPage,
+            totalPages,
+            onPageChange: handlePageChange
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -199,13 +216,12 @@ const styles: { [key: string]: any } = {
     gap: '0.2rem',
   },
   playerAlias: {
-    fontSize: '1.15rem',
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#ffffff',
   },
   playerFullName: {
     fontSize: '0.8rem',
-    color: 'rgba(255, 255, 255, 0.4)',
+    color: 'rgba(100, 74, 74, 0.4)',
   },
   categoryBadge: {
     fontSize: '0.75rem',
@@ -246,8 +262,6 @@ const styles: { [key: string]: any } = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
-    color: '#ffffff',
-    fontWeight: '600',
   },
   flagIcon: {
     width: '18px',

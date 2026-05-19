@@ -7,6 +7,7 @@ export interface Player {
   registrationNumber: string;
   federation: string;
   seasonStartYear: number;
+  userAlias?: string;
 }
 
 export const playerService = {
