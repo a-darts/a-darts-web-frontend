@@ -187,12 +187,20 @@ export const authService = {
     }
   },
 
-  getUsers: async () => {
+  getUsers: async (page?: number, limit?: number) => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('No hay token de sesión');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/users`, {
+      const queryParams = new URLSearchParams();
+      if (page !== undefined) queryParams.append('page', page.toString());
+      if (limit !== undefined) queryParams.append('limit', limit.toString());
+
+      const url = queryParams.toString()
+        ? `${API_BASE_URL}/users?${queryParams.toString()}`
+        : `${API_BASE_URL}/users`;
+
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'accept': 'application/json',

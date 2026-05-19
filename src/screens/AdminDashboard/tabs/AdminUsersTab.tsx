@@ -23,14 +23,26 @@ const AdminUsersTab: React.FC = () => {
   const [usersLoading, setUsersLoading] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
   const [userQuery, setUserQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page: number = currentPage) => {
     try {
       setUsersLoading(true);
       setUsersError(null);
-      const res = await authService.getUsers();
+      const res = await authService.getUsers(page, limit);
       if (res && res.data) {
-        setUsers(res.data);
+        if (Array.isArray(res.data)) {
+          setUsers(res.data);
+          setTotalPages(1);
+        } else if (res.data.users && Array.isArray(res.data.users)) {
+          setUsers(res.data.users);
+          if (res.data.pagination) {
+            setTotalPages(res.data.pagination.totalPages || 1);
+            setCurrentPage(res.data.pagination.page || 1);
+          }
+        }
       }
     } catch (err: any) {
       console.error('Error fetching users:', err);
@@ -41,8 +53,13 @@ const AdminUsersTab: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(1);
   }, []);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    fetchUsers(newPage);
+  };
 
   const filtered = users.filter(u =>
     (u.alias || '').toLowerCase().includes(userQuery.toLowerCase()) ||
@@ -164,6 +181,33 @@ const AdminUsersTab: React.FC = () => {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+      {totalPages > 1 && (
+        <div style={styles.paginationRow}>
+          <span style={styles.paginationText}>
+            Mostrando página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
+          </span>
+          <div style={styles.paginationButtons}>
+            <Button
+              variant="secondary"
+              size="small"
+              leftIcon="ChevronLeft"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="secondary"
+              size="small"
+              rightIcon="ChevronRight"
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              Siguiente
+            </Button>
+          </div>
         </div>
       )}
     </div>
@@ -298,6 +342,25 @@ const styles: { [key: string]: any } = {
     transition: 'all 0.2s ease',
     padding: 0,
     outline: 'none',
+  },
+  paginationRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: '1.5rem',
+    paddingTop: '1.5rem',
+    borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+    flexWrap: 'wrap',
+    gap: '1rem',
+  },
+  paginationText: {
+    fontSize: '0.85rem',
+    color: 'rgba(255, 255, 255, 0.5)',
+  },
+  paginationButtons: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
   },
 };
 
