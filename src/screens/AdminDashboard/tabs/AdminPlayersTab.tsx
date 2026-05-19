@@ -7,8 +7,10 @@ import { getFederationFlag, getSeasonEndYear } from '../../../utils/tournament.u
 import Table, { Column } from '../../../components/Table';
 import { playerService, Player } from '../../../services/player.service';
 import i18n from '../../../i18n';
+import { useNavigate } from 'react-router-dom';
 
 const AdminPlayersTab: React.FC = () => {
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const [playerQuery, setPlayerQuery] = useState('');
 
@@ -101,9 +103,7 @@ const AdminPlayersTab: React.FC = () => {
   ];
 
   const filtered = players.filter(p =>
-    (p.userAlias || '').toLowerCase().includes(playerQuery.toLowerCase()) ||
-    (p.federation || '').toLowerCase().includes(playerQuery.toLowerCase()) ||
-    (p.registrationNumber || '').toLowerCase().includes(playerQuery.toLowerCase())
+    (p.userAlias || '').toLowerCase().includes(playerQuery.toLowerCase())
   );
 
   return (
@@ -112,10 +112,16 @@ const AdminPlayersTab: React.FC = () => {
         <h2 style={styles.viewTitle}>Jugadores Federados</h2>
         <div style={styles.viewActionsContainer}>
           <div style={styles.searchWrapper}>
-            <SearchInput value={playerQuery} onChange={setPlayerQuery} placeholder="Buscar por alias, nombre o federación..." />
+            <SearchInput value={playerQuery} onChange={setPlayerQuery} placeholder="Buscar por alias..." />
           </div>
+          <Button
+            leftIcon='Plus'
+            variant='primary'
+            onClick={() => navigate('/admin/jugadores/registrar')}
+          >
+            Registrar jugador
+          </Button>
         </div>
-        // Otros filtros
       </div>
 
       {loading ? (
@@ -162,7 +168,7 @@ const styles: { [key: string]: any } = {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: '1.5rem',
     flexWrap: 'wrap',
   },
@@ -176,6 +182,7 @@ const styles: { [key: string]: any } = {
     fontWeight: '800',
     color: '#ffffff',
     fontFamily: 'var(--font-title)',
+    marginBottom: '0.5rem',
   },
   viewSub: {
     fontSize: '0.9rem',
@@ -185,7 +192,7 @@ const styles: { [key: string]: any } = {
   },
   searchWrapper: {
     width: '100%',
-    maxWidth: '360px',
+    maxWidth: '420px',
     minWidth: '240px',
   },
   playersGrid: {

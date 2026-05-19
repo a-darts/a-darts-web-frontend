@@ -393,7 +393,7 @@ const styles: { [key: string]: any } = {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: '1.5rem',
     flexWrap: 'wrap',
   },
@@ -402,6 +402,7 @@ const styles: { [key: string]: any } = {
     fontWeight: '800',
     color: '#ffffff',
     fontFamily: 'var(--font-title)',
+    marginBottom: '0.5rem',
   },
   viewSub: {
     fontSize: '0.9rem',
