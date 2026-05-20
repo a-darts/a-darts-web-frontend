@@ -133,7 +133,6 @@ const AdminEditPlayerScreen: React.FC = () => {
             value={player?.userAlias || 'Sin alias'}
             readOnly
             disabled
-            style={{ cursor: 'not-allowed', opacity: 0.6 }}
           />
 
           <TextInput
@@ -143,7 +142,6 @@ const AdminEditPlayerScreen: React.FC = () => {
             value={player?.registrationNumber || ''}
             readOnly
             disabled
-            style={{ cursor: 'not-allowed', opacity: 0.6 }}
           />
 
           <TextInput
@@ -153,7 +151,6 @@ const AdminEditPlayerScreen: React.FC = () => {
             value={player ? `${player.seasonStartYear} - ${getSeasonEndYear(player.seasonStartYear)}` : ''}
             readOnly
             disabled
-            style={{ cursor: 'not-allowed', opacity: 0.6 }}
           />
 
           <div style={{ marginBottom: '1rem' }}>

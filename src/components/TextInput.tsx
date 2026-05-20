@@ -14,6 +14,7 @@ const TextInput: React.FC<TextInputProps> = ({
   className = '',
   onFocus,
   onBlur,
+  style,
   ...props
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
@@ -29,15 +30,24 @@ const TextInput: React.FC<TextInputProps> = ({
   };
 
   return (
-    <div style={styles.container}>
+    <div style={{
+      ...styles.container,
+      ...style,
+      opacity: props.disabled ? 0.5 : undefined,
+      cursor: props.disabled ? 'not-allowed' : undefined
+    }}>
       {label && <label style={styles.label}>{label}</label>}
       <div style={{
         ...styles.inputWrapper,
-        borderColor: error ? '#ff4d4f' : (isFocused ? '#C4E866' : 'var(--btn-secondary-border)')
+        borderColor: error ? '#ff4d4f' : (isFocused ? '#C4E866' : 'var(--btn-secondary-border)'),
+        cursor: props.disabled ? 'not-allowed' : undefined
       }}>
         {icon && <Icon name={icon} size={18} style={styles.icon} />}
         <input
-          style={styles.input}
+          style={{
+            ...styles.input,
+            cursor: props.disabled ? 'not-allowed' : undefined
+          }}
           className={className}
           onFocus={handleFocus}
           onBlur={handleBlur}
