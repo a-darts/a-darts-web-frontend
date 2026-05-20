@@ -205,12 +205,20 @@ const AdminEditTournamentScreen: React.FC = () => {
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Inicio', path: '/' },
-    { label: 'Torneos', path: '/torneos' },
-    { label: tournament?.name || 'Detalles', path: `/torneos/${id}` },
-    { label: 'Editar' },
-  ];
+  const fromPath = (location.state as any)?.from;
+  const breadcrumbItems = fromPath === '/admin'
+    ? [
+      { label: 'Inicio', path: '/' },
+      { label: 'Panel de Admin', path: '/admin' },
+      { label: tournament?.name || 'Detalles', path: `/torneos/${id}` },
+      { label: 'Editar' },
+    ]
+    : [
+      { label: 'Inicio', path: '/' },
+      { label: 'Torneos', path: '/torneos' },
+      { label: tournament?.name || 'Detalles', path: `/torneos/${id}` },
+      { label: 'Editar' },
+    ];
 
   return (
     <div style={styles.container}>
