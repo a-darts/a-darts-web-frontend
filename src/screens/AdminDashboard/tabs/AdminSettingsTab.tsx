@@ -4,7 +4,7 @@ import { useToast } from '../../../context/ToastContext';
 
 const AdminSettingsTab: React.FC = () => {
   const { showToast } = useToast();
-  
+
   const [settings, setSettings] = useState({
     openRegistration: true,
     allowExternalPlayers: false,
@@ -21,7 +21,7 @@ const AdminSettingsTab: React.FC = () => {
     <div style={styles.contentCard}>
       <div style={styles.viewHeader}>
         <div style={styles.viewHeaderLeft}>
-          <h2 style={styles.viewTitle}>Configuración del Sistema</h2>
+          <h2 style={styles.viewTitle}>Panel de Configuración del Sistema</h2>
           <p style={styles.viewSub}>Establece parámetros globales para inscripciones, notificaciones y mantenimiento.</p>
         </div>
       </div>

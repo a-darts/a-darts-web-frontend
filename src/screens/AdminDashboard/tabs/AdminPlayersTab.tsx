@@ -108,7 +108,7 @@ const AdminPlayersTab: React.FC = () => {
   return (
     <div style={styles.contentCard}>
       <div style={styles.viewHeader}>
-        <h2 style={styles.viewTitle}>Jugadores Federados</h2>
+        <h2 style={styles.viewTitle}>Panel de Jugadores Federados</h2>
         <div style={styles.viewActionsContainer}>
           <div style={styles.searchWrapper}>
             <SearchInput value={playerQuery} onChange={setPlayerQuery} placeholder="Buscar por alias..." />

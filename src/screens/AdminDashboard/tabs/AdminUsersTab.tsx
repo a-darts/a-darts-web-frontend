@@ -249,7 +249,7 @@ const AdminUsersTab: React.FC = () => {
   return (
     <div style={styles.contentCard}>
       <div style={styles.viewHeader}>
-        <h2 style={styles.viewTitle}>Gestión de Usuarios</h2>
+        <h2 style={styles.viewTitle}>Panel de Usuarios</h2>
         <div style={styles.viewActionsContainer}>
           <div style={styles.searchWrapper}>
             <SearchInput value={userQuery} onChange={setUserQuery} placeholder="Buscar por alias o correo..." />
