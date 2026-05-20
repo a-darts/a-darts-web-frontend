@@ -12,6 +12,8 @@ const LoginScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+
   const [tempPassword, setTempPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const navigate = useNavigate();
@@ -50,9 +52,12 @@ const LoginScreen: React.FC = () => {
 
     try {
       await authService.activateAccount(email, tempPassword, newPassword);
-      showToast(t('auth.account_activated_success') || 'Cuenta activada exitosamente. Por favor, inicia sesión con tu nueva contraseña.', 'success');
-      setIsActivating(false);
-      setPassword(newPassword);
+      await login(email, newPassword);
+      showToast('Contraseña cambiada y sesión iniciada exitosamente.', 'success');
+
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get('redirect');
+      navigate(redirect || '/');
     } catch (err: any) {
       console.error('Activation error:', err);
       showToast(err.message || 'Error al activar cuenta.', 'error');
@@ -60,6 +65,79 @@ const LoginScreen: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await authService.forgotPassword(email);
+      showToast('Se ha enviado una contraseña temporal a tu correo.', 'success');
+      setIsForgotPassword(false);
+      setIsActivating(true);
+    } catch (err: any) {
+      console.error('Forgot password error:', err);
+      showToast(err.message || 'Error al solicitar nueva contraseña.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (isForgotPassword) {
+    return (
+      <div className="auth-page-container">
+        <div className="auth-logo-side">
+          <img
+            src="/logo_white.png"
+            alt="A-Darts Logo"
+            className="auth-logo-image"
+          />
+        </div>
+
+        <div className="auth-form-side">
+          <div style={styles.card}>
+            <div style={styles.header}>
+              <h1 style={styles.title}>{'Recuperar Contraseña'}</h1>
+              <p style={styles.subtitle}>{'Introduce tu correo para recibir una contraseña temporal'}</p>
+            </div>
+
+            <form onSubmit={handleForgotPassword} style={styles.form}>
+              <TextInput
+                label={t('auth.email_label')}
+                placeholder="tu@email.com"
+                type="email"
+                icon="Mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                required
+              />
+
+              <Button
+                type="submit"
+                variant="primary"
+                style={styles.submitBtn}
+                rightIcon={loading ? undefined : "ArrowRight"}
+                disabled={loading}
+              >
+                {loading ? 'Enviando...' : 'Enviar Contraseña Temporal'}
+              </Button>
+            </form>
+
+            <div style={{ ...styles.footer, marginTop: '1.5rem' }}>
+              <button
+                type="button"
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary-color)', cursor: 'pointer', fontSize: '0.875rem' }}
+                onClick={() => setIsForgotPassword(false)}
+              >
+                Volver al inicio de sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 
   if (isActivating) {
     return (
@@ -168,6 +246,16 @@ const LoginScreen: React.FC = () => {
               disabled={loading}
               required
             />
+
+            <div style={styles.forgotPassword}>
+              <button
+                type="button"
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary-color)', cursor: 'pointer', fontSize: '0.875rem' }}
+                onClick={() => setIsForgotPassword(true)}
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            </div>
 
             <Button
               type="submit"
