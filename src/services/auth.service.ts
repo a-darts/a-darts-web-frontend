@@ -70,6 +70,24 @@ export const authService = {
     }
   },
 
+  activateAccount: async (email: string, temporaryPassword: string, newPassword: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/activate-account`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, temporaryPassword, newPassword }),
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+
   getMe: async () => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('No hay token de sesión');

@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import TextInput from '../components/TextInput';
 import Button from '../components/Button';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { authService } from '../services/auth.service';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../context/AuthContext';
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isActivating, setIsActivating] = useState(false);
+  const [tempPassword, setTempPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
   const { showToast } = useToast();
@@ -28,11 +32,102 @@ const LoginScreen: React.FC = () => {
       navigate(redirect || '/');
     } catch (err: any) {
       console.error('Login error:', err);
-      showToast(err.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.', 'error');
+      if (err.message === 'User inactive') {
+        setTempPassword(password);
+        setIsActivating(true);
+        showToast(t('auth.account_inactive_change_password') || 'Debes activar tu cuenta cambiando tu contraseña', 'info');
+      } else {
+        showToast(err.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.', 'error');
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  const handleActivate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      await authService.activateAccount(email, tempPassword, newPassword);
+      showToast(t('auth.account_activated_success') || 'Cuenta activada exitosamente. Por favor, inicia sesión con tu nueva contraseña.', 'success');
+      setIsActivating(false);
+      setPassword(newPassword);
+    } catch (err: any) {
+      console.error('Activation error:', err);
+      showToast(err.message || 'Error al activar cuenta.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (isActivating) {
+    return (
+      <div className="auth-page-container">
+        <div className="auth-logo-side">
+          <img
+            src="/logo_white.png"
+            alt="A-Darts Logo"
+            className="auth-logo-image"
+          />
+        </div>
+
+        <div className="auth-form-side">
+          <div style={styles.card}>
+            <div style={styles.header}>
+              <h1 style={styles.title}>{'Activar Cuenta'}</h1>
+              <p style={styles.subtitle}>{'Por favor, añade tu nueva contraseña para activar tu cuenta'}</p>
+            </div>
+
+            <form onSubmit={handleActivate} style={styles.form}>
+              <TextInput
+                label={t('auth.email_label')}
+                placeholder="tu@email.com"
+                type="email"
+                icon="Mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={true}
+                required
+              />
+
+              <TextInput
+                label={t('auth.temp_password_label')}
+                placeholder="••••••••"
+                type="password"
+                icon="Lock"
+                value={tempPassword}
+                onChange={(e) => setTempPassword(e.target.value)}
+                disabled={loading}
+                required
+              />
+
+              <TextInput
+                label={t('auth.new_password_label') || 'Nueva Contraseña'}
+                placeholder="••••••••"
+                type="password"
+                icon="Lock"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                disabled={loading}
+                required
+              />
+
+              <Button
+                type="submit"
+                variant="primary"
+                style={styles.submitBtn}
+                rightIcon={loading ? undefined : "ArrowRight"}
+                disabled={loading}
+              >
+                {loading ? 'Activando...' : 'Activar Cuenta'}
+              </Button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-page-container">
