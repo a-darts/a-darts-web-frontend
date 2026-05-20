@@ -12,6 +12,7 @@ import AdminDashboardScreen from './screens/AdminDashboard/AdminDashboardScreen'
 import AdminCreateUserScreen from './screens/AdminDashboard/AdminCreateUserScreen';
 import AdminEditUserScreen from './screens/AdminDashboard/AdminEditUserScreen';
 import AdminEditPlayerScreen from './screens/AdminDashboard/AdminEditPlayerScreen';
+import AdminCreatePlayerScreen from './screens/AdminDashboard/AdminCreatePlayerScreen';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/admin/usuarios/crear" element={<AdminCreateUserScreen />} />
         <Route path="/admin/usuarios/editar/:id" element={<AdminEditUserScreen />} />
         <Route path="/admin/jugadores/editar/:id" element={<AdminEditPlayerScreen />} />
+        <Route path="/admin/jugadores/registrar" element={<AdminCreatePlayerScreen />} />
       </Routes>
 
       <footer style={styles.footer}>

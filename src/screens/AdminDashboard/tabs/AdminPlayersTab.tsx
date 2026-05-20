@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 
 const AdminPlayersTab: React.FC = () => {
   const navigate = useNavigate();
-  const { showToast } = useToast();
   const [playerQuery, setPlayerQuery] = useState('');
 
   const [players, setPlayers] = useState<Player[]>([]);
@@ -20,7 +19,7 @@ const AdminPlayersTab: React.FC = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const limit = 5;
+  const limit = 16;
 
   const fetchPlayers = async (page: number = currentPage) => {
     try {

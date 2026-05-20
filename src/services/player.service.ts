@@ -108,4 +108,35 @@ export const playerService = {
       throw handleFetchError(error);
     }
   },
+
+  /**
+   * Registers a new player in the system.
+   */
+  async createPlayer(data: { userId: string; registrationNumber: string; federation: string; startYear: number }): Promise<any> {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/players`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: data.userId,
+          registrationNumber: data.registrationNumber,
+          federation: data.federation,
+          season: {
+            startYear: data.startYear,
+          },
+        }),
+      });
+
+      return await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
 };
