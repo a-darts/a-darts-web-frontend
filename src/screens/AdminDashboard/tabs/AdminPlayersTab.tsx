@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SearchInput from '../../../components/SearchInput';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
+import IconButton from '../../../components/IconButton';
 import { useToast } from '../../../context/ToastContext';
 import { getFederationFlag, getSeasonEndYear } from '../../../utils/tournament.utils';
 import Table, { Column } from '../../../components/Table';
@@ -90,13 +91,11 @@ const AdminPlayersTab: React.FC = () => {
       header: 'Acciones',
       render: (p) => (
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button
-            style={styles.actionBtn}
+          <IconButton
+            name="Edit"
             onClick={() => navigate(`/admin/jugadores/editar/${p.id}`)}
             title="Editar jugador"
-          >
-            <Icon name="Edit" size={16} />
-          </button>
+          />
         </div>
       ),
     },
@@ -276,21 +275,11 @@ const styles: { [key: string]: any } = {
     objectFit: 'cover',
     borderRadius: '2px',
   },
-  actionBtn: {
-    background: 'rgba(255, 255, 255, 0.02)',
-    border: '1px solid rgba(255, 255, 255, 0.06)',
-    color: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: '8px',
-    width: '32px',
-    height: '32px',
+  statusContainer: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    padding: 0,
-    outline: 'none',
-  },
+    gap: '0.5rem'
+  }
 };
 
 export default AdminPlayersTab;

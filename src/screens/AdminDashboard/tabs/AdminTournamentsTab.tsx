@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import SearchInput from '../../../components/SearchInput';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
+import IconButton from '../../../components/IconButton';
 import { tournamentService, Tournament } from '../../../services/tournament.service';
 import { getModeLabel, getScheduleTypeLabel, formatTournamentDate } from '../../../utils/tournament.utils';
 import TournamentStatusTag from '../../../components/TournamentStatusTag';
@@ -112,20 +113,16 @@ const AdminTournamentsTab: React.FC = () => {
                   </td>
                   <td style={styles.td}>
                     <div style={styles.actionGroup}>
-                      <button
+                      <IconButton
+                        name="Info"
                         onClick={() => navigate(`/torneos/${t.id}`)}
-                        style={styles.actionBtn}
                         title="Administrar torneo"
-                      >
-                        <Icon name="Info" size={16} />
-                      </button>
-                      <button
+                      />
+                      <IconButton
+                        name="Edit"
                         onClick={() => navigate(`/admin/torneos/${t.id}/editar`, { state: { from: '/admin' } })}
-                        style={styles.actionBtn}
                         title="Editar torneo"
-                      >
-                        <Icon name="Edit" size={16} />
-                      </button>
+                      />
                     </div>
                   </td>
                 </tr>
@@ -248,23 +245,7 @@ const styles: { [key: string]: any } = {
   },
   actionGroup: {
     display: 'flex',
-    alignItems: 'center',
     gap: '0.5rem',
-  },
-  actionBtn: {
-    background: 'rgba(255, 255, 255, 0.02)',
-    border: '1px solid rgba(255, 255, 255, 0.06)',
-    color: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: '8px',
-    width: '32px',
-    height: '32px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    padding: 0,
-    outline: 'none',
   },
   loadingContainer: {
     display: 'flex',

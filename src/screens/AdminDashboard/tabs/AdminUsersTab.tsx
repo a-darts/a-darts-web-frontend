@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../../../services/auth.service';
 import SearchInput from '../../../components/SearchInput';
 import Icon from '../../../components/Icon';
+import IconButton from '../../../components/IconButton';
 import UserRoleTag from '../../../components/UserRoleTag';
 import UserStatusTag from '../../../components/UserStatusTag';
 import { UserStatus } from '../../../context/AuthContext';
@@ -206,49 +207,39 @@ const AdminUsersTab: React.FC = () => {
       render: (u) => (
         <div style={styles.actionGroup}>
           {u.status !== UserStatus.DELETED && (
-            <button
-              style={styles.actionBtn}
+            <IconButton
+              name="Edit"
               onClick={() => navigate(`/admin/usuarios/editar/${u.id}`)}
               title="Editar usuario"
-            >
-              <Icon name="Edit" size={16} />
-            </button>
+            />
           )}
           {(u.status === UserStatus.ACTIVE) && (
-            <button
-              style={styles.actionBtn}
+            <IconButton
+              name="Lock"
               onClick={() => handleBlockConfirm(u)}
-              title='Bloquear usuario'
-            >
-              <Icon name='Lock' size={16} />
-            </button>
+              title="Bloquear usuario"
+            />
           )}
           {u.status === UserStatus.BLOCKED && (
-            <button
-              style={styles.actionBtn}
+            <IconButton
+              name="Unlock"
               onClick={() => handleUnblockConfirm(u)}
-              title='Desbloquear usuario'
-            >
-              <Icon name='Unlock' size={16} />
-            </button>
+              title="Desbloquear usuario"
+            />
           )}
           {u.status !== UserStatus.DELETED && (
-            <button
-              style={styles.actionBtn}
+            <IconButton
+              name="Trash"
               onClick={() => handleDeleteConfirm(u)}
-              title='Eliminar usuario'
-            >
-              <Icon name='Trash' size={16} />
-            </button>
+              title="Eliminar usuario"
+            />
           )}
           {u.status === UserStatus.DELETED && (
-            <button
-              style={styles.actionBtn}
+            <IconButton
+              name="RefreshCw"
               onClick={() => handleRestoreConfirm(u)}
-              title='Restaurar usuario'
-            >
-              <Icon name='RefreshCw' size={16} />
-            </button>
+              title="Restaurar usuario"
+            />
           )}
         </div>
       ),
@@ -429,23 +420,7 @@ const styles: { [key: string]: any } = {
   },
   actionGroup: {
     display: 'flex',
-    alignItems: 'center',
     gap: '0.5rem',
-  },
-  actionBtn: {
-    background: 'rgba(255, 255, 255, 0.02)',
-    border: '1px solid rgba(255, 255, 255, 0.06)',
-    color: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: '8px',
-    width: '32px',
-    height: '32px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    padding: 0,
-    outline: 'none',
   },
 };
 

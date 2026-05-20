@@ -259,3 +259,29 @@ a:hover {
     opacity: 1;
   }
 }
+
+/* IconButton component */
+.icon-btn {
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.icon-btn:hover:not(:disabled) {
+  color: var(--btn-primary-bg);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
