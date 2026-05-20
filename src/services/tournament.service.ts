@@ -633,4 +633,25 @@ export const tournamentService = {
       throw handleFetchError(error);
     }
   },
+
+  createTournament: async (name: string, seasonStartYear: number, info: any): Promise<Tournament> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/tournaments`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name, seasonStartYear, info }),
+      });
+      const result = await handleResponse(response);
+      return result.data;
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
 };

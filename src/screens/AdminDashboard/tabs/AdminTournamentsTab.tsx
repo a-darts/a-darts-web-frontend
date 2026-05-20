@@ -47,7 +47,7 @@ const AdminTournamentsTab: React.FC = () => {
             variant="primary"
             size="medium"
             leftIcon="Plus"
-            onClick={() => navigate('/torneos')}
+            onClick={() => navigate('/admin/torneos/crear')}
           >
             Crear torneo
           </Button>
