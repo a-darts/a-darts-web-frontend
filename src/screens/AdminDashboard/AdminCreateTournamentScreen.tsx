@@ -108,233 +108,279 @@ const AdminCreateTournamentScreen: React.FC = () => {
     );
   }
 
-  const breadcrumbItems = [
-    { label: 'Inicio', path: '/' },
-    { label: 'Panel de Admin', path: '/admin' },
-    { label: 'Crear Torneo' },
-  ];
-
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <Breadcrumbs items={breadcrumbItems} />
-        <Title>Crear Torneo</Title>
-      </header>
-
-      <form onSubmit={handleCreate} style={styles.formCard}>
-        {saveError && <ErrorMessage message={saveError} />}
-
-        <TextInput
-          label="Nombre del Torneo"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          icon="Type"
-          required
-          placeholder="Ej. Torneo Nacional de Primavera"
-        />
-
-        <div style={{ position: 'relative' }}>
-          <TextInput
-            label="Temporada"
-            type="text"
-            icon="Calendar"
-            value={`${seasonStartYear} - ${getSeasonEndYear(seasonStartYear)}`}
-            readOnly
-            disabled={isSaving}
-          />
-          {!isSaving && (
-            <div style={styles.spinnerArrows}>
-              <button
-                type="button"
-                onClick={() => setSeasonStartYear((prev) => prev + 1)}
-                onMouseEnter={() => setHoverUp(true)}
-                onMouseLeave={() => setHoverUp(false)}
-                style={{
-                  ...styles.spinnerArrowBtn,
-                  color: hoverUp ? '#C4E866' : 'rgba(255, 255, 255, 0.4)'
-                }}
-                title="Incrementar año"
-              >
-                <Icon name="ChevronUp" size={14} />
-              </button>
-              <button
-                type="button"
-                onClick={() => setSeasonStartYear((prev) => prev - 1)}
-                onMouseEnter={() => setHoverDown(true)}
-                onMouseLeave={() => setHoverDown(false)}
-                style={{
-                  ...styles.spinnerArrowBtn,
-                  color: hoverDown ? '#C4E866' : 'rgba(255, 255, 255, 0.4)'
-                }}
-                title="Decrementar año"
-              >
-                <Icon name="ChevronDown" size={14} />
-              </button>
-            </div>
-          )}
-        </div>
-
-        <TextInput
-          label="Lugar / Ubicación"
-          value={place}
-          onChange={(e) => setPlace(e.target.value)}
-          icon="MapPin"
-          required
-          placeholder="Ej. Pabellón Municipal"
-        />
-
-        <div style={styles.grid2Col}>
-          <DatePicker
-            label="Fecha"
-            value={date}
-            onChange={setDate}
-            required
-          />
-          <TimePicker
-            label="Hora"
-            value={time}
-            onChange={setTime}
-            required
-          />
-        </div>
-
-        <Select
-          label="Federación"
-          value={federation}
-          options={Federations}
-          onChange={setFederation}
-          icon="Flag"
-        />
-
-        <div style={styles.grid2Col}>
-          <Select
-            label="Modalidad de Juego"
-            value={mode}
-            options={GameModes}
-            onChange={setMode}
-            icon="Users"
-          />
-
-          <TextInput
-            label="Máx. Jugadores"
-            type="number"
-            value={maxPlayers}
-            onChange={(e) => setMaxPlayers(e.target.value)}
-            placeholder="Sin límite"
-            icon="UserPlus"
-          />
-        </div>
-
-        <div style={styles.grid2Col}>
-          <TextInput
-            label="Juego (ej. 501, 301, Cricket)"
-            value={game}
-            onChange={(e) => setGame(e.target.value)}
-            icon="Target"
-            required
-          />
-
-          <Select
-            label="Tipo de cuadrante"
-            value={schedule}
-            options={ScheduleTypes}
-            onChange={setSchedule}
-            icon="Network"
-          />
-        </div>
-
-        <div style={styles.grid3Col}>
-          <Select
-            label="Formato del Juego"
-            value={gameType}
-            options={GameTypes}
-            onChange={setGameType}
-            icon="Layers"
-          />
-
-          <TextInput
-            label="Número de Legs"
-            type="number"
-            value={numLegs}
-            onChange={(e) => setNumLegs(Number(e.target.value))}
-            icon="Hash"
-            required
-            min={1}
-          />
-
-          <TextInput
-            label="Número de Sets"
-            type="number"
-            value={numSets}
-            onChange={(e) => setNumSets(Number(e.target.value))}
-            icon="Hash"
-            required
-            min={1}
-          />
-        </div>
-
-        <TextArea
-          label="Reglas específicas"
-          value={rules}
-          onChange={(e) => setRules(e.target.value)}
-          placeholder="Escribe aquí las reglas del torneo..."
-          rows={4}
-        />
-
-        <TextArea
-          label="Más información / Notas"
-          value={info}
-          onChange={(e) => setInfo(e.target.value)}
-          placeholder="Detalles adicionales, enlaces, premios..."
-          rows={4}
-        />
-
-        <div style={styles.actionsContainer}>
-          <Button
+    <div style={styles.pageContainer}>
+      <div style={styles.card}>
+        <div style={styles.header}>
+          <button
             type="button"
-            variant="secondary"
-            leftIcon="X"
             onClick={() => navigate('/admin', { state: { activeTab: 'torneos' } })}
-            disabled={isSaving}
+            style={styles.backBtn}
+            title="Volver al panel"
           >
-            Cancelar
-          </Button>
-          <Button
-            type="submit"
-            variant="primary"
-            leftIcon="Save"
-            loading={isSaving}
-          >
-            Crear Torneo
-          </Button>
+            <Icon name="ArrowLeft" size={20} />
+            <span>Volver al panel</span>
+          </button>
+          <h1 style={styles.title}>Crear Nuevo Torneo</h1>
+          <p style={styles.subtitle}>Configura y registra un nuevo torneo en el sistema. Todos los detalles podrán ser editados más adelante.</p>
         </div>
-      </form>
+
+        <form onSubmit={handleCreate} style={styles.form}>
+          {saveError && <ErrorMessage message={saveError} />}
+
+          <TextInput
+            label="Nombre del Torneo"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            icon="Type"
+            required
+            placeholder="Ej. Torneo Nacional de Primavera"
+          />
+
+          <div style={{ position: 'relative' }}>
+            <TextInput
+              label="Temporada"
+              type="text"
+              icon="Calendar"
+              value={`${seasonStartYear} - ${getSeasonEndYear(seasonStartYear)}`}
+              readOnly
+              disabled={isSaving}
+            />
+            {!isSaving && (
+              <div style={styles.spinnerArrows}>
+                <button
+                  type="button"
+                  onClick={() => setSeasonStartYear((prev) => prev + 1)}
+                  onMouseEnter={() => setHoverUp(true)}
+                  onMouseLeave={() => setHoverUp(false)}
+                  style={{
+                    ...styles.spinnerArrowBtn,
+                    color: hoverUp ? '#C4E866' : 'rgba(255, 255, 255, 0.4)'
+                  }}
+                  title="Incrementar año"
+                >
+                  <Icon name="ChevronUp" size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSeasonStartYear((prev) => prev - 1)}
+                  onMouseEnter={() => setHoverDown(true)}
+                  onMouseLeave={() => setHoverDown(false)}
+                  style={{
+                    ...styles.spinnerArrowBtn,
+                    color: hoverDown ? '#C4E866' : 'rgba(255, 255, 255, 0.4)'
+                  }}
+                  title="Decrementar año"
+                >
+                  <Icon name="ChevronDown" size={14} />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <TextInput
+            label="Lugar / Ubicación"
+            value={place}
+            onChange={(e) => setPlace(e.target.value)}
+            icon="MapPin"
+            required
+            placeholder="Ej. Pabellón Municipal"
+          />
+
+          <div style={styles.grid2Col}>
+            <DatePicker
+              label="Fecha"
+              value={date}
+              onChange={setDate}
+              required
+            />
+            <TimePicker
+              label="Hora"
+              value={time}
+              onChange={setTime}
+              required
+            />
+          </div>
+
+          <Select
+            label="Federación"
+            value={federation}
+            options={Federations}
+            onChange={setFederation}
+            icon="Flag"
+          />
+
+          <div style={styles.grid2Col}>
+            <Select
+              label="Modalidad de Juego"
+              value={mode}
+              options={GameModes}
+              onChange={setMode}
+              icon="Users"
+            />
+
+            <TextInput
+              label="Máx. Jugadores"
+              type="number"
+              value={maxPlayers}
+              onChange={(e) => setMaxPlayers(e.target.value)}
+              placeholder="Sin límite"
+              icon="UserPlus"
+            />
+          </div>
+
+          <div style={styles.grid2Col}>
+            <TextInput
+              label="Juego (ej. 501, 301, Cricket)"
+              value={game}
+              onChange={(e) => setGame(e.target.value)}
+              icon="Target"
+              required
+            />
+
+            <Select
+              label="Tipo de cuadrante"
+              value={schedule}
+              options={ScheduleTypes}
+              onChange={setSchedule}
+              icon="Network"
+            />
+          </div>
+
+          <div style={styles.grid3Col}>
+            <Select
+              label="Formato del Juego"
+              value={gameType}
+              options={GameTypes}
+              onChange={setGameType}
+              icon="Layers"
+            />
+
+            <TextInput
+              label="Número de Legs"
+              type="number"
+              value={numLegs}
+              onChange={(e) => setNumLegs(Number(e.target.value))}
+              icon="Hash"
+              required
+              min={1}
+            />
+
+            <TextInput
+              label="Número de Sets"
+              type="number"
+              value={numSets}
+              onChange={(e) => setNumSets(Number(e.target.value))}
+              icon="Hash"
+              required
+              min={1}
+            />
+          </div>
+
+          <TextArea
+            label="Reglas específicas"
+            value={rules}
+            onChange={(e) => setRules(e.target.value)}
+            placeholder="Escribe aquí las reglas del torneo..."
+            rows={4}
+          />
+
+          <TextArea
+            label="Más información / Notas"
+            value={info}
+            onChange={(e) => setInfo(e.target.value)}
+            placeholder="Detalles adicionales, enlaces, premios..."
+            rows={4}
+          />
+
+          <div style={styles.buttonGroup}>
+            <Button
+              type="button"
+              variant="secondary"
+              leftIcon="X"
+              onClick={() => navigate('/admin', { state: { activeTab: 'torneos' } })}
+              disabled={isSaving}
+              style={styles.cancelBtn}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={isSaving}
+              leftIcon={isSaving ? undefined : "Save"}
+              style={styles.submitBtn}
+            >
+              {isSaving ? 'Creando torneo...' : 'Crear torneo'}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    padding: '2rem',
-    margin: '0 auto',
+  pageContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 'calc(100vh - 120px)',
+    backgroundColor: '#0E0E0E',
+    padding: '2rem 1rem',
+  },
+  card: {
     width: '100%',
-    minHeight: '80vh',
+    maxWidth: '900px', // Adjusted for tournament
+    backgroundColor: 'rgba(255, 255, 255, 0.01)',
+    border: '1px solid rgba(255, 255, 255, 0.04)',
+    borderRadius: '24px',
+    padding: '2.5rem',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2rem',
   },
   header: {
-    marginBottom: '2rem',
     display: 'flex',
     flexDirection: 'column',
-    gap: '1.5rem',
+    gap: '0.75rem',
+    alignItems: 'flex-start',
   },
-  formCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-    padding: '2.5rem',
-    borderRadius: '16px',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
+  backBtn: {
+    background: 'none',
+    border: 'none',
+    color: 'rgba(255, 255, 255, 0.5)',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontSize: '0.875rem',
+    padding: 0,
+    marginBottom: '0.5rem',
+    transition: 'color 0.2s ease',
+    outline: 'none',
+  },
+  title: {
+    fontSize: '1.75rem',
+    fontWeight: '800',
+    color: '#ffffff',
+    margin: 0,
+    background: 'linear-gradient(to bottom, #ffffff 0%, #a1a1a1 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    fontFamily: 'var(--font-title)',
+  },
+  subtitle: {
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: '0.9rem',
+    margin: 0,
+    lineHeight: '1.5',
+  },
+  form: {
     display: 'flex',
     flexDirection: 'column',
     gap: '1.5rem',
-    maxWidth: '900px'
   },
   grid2Col: {
     display: 'grid',
@@ -346,13 +392,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
     gap: '1.5rem',
   },
-  actionsContainer: {
+  buttonGroup: {
     display: 'flex',
+    flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: '1rem',
     marginTop: '1.5rem',
-    borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-    paddingTop: '1.5rem',
+  },
+  submitBtn: {
+    flex: 1,
+    height: '48px',
+  },
+  cancelBtn: {
+    flex: 1,
+    height: '48px',
   },
   loadingContainer: {
     display: 'flex',
