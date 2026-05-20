@@ -41,19 +41,23 @@ const AdminTournamentsTab: React.FC = () => {
   return (
     <div style={styles.contentCard}>
       <div style={styles.viewHeader}>
-        <div style={styles.viewHeaderLeft}>
+        <div style={styles.viewHeaderRow}>
           <h2 style={styles.viewTitle}>Panel de Torneos</h2>
-        </div>
-        <div style={styles.viewHeaderRight}>
-          <Button variant="primary" size="medium" leftIcon="Plus" onClick={() => navigate('/torneos')}>
-            Nuevo torneo
+          <Button
+            variant="primary"
+            size="medium"
+            leftIcon="Plus"
+            onClick={() => navigate('/torneos')}
+          >
+            Crear torneo
           </Button>
+          {/* </div> */}
         </div>
-      </div>
+        <div style={styles.viewActionsContainer}>
+          <div style={styles.searchWrapper}>
+            <SearchInput value={tournamentQuery} onChange={setTournamentQuery} placeholder="Buscar por nombre, formato o modalidad..." />
+          </div>
 
-      <div style={styles.tournamentsFilterRow}>
-        <div style={styles.searchWrapper}>
-          <SearchInput value={tournamentQuery} onChange={setTournamentQuery} placeholder="Buscar por nombre, formato o modalidad..." />
         </div>
       </div>
 
@@ -154,28 +158,31 @@ const styles: { [key: string]: any } = {
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
   },
   viewHeader: {
+
+  },
+  viewHeaderRow: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
+    marginBottom: '0.75rem',
+  },
+  viewActionsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     gap: '1.5rem',
     flexWrap: 'wrap',
-  },
-  viewHeaderLeft: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.4rem',
-  },
-  viewHeaderRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
   },
   viewTitle: {
     fontSize: '1.75rem',
     fontWeight: '800',
     color: '#ffffff',
     fontFamily: 'var(--font-title)',
+    marginBottom: '0.5rem',
   },
   viewSub: {
     fontSize: '0.9rem',
@@ -183,15 +190,9 @@ const styles: { [key: string]: any } = {
     margin: 0,
     lineHeight: '1.5',
   },
-  tournamentsFilterRow: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    width: '100%',
-  },
   searchWrapper: {
     width: '100%',
-    maxWidth: '360px',
+    maxWidth: '420px',
     minWidth: '240px',
   },
   tableResponsive: {
