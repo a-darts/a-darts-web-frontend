@@ -5,6 +5,7 @@ import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
 import { tournamentService, Tournament } from '../../../services/tournament.service';
 import { getModeLabel, getScheduleTypeLabel, formatTournamentDate } from '../../../utils/tournament.utils';
+import TournamentStatusTag from '../../../components/TournamentStatusTag';
 
 const AdminTournamentsTab: React.FC = () => {
   const navigate = useNavigate();
@@ -72,9 +73,9 @@ const AdminTournamentsTab: React.FC = () => {
             <thead>
               <tr style={styles.tr}>
                 <th style={styles.th}>Torneo</th>
-                <th style={styles.th}>Formato</th>
-                <th style={styles.th}>Participantes</th>
                 <th style={styles.th}>Fecha Inicio</th>
+                <th style={styles.th}>Modalidad</th>
+                <th style={styles.th}>Participantes</th>
                 <th style={styles.th}>Estado</th>
                 <th style={styles.th}>Acciones</th>
               </tr>
@@ -88,7 +89,10 @@ const AdminTournamentsTab: React.FC = () => {
                     </span>
                   </td>
                   <td style={styles.td}>
-                    {t.info ? `${getScheduleTypeLabel(t.info.schedule)} (${getModeLabel(t.info.mode)})` : 'N/A'}
+                    {t.info?.dateTime ? formatTournamentDate(t.info.dateTime) : 'Sin programar'}
+                  </td>
+                  <td style={styles.td}>
+                    {t.info ? `${getModeLabel(t.info.mode)}` : 'N/A'}
                   </td>
                   <td style={styles.td}>
                     <span style={{ fontWeight: '600' }}>
@@ -97,27 +101,18 @@ const AdminTournamentsTab: React.FC = () => {
                     {t.info?.maxPlayers ? ` / ${t.info.maxPlayers}` : ''}
                   </td>
                   <td style={styles.td}>
-                    {t.info?.dateTime ? formatTournamentDate(t.info.dateTime) : 'Sin programar'}
-                  </td>
-                  <td style={styles.td}>
-                    <span style={
-                      t.status === 'IN_PROGRESS' ? styles.activeBadge :
-                        t.status === 'PUBLISHED' ? styles.publishedBadge :
-                          t.status === 'FINISHED' ? styles.finishedBadge : styles.suspendedBadge
-                    }>
-                      {t.status === 'IN_PROGRESS' ? 'En Juego' :
-                        t.status === 'PUBLISHED' ? 'Publicado' :
-                          t.status === 'FINISHED' ? 'Finalizado' :
-                            t.status === 'CANCELLED' ? 'Cancelado' : 'Borrador'}
-                    </span>
+                    <TournamentStatusTag
+                      status={t.status}
+                      size="small"
+                    />
                   </td>
                   <td style={styles.td}>
                     <div style={styles.actionGroup}>
                       <button onClick={() => navigate(`/torneos/${t.id}`)} style={styles.actionBtn} title="Administrar torneo">
-                        <Icon name="ExternalLink" size={16} />
+                        <Icon name="Info" size={16} />
                       </button>
                       <button onClick={() => navigate(`/torneos/${t.id}/edit`)} style={styles.actionBtn} title="Editar torneo">
-                        <Icon name="Edit3" size={16} />
+                        <Icon name="Edit" size={16} />
                       </button>
                     </div>
                   </td>
@@ -241,46 +236,6 @@ const styles: { [key: string]: any } = {
     ':hover': {
       color: 'var(--btn-primary-bg)',
     },
-  },
-  activeBadge: {
-    padding: '0.3rem 0.75rem',
-    borderRadius: '100px',
-    fontSize: '0.7rem',
-    fontWeight: '800',
-    backgroundColor: 'rgba(196, 232, 102, 0.1)',
-    border: '1px solid rgba(196, 232, 102, 0.2)',
-    color: '#C4E866',
-    letterSpacing: '0.5px',
-  },
-  publishedBadge: {
-    padding: '0.3rem 0.75rem',
-    borderRadius: '100px',
-    fontSize: '0.7rem',
-    fontWeight: '800',
-    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-    border: '1px solid rgba(59, 130, 246, 0.2)',
-    color: '#60a5fa',
-    letterSpacing: '0.5px',
-  },
-  finishedBadge: {
-    padding: '0.3rem 0.75rem',
-    borderRadius: '100px',
-    fontSize: '0.7rem',
-    fontWeight: '800',
-    backgroundColor: 'rgba(248, 113, 113, 0.1)',
-    border: '1px solid rgba(248, 113, 113, 0.2)',
-    color: '#f87171',
-    letterSpacing: '0.5px',
-  },
-  suspendedBadge: {
-    padding: '0.3rem 0.75rem',
-    borderRadius: '100px',
-    fontSize: '0.7rem',
-    fontWeight: '800',
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    color: 'rgba(255, 255, 255, 0.4)',
-    letterSpacing: '0.5px',
   },
   actionGroup: {
     display: 'flex',
