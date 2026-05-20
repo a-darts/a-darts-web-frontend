@@ -4,9 +4,11 @@ import SearchInput from '../../../components/SearchInput';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
 import IconButton from '../../../components/IconButton';
-import { tournamentService, Tournament } from '../../../services/tournament.service';
-import { getModeLabel, getScheduleTypeLabel, formatTournamentDate } from '../../../utils/tournament.utils';
+import { tournamentService, Tournament, Federations, GameModes } from '../../../services/tournament.service';
+import { getModeLabel, getScheduleTypeLabel, formatTournamentDate, getSeasonEndYear, getFederationFlag } from '../../../utils/tournament.utils';
 import TournamentStatusTag from '../../../components/TournamentStatusTag';
+import Select from '../../../components/Select';
+import i18n from '../../../i18n';
 
 const AdminTournamentsTab: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +16,9 @@ const AdminTournamentsTab: React.FC = () => {
   const [tournamentQuery, setTournamentQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [federationFilter, setFederationFilter] = useState('');
+  const [modeFilter, setModeFilter] = useState('');
 
   useEffect(() => {
     const fetchTournaments = async () => {
@@ -33,11 +38,16 @@ const AdminTournamentsTab: React.FC = () => {
     fetchTournaments();
   }, []);
 
-  const filtered = tournaments.filter(t =>
-    t.name.toLowerCase().includes(tournamentQuery.toLowerCase()) ||
-    (t.info?.mode && getModeLabel(t.info.mode).toLowerCase().includes(tournamentQuery.toLowerCase())) ||
-    (t.info?.schedule && getScheduleTypeLabel(t.info.schedule).toLowerCase().includes(tournamentQuery.toLowerCase()))
-  );
+  const filtered = tournaments.filter(t => {
+    const matchesQuery = t.name.toLowerCase().includes(tournamentQuery.toLowerCase()) ||
+      (t.info?.mode && getModeLabel(t.info.mode).toLowerCase().includes(tournamentQuery.toLowerCase())) ||
+      (t.info?.schedule && getScheduleTypeLabel(t.info.schedule).toLowerCase().includes(tournamentQuery.toLowerCase()));
+
+    const matchesFed = federationFilter === '' || t.info?.federation === federationFilter;
+    const matchesMode = modeFilter === '' || t.info?.mode === modeFilter;
+
+    return matchesQuery && matchesFed && matchesMode;
+  });
 
   return (
     <div style={styles.contentCard}>
@@ -58,7 +68,32 @@ const AdminTournamentsTab: React.FC = () => {
           <div style={styles.searchWrapper}>
             <SearchInput value={tournamentQuery} onChange={setTournamentQuery} placeholder="Buscar por nombre, formato o modalidad..." />
           </div>
-
+          <div style={styles.filtersWrapper}>
+            <div style={styles.filterItem}>
+              <Select
+                label='Federación'
+                value={federationFilter}
+                onChange={setFederationFilter}
+                options={[
+                  { value: '', label: 'Todas' },
+                  ...Object.entries(Federations).map(([k, v]) => ({ value: k, label: v }))
+                ]}
+                icon="Flag"
+              />
+            </div>
+            <div style={styles.filterItem}>
+              <Select
+                label='Modalidad'
+                value={modeFilter}
+                onChange={setModeFilter}
+                options={[
+                  { value: '', label: 'Todas' },
+                  ...Object.entries(GameModes).map(([k, v]) => ({ value: k, label: v }))
+                ]}
+                icon="Users"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -80,7 +115,7 @@ const AdminTournamentsTab: React.FC = () => {
                 <th style={styles.th}>Torneo</th>
                 <th style={styles.th}>Fecha Inicio</th>
                 <th style={styles.th}>Modalidad</th>
-                <th style={styles.th}>Participantes</th>
+                <th style={styles.th}>Federación</th>
                 <th style={styles.th}>Estado</th>
                 <th style={styles.th}>Acciones</th>
               </tr>
@@ -100,10 +135,20 @@ const AdminTournamentsTab: React.FC = () => {
                     {t.info ? `${getModeLabel(t.info.mode)}` : 'N/A'}
                   </td>
                   <td style={styles.td}>
-                    <span style={{ fontWeight: '600' }}>
+                    {/* <span style={{ fontWeight: '600' }}>
                       {t.registration?.registeredParticipantsIds?.length || 0}
                     </span>
-                    {t.info?.maxPlayers ? ` / ${t.info.maxPlayers}` : ''}
+                    {t.info?.maxPlayers ? ` / ${t.info.maxPlayers}` : ''} */}
+                    <div style={styles.playerFederationVal}>
+                      {getFederationFlag(t.info.federation) && (
+                        <img
+                          src={getFederationFlag(t.info.federation) || ''}
+                          alt="Flag"
+                          style={styles.flagIcon}
+                        />
+                      )}
+                      <span>{i18n.t(`federations.${t.info.federation}`)}</span>
+                    </div>
                   </td>
                   <td style={styles.td}>
                     <TournamentStatusTag
@@ -170,7 +215,7 @@ const styles: { [key: string]: any } = {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     gap: '1.5rem',
     flexWrap: 'wrap',
   },
@@ -191,6 +236,15 @@ const styles: { [key: string]: any } = {
     width: '100%',
     maxWidth: '420px',
     minWidth: '240px',
+  },
+  filtersWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '1rem',
+    flexWrap: 'wrap',
+  },
+  filterItem: {
+    minWidth: '200px',
   },
   tableResponsive: {
     width: '100%',
@@ -246,6 +300,17 @@ const styles: { [key: string]: any } = {
   actionGroup: {
     display: 'flex',
     gap: '0.5rem',
+  },
+  playerFederationVal: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  },
+  flagIcon: {
+    width: '18px',
+    height: '12px',
+    objectFit: 'cover',
+    borderRadius: '2px',
   },
   loadingContainer: {
     display: 'flex',
