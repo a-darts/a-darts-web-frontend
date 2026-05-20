@@ -226,12 +226,6 @@ const styles: { [key: string]: any } = {
     fontFamily: 'var(--font-title)',
     marginBottom: '0.5rem',
   },
-  viewSub: {
-    fontSize: '0.9rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-    margin: 0,
-    lineHeight: '1.5',
-  },
   searchWrapper: {
     width: '100%',
     maxWidth: '420px',

@@ -9,6 +9,8 @@ import Table, { Column } from '../../../components/Table';
 import { playerService, Player } from '../../../services/player.service';
 import i18n from '../../../i18n';
 import { useNavigate } from 'react-router-dom';
+import Select from '../../../components/Select';
+import { Federations } from '../../../services/tournament.service';
 
 const AdminPlayersTab: React.FC = () => {
   const navigate = useNavigate();
@@ -21,6 +23,9 @@ const AdminPlayersTab: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 16;
+
+  const [federationFilter, setFederationFilter] = useState('');
+
 
   const fetchPlayers = async (page: number = currentPage) => {
     try {
@@ -101,18 +106,20 @@ const AdminPlayersTab: React.FC = () => {
     },
   ];
 
-  const filtered = players.filter(p =>
-    (p.userAlias || '').toLowerCase().includes(playerQuery.toLowerCase())
-  );
+  const filtered = players.filter(p => {
+    // (p.userAlias || '').toLowerCase().includes(playerQuery.toLowerCase())
+    const matchesQuery = (p.userAlias || '').toLowerCase().includes(playerQuery.toLowerCase());
+
+    const matchesFed = federationFilter === '' || p.federation === federationFilter;
+
+    return matchesQuery && matchesFed;
+  });
 
   return (
     <div style={styles.contentCard}>
       <div style={styles.viewHeader}>
-        <h2 style={styles.viewTitle}>Panel de Jugadores Federados</h2>
-        <div style={styles.viewActionsContainer}>
-          <div style={styles.searchWrapper}>
-            <SearchInput value={playerQuery} onChange={setPlayerQuery} placeholder="Buscar por alias..." />
-          </div>
+        <div style={styles.viewHeaderRow}>
+          <h2 style={styles.viewTitle}>Panel de Jugadores Federados</h2>
           <Button
             leftIcon='Plus'
             variant='primary'
@@ -120,6 +127,25 @@ const AdminPlayersTab: React.FC = () => {
           >
             Registrar jugador
           </Button>
+        </div>
+        <div style={styles.viewActionsContainer}>
+          <div style={styles.searchWrapper}>
+            <SearchInput value={playerQuery} onChange={setPlayerQuery} placeholder="Buscar por alias..." />
+          </div>
+          <div style={styles.filtersWrapper}>
+            <div style={styles.filterItem}>
+              <Select
+                label='Federación'
+                value={federationFilter}
+                onChange={setFederationFilter}
+                options={[
+                  { value: '', label: 'Todas' },
+                  ...Object.entries(Federations).map(([k, v]) => ({ value: k, label: v }))
+                ]}
+                icon="Flag"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -163,18 +189,22 @@ const styles: { [key: string]: any } = {
   },
   viewHeader: {
   },
-  viewActionsContainer: {
+  viewHeaderRow: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
+    marginBottom: '0.75rem',
+  },
+  viewActionsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
     gap: '1.5rem',
     flexWrap: 'wrap',
-  },
-  viewHeaderLeft: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.4rem',
   },
   viewTitle: {
     fontSize: '1.75rem',
@@ -183,16 +213,19 @@ const styles: { [key: string]: any } = {
     fontFamily: 'var(--font-title)',
     marginBottom: '0.5rem',
   },
-  viewSub: {
-    fontSize: '0.9rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-    margin: 0,
-    lineHeight: '1.5',
-  },
   searchWrapper: {
     width: '100%',
     maxWidth: '420px',
     minWidth: '240px',
+  },
+  filtersWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '1rem',
+    flexWrap: 'wrap',
+  },
+  filterItem: {
+    minWidth: '200px',
   },
   playersGrid: {
     display: 'grid',
