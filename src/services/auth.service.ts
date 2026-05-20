@@ -72,7 +72,7 @@ export const authService = {
 
   activateAccount: async (email: string, temporaryPassword: string, newPassword: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/activate-account`, {
+      const response = await fetch(`${API_BASE_URL}/auth/activateAccount`, {
         method: 'POST',
         headers: {
           'accept': 'application/json',
