@@ -9,6 +9,7 @@ import TextInput from '../../components/TextInput';
 import { authService } from '../../services/auth.service';
 import { playerService } from '../../services/player.service';
 import { Federations } from '../../services/tournament.service';
+import { getSeasonEndYear } from '../../utils/tournament.utils';
 import i18n from '../../i18n';
 
 interface UserItem {
@@ -26,7 +27,9 @@ const AdminCreatePlayerScreen: React.FC = () => {
   const [selectedUserId, setSelectedUserId] = useState('');
   const [registrationNumber, setRegistrationNumber] = useState('');
   const [federation, setFederation] = useState('');
-  const [startYear, setStartYear] = useState<string>(new Date().getFullYear().toString());
+  const [startYear, setStartYear] = useState<number>(new Date().getFullYear());
+  const [hoverUp, setHoverUp] = useState(false);
+  const [hoverDown, setHoverDown] = useState(false);
 
   const [fetchingUsers, setFetchingUsers] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -89,7 +92,7 @@ const AdminCreatePlayerScreen: React.FC = () => {
     }
 
     if (!registrationNumber.trim()) {
-      showToast('Por favor, ingresa el número de ficha / registro.', 'error');
+      showToast('Por favor, ingresa el número de ficha.', 'error');
       return;
     }
 
@@ -98,9 +101,8 @@ const AdminCreatePlayerScreen: React.FC = () => {
       return;
     }
 
-    const yearNum = parseInt(startYear, 10);
-    if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
-      showToast('Por favor, ingresa un año de inicio de temporada válido.', 'error');
+    if (startYear < 1900 || startYear > 2100) {
+      showToast('Por favor, selecciona una temporada válida.', 'error');
       return;
     }
 
@@ -111,7 +113,7 @@ const AdminCreatePlayerScreen: React.FC = () => {
         userId: selectedUserId,
         registrationNumber: registrationNumber.trim(),
         federation,
-        startYear: yearNum,
+        startYear: startYear,
       });
       showToast('¡Jugador federado registrado con éxito!', 'success');
       navigate('/admin');
@@ -179,15 +181,46 @@ const AdminCreatePlayerScreen: React.FC = () => {
             />
           </div>
 
-          <TextInput
-            label="Año de inicio de temporada"
-            type="number"
-            icon="Calendar"
-            placeholder="Ej. 2026"
-            value={startYear}
-            onChange={(e) => setStartYear(e.target.value)}
-            disabled={submitting}
-          />
+          <div style={{ position: 'relative' }}>
+            <TextInput
+              label="Temporada"
+              type="text"
+              icon="Calendar"
+              value={`${startYear} - ${getSeasonEndYear(startYear)}`}
+              readOnly
+              disabled={submitting}
+            />
+            {!submitting && (
+              <div style={styles.spinnerArrows}>
+                <button
+                  type="button"
+                  onClick={() => setStartYear((prev) => prev + 1)}
+                  onMouseEnter={() => setHoverUp(true)}
+                  onMouseLeave={() => setHoverUp(false)}
+                  style={{
+                    ...styles.spinnerArrowBtn,
+                    color: hoverUp ? '#C4E866' : 'rgba(255, 255, 255, 0.4)'
+                  }}
+                  title="Incrementar año"
+                >
+                  <Icon name="ChevronUp" size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStartYear((prev) => prev - 1)}
+                  onMouseEnter={() => setHoverDown(true)}
+                  onMouseLeave={() => setHoverDown(false)}
+                  style={{
+                    ...styles.spinnerArrowBtn,
+                    color: hoverDown ? '#C4E866' : 'rgba(255, 255, 255, 0.4)'
+                  }}
+                  title="Decrementar año"
+                >
+                  <Icon name="ChevronDown" size={14} />
+                </button>
+              </div>
+            )}
+          </div>
 
           <div style={styles.buttonGroup}>
             <Button
@@ -300,6 +333,31 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'center',
     minHeight: 'calc(100vh - 140px)',
     color: 'rgba(255, 255, 255, 0.6)',
+  },
+  spinnerArrows: {
+    position: 'absolute',
+    right: '16px',
+    top: '38px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0px',
+    justifyContent: 'center',
+    height: '32px',
+    zIndex: 10,
+  },
+  spinnerArrowBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '2px',
+    borderRadius: '4px',
+    transition: 'all 0.2s ease',
+    outline: 'none',
+    height: '14px',
+    width: '24px',
   },
 };
 

@@ -136,7 +136,7 @@ const AdminEditPlayerScreen: React.FC = () => {
           />
 
           <TextInput
-            label="Número de ficha / Registro"
+            label="Número de ficha"
             type="text"
             icon="Hash"
             value={player?.registrationNumber || ''}
@@ -145,7 +145,7 @@ const AdminEditPlayerScreen: React.FC = () => {
           />
 
           <TextInput
-            label="Temporada de inicio"
+            label="Temporada"
             type="text"
             icon="Calendar"
             value={player ? `${player.seasonStartYear} - ${getSeasonEndYear(player.seasonStartYear)}` : ''}
