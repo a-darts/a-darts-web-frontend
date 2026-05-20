@@ -49,7 +49,7 @@ const AdminEditPlayerScreen: React.FC = () => {
       } catch (err: any) {
         console.error('Error al cargar datos del jugador:', err);
         showToast(err.message || 'Error al obtener los datos del jugador.', 'error');
-        navigate('/admin');
+        navigate('/admin', { state: { activeTab: 'jugadores' } });
       } finally {
         setFetchingPlayer(false);
       }
@@ -88,7 +88,7 @@ const AdminEditPlayerScreen: React.FC = () => {
 
     if (federation === initialFederation) {
       showToast('No se han detectado cambios para guardar.', 'info');
-      navigate('/admin');
+      navigate('/admin', { state: { activeTab: 'jugadores' } });
       return;
     }
 
@@ -98,7 +98,7 @@ const AdminEditPlayerScreen: React.FC = () => {
       if (id) {
         await playerService.updatePlayerFederation(id, federation);
         showToast('¡Federación del jugador actualizada con éxito!', 'success');
-        navigate('/admin');
+        navigate('/admin', { state: { activeTab: 'jugadores' } });
       }
     } catch (err: any) {
       console.error('Error al actualizar federación del jugador:', err);
@@ -117,7 +117,7 @@ const AdminEditPlayerScreen: React.FC = () => {
     <div style={styles.pageContainer}>
       <div style={styles.card}>
         <div style={styles.header}>
-          <button onClick={() => navigate('/admin')} style={styles.backBtn} title="Volver al panel">
+          <button onClick={() => navigate('/admin', { state: { activeTab: 'jugadores' } })} style={styles.backBtn} title="Volver al panel">
             <Icon name="ArrowLeft" size={20} />
             <span>Volver al panel</span>
           </button>
@@ -168,7 +168,7 @@ const AdminEditPlayerScreen: React.FC = () => {
               type="button"
               variant="secondary"
               leftIcon="X"
-              onClick={() => navigate('/admin')}
+              onClick={() => navigate('/admin', { state: { activeTab: 'jugadores' } })}
               disabled={submitting}
               style={styles.cancelBtn}
             >

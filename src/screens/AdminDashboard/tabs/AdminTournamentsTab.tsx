@@ -1,33 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchInput from '../../../components/SearchInput';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
-
-interface MockTournament {
-  id: string;
-  name: string;
-  format: 'K.O. DIRECTO' | 'DOBLE ELIMINACIÓN' | 'LIGA';
-  status: 'DRAFT' | 'PUBLISHED' | 'IN_PROGRESS' | 'FINISHED';
-  participantsCount: number;
-  maxParticipants: number;
-  startDate: string;
-}
-
-const mockTournamentsData: MockTournament[] = [
-  { id: 't1', name: 'I Open Nacional A-Darts', format: 'K.O. DIRECTO', status: 'PUBLISHED', participantsCount: 16, maxParticipants: 32, startDate: '2026-06-15' },
-  { id: 't2', name: 'Liga de Invierno 501', format: 'LIGA', status: 'IN_PROGRESS', participantsCount: 12, maxParticipants: 12, startDate: '2026-01-10' },
-  { id: 't3', name: 'Torneo Benéfico de Darts', format: 'K.O. DIRECTO', status: 'DRAFT', participantsCount: 4, maxParticipants: 16, startDate: '2026-07-22' },
-  { id: 't4', name: 'Masters Absoluto 2026', format: 'DOBLE ELIMINACIÓN', status: 'FINISHED', participantsCount: 8, maxParticipants: 8, startDate: '2026-05-01' }
-];
+import { tournamentService, Tournament } from '../../../services/tournament.service';
+import { getModeLabel, getScheduleTypeLabel, formatTournamentDate } from '../../../utils/tournament.utils';
 
 const AdminTournamentsTab: React.FC = () => {
   const navigate = useNavigate();
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [tournamentQuery, setTournamentQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filtered = mockTournamentsData.filter(t =>
+  useEffect(() => {
+    const fetchTournaments = async () => {
+      try {
+        setLoading(true);
+        const data = await tournamentService.getTournaments();
+        setTournaments(data || []);
+        setError(null);
+      } catch (err: any) {
+        console.error('Error fetching tournaments:', err);
+        setError(err.message || 'Error al cargar la lista de torneos.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTournaments();
+  }, []);
+
+  const filtered = tournaments.filter(t =>
     t.name.toLowerCase().includes(tournamentQuery.toLowerCase()) ||
-    t.format.toLowerCase().includes(tournamentQuery.toLowerCase())
+    (t.info?.mode && getModeLabel(t.info.mode).toLowerCase().includes(tournamentQuery.toLowerCase())) ||
+    (t.info?.schedule && getScheduleTypeLabel(t.info.schedule).toLowerCase().includes(tournamentQuery.toLowerCase()))
   );
 
   return (
@@ -35,7 +42,6 @@ const AdminTournamentsTab: React.FC = () => {
       <div style={styles.viewHeader}>
         <div style={styles.viewHeaderLeft}>
           <h2 style={styles.viewTitle}>Panel de Torneos</h2>
-          <p style={styles.viewSub}>Configura cuadrantes, cambia estados de torneos y accede a la gestión de las partidas.</p>
         </div>
         <div style={styles.viewHeaderRight}>
           <Button variant="primary" size="medium" leftIcon="Plus" onClick={() => navigate('/torneos')}>
@@ -46,68 +52,88 @@ const AdminTournamentsTab: React.FC = () => {
 
       <div style={styles.tournamentsFilterRow}>
         <div style={styles.searchWrapper}>
-          <SearchInput value={tournamentQuery} onChange={setTournamentQuery} placeholder="Buscar por nombre de torneo..." />
+          <SearchInput value={tournamentQuery} onChange={setTournamentQuery} placeholder="Buscar por nombre, formato o modalidad..." />
         </div>
       </div>
 
-      <div style={styles.tableResponsive}>
-        <table style={styles.table}>
-          <thead>
-            <tr style={styles.tr}>
-              <th style={styles.th}>Torneo</th>
-              <th style={styles.th}>Formato</th>
-              <th style={styles.th}>Participantes</th>
-              <th style={styles.th}>Fecha Inicio</th>
-              <th style={styles.th}>Estado</th>
-              <th style={styles.th}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map(t => (
-              <tr key={t.id} style={styles.trBody}>
-                <td style={styles.td}>
-                  <span style={styles.tournamentNameLink} onClick={() => navigate(`/torneos/${t.id}`)}>
-                    {t.name}
-                  </span>
-                </td>
-                <td style={styles.td}>{t.format}</td>
-                <td style={styles.td}>
-                  <span style={{ fontWeight: '600' }}>{t.participantsCount}</span> / {t.maxParticipants}
-                </td>
-                <td style={styles.td}>{t.startDate}</td>
-                <td style={styles.td}>
-                  <span style={
-                    t.status === 'IN_PROGRESS' ? styles.activeBadge :
-                      t.status === 'PUBLISHED' ? styles.publishedBadge :
-                        t.status === 'FINISHED' ? styles.finishedBadge : styles.suspendedBadge
-                  }>
-                    {t.status === 'IN_PROGRESS' ? 'En Juego' :
-                      t.status === 'PUBLISHED' ? 'Publicado' :
-                        t.status === 'FINISHED' ? 'Finalizado' : 'Borrador'}
-                  </span>
-                </td>
-                <td style={styles.td}>
-                  <div style={styles.actionGroup}>
-                    <button onClick={() => navigate(`/torneos/${t.id}`)} style={styles.actionBtn} title="Administrar torneo">
-                      <Icon name="ExternalLink" size={16} />
-                    </button>
-                    <button onClick={() => navigate(`/torneos/${t.id}/edit`)} style={styles.actionBtn} title="Editar torneo">
-                      <Icon name="Edit3" size={16} />
-                    </button>
-                  </div>
-                </td>
+      {loading ? (
+        <div style={styles.loadingContainer}>
+          <Icon name="Loader" className="animate-spin" size={24} style={{ color: 'var(--btn-primary-bg)', marginBottom: '1rem' }} />
+          <span>Cargando torneos...</span>
+        </div>
+      ) : error ? (
+        <div style={{ ...styles.loadingContainer, color: '#FD605D' }}>
+          <Icon name="AlertCircle" size={24} style={{ marginBottom: '1rem' }} />
+          <span>{error}</span>
+        </div>
+      ) : (
+        <div style={styles.tableResponsive}>
+          <table style={styles.table}>
+            <thead>
+              <tr style={styles.tr}>
+                <th style={styles.th}>Torneo</th>
+                <th style={styles.th}>Formato</th>
+                <th style={styles.th}>Participantes</th>
+                <th style={styles.th}>Fecha Inicio</th>
+                <th style={styles.th}>Estado</th>
+                <th style={styles.th}>Acciones</th>
               </tr>
-            ))}
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={6} style={styles.emptyTableTd}>
-                  No hay torneos que coincidan con la búsqueda.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filtered.map(t => (
+                <tr key={t.id} style={styles.trBody}>
+                  <td style={styles.td}>
+                    <span style={styles.tournamentNameLink} onClick={() => navigate(`/torneos/${t.id}`)}>
+                      {t.name}
+                    </span>
+                  </td>
+                  <td style={styles.td}>
+                    {t.info ? `${getScheduleTypeLabel(t.info.schedule)} (${getModeLabel(t.info.mode)})` : 'N/A'}
+                  </td>
+                  <td style={styles.td}>
+                    <span style={{ fontWeight: '600' }}>
+                      {t.registration?.registeredParticipantsIds?.length || 0}
+                    </span>
+                    {t.info?.maxPlayers ? ` / ${t.info.maxPlayers}` : ''}
+                  </td>
+                  <td style={styles.td}>
+                    {t.info?.dateTime ? formatTournamentDate(t.info.dateTime) : 'Sin programar'}
+                  </td>
+                  <td style={styles.td}>
+                    <span style={
+                      t.status === 'IN_PROGRESS' ? styles.activeBadge :
+                        t.status === 'PUBLISHED' ? styles.publishedBadge :
+                          t.status === 'FINISHED' ? styles.finishedBadge : styles.suspendedBadge
+                    }>
+                      {t.status === 'IN_PROGRESS' ? 'En Juego' :
+                        t.status === 'PUBLISHED' ? 'Publicado' :
+                          t.status === 'FINISHED' ? 'Finalizado' :
+                            t.status === 'CANCELLED' ? 'Cancelado' : 'Borrador'}
+                    </span>
+                  </td>
+                  <td style={styles.td}>
+                    <div style={styles.actionGroup}>
+                      <button onClick={() => navigate(`/torneos/${t.id}`)} style={styles.actionBtn} title="Administrar torneo">
+                        <Icon name="ExternalLink" size={16} />
+                      </button>
+                      <button onClick={() => navigate(`/torneos/${t.id}/edit`)} style={styles.actionBtn} title="Editar torneo">
+                        <Icon name="Edit3" size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={6} style={styles.emptyTableTd}>
+                    No hay torneos que coincidan con la búsqueda.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
@@ -275,6 +301,14 @@ const styles: { [key: string]: any } = {
     transition: 'all 0.2s ease',
     padding: 0,
     outline: 'none',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '3rem',
+    color: 'rgba(255, 255, 255, 0.6)',
   },
 };
 

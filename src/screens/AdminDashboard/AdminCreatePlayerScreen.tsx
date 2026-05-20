@@ -116,7 +116,7 @@ const AdminCreatePlayerScreen: React.FC = () => {
         startYear: startYear,
       });
       showToast('¡Jugador federado registrado con éxito!', 'success');
-      navigate('/admin');
+      navigate('/admin', { state: { activeTab: 'jugadores' } });
     } catch (err: any) {
       console.error('Error al registrar el jugador:', err);
       showToast(err.message || 'Error al registrar el jugador. Por favor, intenta de nuevo.', 'error');
@@ -140,7 +140,7 @@ const AdminCreatePlayerScreen: React.FC = () => {
     <div style={styles.pageContainer}>
       <div style={styles.card}>
         <div style={styles.header}>
-          <button onClick={() => navigate('/admin')} style={styles.backBtn} title="Volver al panel">
+          <button onClick={() => navigate('/admin', { state: { activeTab: 'jugadores' } })} style={styles.backBtn} title="Volver al panel">
             <Icon name="ArrowLeft" size={20} />
             <span>Volver al panel</span>
           </button>
@@ -227,7 +227,7 @@ const AdminCreatePlayerScreen: React.FC = () => {
               type="button"
               variant="secondary"
               leftIcon="X"
-              onClick={() => navigate('/admin')}
+              onClick={() => navigate('/admin', { state: { activeTab: 'jugadores' } })}
               disabled={submitting}
               style={styles.cancelBtn}
             >

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth, UserRoles } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AdminSidebar from '../../components/AdminSidebar';
 import Icon from '../../components/Icon';
 import { useToast } from '../../context/ToastContext';
@@ -14,8 +14,12 @@ import AdminSettingsTab from './tabs/AdminSettingsTab';
 const AdminDashboardScreen: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState('usuarios');
+
+  const [activeTab, setActiveTab] = useState(() => {
+    return (location.state as any)?.activeTab || 'usuarios';
+  });
 
   // Access check
   useEffect(() => {
