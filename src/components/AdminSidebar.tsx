@@ -15,7 +15,7 @@ interface AdminSidebarProps {
 const tabsList: SidebarTab[] = [
   { id: 'usuarios', label: 'Usuarios', icon: 'Users' },
   { id: 'jugadores', label: 'Jugadores', icon: 'Target' },
-  { id: 'torneos', label: 'Torneos', icon: 'Award' },
+  { id: 'torneos', label: 'Torneos', icon: 'Trophy' },
   { id: 'configuracion', label: 'Configuración', icon: 'Settings' }
 ];
 

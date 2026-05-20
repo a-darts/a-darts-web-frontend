@@ -61,4 +61,51 @@ export const playerService = {
       throw handleFetchError(error);
     }
   },
+
+  /**
+   * Fetches a single player by their ID.
+   */
+  async getPlayerById(id: string): Promise<Player> {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/players/${id}`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const result = await handleResponse(response);
+      return result.data;
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  /**
+   * Updates a player's federation.
+   */
+  async updatePlayerFederation(id: string, federation: string): Promise<any> {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/players/${id}/federation`, {
+        method: 'PUT',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ newFederation: federation }),
+      });
+
+      return await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
 };

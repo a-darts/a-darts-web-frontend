@@ -11,6 +11,7 @@ import EditTournamentInfoScreen from './screens/EditTournamentInfoScreen';
 import AdminDashboardScreen from './screens/AdminDashboard/AdminDashboardScreen';
 import AdminCreateUserScreen from './screens/AdminDashboard/AdminCreateUserScreen';
 import AdminEditUserScreen from './screens/AdminDashboard/AdminEditUserScreen';
+import AdminEditPlayerScreen from './screens/AdminDashboard/AdminEditPlayerScreen';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboardScreen />} />
         <Route path="/admin/usuarios/crear" element={<AdminCreateUserScreen />} />
         <Route path="/admin/usuarios/editar/:id" element={<AdminEditUserScreen />} />
+        <Route path="/admin/jugadores/editar/:id" element={<AdminEditPlayerScreen />} />
       </Routes>
 
       <footer style={styles.footer}>
