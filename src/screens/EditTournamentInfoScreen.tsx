@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth, UserRoles } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { tournamentService, Tournament, Federations, GameModes, GameTypes, ScheduleTypes } from '../services/tournament.service';
@@ -16,6 +16,7 @@ import TextArea from '../components/TextArea';
 const EditTournamentInfoScreen: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, loading: authLoading } = useAuth();
   const { showToast } = useToast();
 
@@ -163,7 +164,12 @@ const EditTournamentInfoScreen: React.FC = () => {
         showToast('No se realizaron cambios', 'info');
       }
 
-      navigate(`/torneos/${id}`);
+      const fromPath = (location.state as any)?.from;
+      if (fromPath === '/admin') {
+        navigate('/admin', { state: { activeTab: 'torneos' } });
+      } else {
+        navigate(`/torneos/${id}`);
+      }
     } catch (err: any) {
       console.error('Error saving tournament:', err);
       setSaveError(err.message || 'Error al guardar los cambios del torneo');
@@ -184,9 +190,16 @@ const EditTournamentInfoScreen: React.FC = () => {
         <Button
           variant="primary"
           leftIcon="ArrowLeft"
-          onClick={() => navigate('/torneos')}
+          onClick={() => {
+            const fromPath = (location.state as any)?.from;
+            if (fromPath === '/admin') {
+              navigate('/admin', { state: { activeTab: 'torneos' } });
+            } else {
+              navigate('/torneos');
+            }
+          }}
         >
-          Volver a torneos
+          Volver
         </Button>
       </div>
     );
@@ -336,7 +349,14 @@ const EditTournamentInfoScreen: React.FC = () => {
             type="button"
             variant="secondary"
             leftIcon="X"
-            onClick={() => navigate(`/torneos/${id}`)}
+            onClick={() => {
+              const fromPath = (location.state as any)?.from;
+              if (fromPath === '/admin') {
+                navigate('/admin', { state: { activeTab: 'torneos' } });
+              } else {
+                navigate(`/torneos/${id}`);
+              }
+            }}
             disabled={isSaving}
           >
             Cancelar
