@@ -249,11 +249,8 @@ const AdminUsersTab: React.FC = () => {
   return (
     <div style={styles.contentCard}>
       <div style={styles.viewHeader}>
-        <h2 style={styles.viewTitle}>Panel de Usuarios</h2>
-        <div style={styles.viewActionsContainer}>
-          <div style={styles.searchWrapper}>
-            <SearchInput value={userQuery} onChange={setUserQuery} placeholder="Buscar por alias o correo..." />
-          </div>
+        <div style={styles.viewHeaderRow}>
+          <h2 style={styles.viewTitle}>Panel de Usuarios</h2>
           <Button
             leftIcon='Plus'
             variant='primary'
@@ -261,6 +258,11 @@ const AdminUsersTab: React.FC = () => {
           >
             Crear usuario
           </Button>
+        </div>
+        <div style={styles.viewActionsContainer}>
+          <div style={styles.searchWrapper}>
+            <SearchInput value={userQuery} onChange={setUserQuery} placeholder="Buscar por alias o correo..." />
+          </div>
         </div>
       </div>
 
@@ -380,11 +382,20 @@ const styles: { [key: string]: any } = {
   },
   viewHeader: {
   },
-  viewActionsContainer: {
+  viewHeaderRow: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
+    marginBottom: '0.75rem',
+  },
+  viewActionsContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
     gap: '1.5rem',
     flexWrap: 'wrap',
   },
@@ -395,16 +406,19 @@ const styles: { [key: string]: any } = {
     fontFamily: 'var(--font-title)',
     marginBottom: '0.5rem',
   },
-  viewSub: {
-    fontSize: '0.9rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-    margin: 0,
-    lineHeight: '1.5',
-  },
   searchWrapper: {
     width: '100%',
     maxWidth: '420px',
     minWidth: '240px',
+  },
+  filtersWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '1rem',
+    flexWrap: 'wrap',
+  },
+  filterItem: {
+    minWidth: '200px',
   },
   loadingContainer: {
     display: 'flex',

@@ -200,7 +200,6 @@ const styles: { [key: string]: any } = {
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
   },
   viewHeader: {
-
   },
   viewHeaderRow: {
     display: 'flex',
