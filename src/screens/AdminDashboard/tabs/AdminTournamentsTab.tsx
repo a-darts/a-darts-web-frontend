@@ -120,7 +120,7 @@ const AdminTournamentsTab: React.FC = () => {
                         <Icon name="Info" size={16} />
                       </button>
                       <button
-                        onClick={() => navigate(`/torneos/${t.id}/edit`, { state: { from: '/admin' } })}
+                        onClick={() => navigate(`/admin/torneos/${t.id}/editar`, { state: { from: '/admin' } })}
                         style={styles.actionBtn}
                         title="Editar torneo"
                       >

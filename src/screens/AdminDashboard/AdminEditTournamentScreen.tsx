@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth, UserRoles } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import { tournamentService, Tournament, Federations, GameModes, GameTypes, ScheduleTypes } from '../services/tournament.service';
-import Button from '../components/Button';
-import TextInput from '../components/TextInput';
-import ErrorMessage from '../components/ErrorMessage';
-import Breadcrumbs from '../components/Breadcrumbs';
-import Title from '../components/Title';
-import Select from '../components/Select';
-import DatePicker from '../components/DatePicker';
-import TimePicker from '../components/TimePicker';
-import TextArea from '../components/TextArea';
+import { useAuth, UserRoles } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { tournamentService, Tournament, Federations, GameModes, GameTypes, ScheduleTypes } from '../../services/tournament.service';
+import Button from '../../components/Button';
+import TextInput from '../../components/TextInput';
+import ErrorMessage from '../../components/ErrorMessage';
+import Breadcrumbs from '../../components/Breadcrumbs';
+import Title from '../../components/Title';
+import Select from '../../components/Select';
+import DatePicker from '../../components/DatePicker';
+import TimePicker from '../../components/TimePicker';
+import TextArea from '../../components/TextArea';
 
-const EditTournamentInfoScreen: React.FC = () => {
+const AdminEditTournamentScreen: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -431,4 +431,4 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 };
 
-export default EditTournamentInfoScreen;
+export default AdminEditTournamentScreen;

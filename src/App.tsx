@@ -7,7 +7,7 @@ import TournamentDetailsScreen from './screens/TournamentDetails/TournamentDetai
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import ProfileScreen from './screens/ProfileScreen';
-import EditTournamentInfoScreen from './screens/EditTournamentInfoScreen';
+import AdminEditTournamentScreen from './screens/AdminDashboard/AdminEditTournamentScreen';
 import AdminDashboardScreen from './screens/AdminDashboard/AdminDashboardScreen';
 import AdminCreateUserScreen from './screens/AdminDashboard/AdminCreateUserScreen';
 import AdminEditUserScreen from './screens/AdminDashboard/AdminEditUserScreen';
@@ -24,7 +24,6 @@ function App() {
         <Route path="/" element={<HomeScreen />} />
         <Route path="/torneos" element={<TournamentsScreen />} />
         <Route path="/torneos/:id" element={<TournamentDetailsScreen />} />
-        <Route path="/torneos/:id/edit" element={<EditTournamentInfoScreen />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
@@ -34,6 +33,7 @@ function App() {
         <Route path="/admin/jugadores/editar/:id" element={<AdminEditPlayerScreen />} />
         <Route path="/admin/jugadores/registrar" element={<AdminCreatePlayerScreen />} />
         <Route path="/admin/torneos/crear" element={<AdminCreateTournamentScreen />} />
+        <Route path="/admin/torneos/:id/editar" element={<AdminEditTournamentScreen />} />
       </Routes>
 
       <footer style={styles.footer}>
