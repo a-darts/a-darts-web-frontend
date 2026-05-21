@@ -309,8 +309,8 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
             <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.9rem', lineHeight: '1.5', margin: 0 }}>
               Introduce el número de sets y legs ganados por cada jugador.
             </p>
-            <div style={{ display: 'flex', gap: '1.5rem', width: '100%' }}>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', width: '100%' }}>
+              <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <span style={{ color: 'var(--btn-primary-bg, #C4E866)', fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Jugador 1</span>
                 <TextInput
                   label="Sets Ganados"
@@ -327,7 +327,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
                   onChange={(e) => setP1Legs(Number(e.target.value))}
                 />
               </div>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <span style={{ color: 'var(--btn-primary-bg, #C4E866)', fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Jugador 2</span>
                 <TextInput
                   label="Sets Ganados"
@@ -351,6 +351,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
         cancelLabel="Cancelar"
         onConfirm={handleConfirmAddResult}
         loading={addingResultLoading}
+        maxWidth='600px'
       />
     </div>
   );

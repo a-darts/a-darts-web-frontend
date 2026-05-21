@@ -58,9 +58,9 @@ const styles: { [key: string]: any } = {
         borderColor = 'rgba(245, 158, 11, 0.2)';
         break;
       case 'FINISHED':
-        color = '#60a5fa';
-        bgColor = 'rgba(59, 130, 246, 0.1)';
-        borderColor = 'rgba(59, 130, 246, 0.2)';
+        color = '#f87171';
+        bgColor = 'rgba(239, 68, 68, 0.1)';
+        borderColor = 'rgba(239, 68, 68, 0.2)';
         break;
       case 'CANCELLED':
         color = '#f87171';
