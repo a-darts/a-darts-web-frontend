@@ -206,9 +206,8 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
   const roundsData = [];
   for (let round = 1; round <= numRounds; round++) {
     const roundMatches = matches.filter(m => m.round === round);
-    // Sort matches to maintain bracket order if possible
-    // (Assuming they are returned in order or we'll need more logic)
-    roundMatches.sort((a, b) => a.id.localeCompare(b.id)); // Fallback sort
+    // Sort matches by matchIndex to maintain bracket order
+    roundMatches.sort((a, b) => a.matchIndex - b.matchIndex);
 
     const formattedMatches: { player1: BracketParticipant; player2: BracketParticipant; status: string }[] = roundMatches.map(m => ({
       player1: {

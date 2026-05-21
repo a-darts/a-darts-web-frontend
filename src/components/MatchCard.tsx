@@ -9,6 +9,7 @@ interface MatchCardProps {
   isAdmin?: boolean;
   onStartMatch?: (matchId: string) => void;
   onAssignBoard?: (matchId: string) => void;
+  onAddResult?: (matchId: string) => void;
   style?: React.CSSProperties;
 }
 
@@ -17,6 +18,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
   isAdmin,
   onStartMatch,
   onAssignBoard,
+  onAddResult,
   style
 }) => {
   const isFinished = match.status === 'FINISHED';
@@ -119,6 +121,16 @@ const MatchCard: React.FC<MatchCardProps> = ({
               onClick={() => onAssignBoard && onAssignBoard(match.id)}
             >
               {match.boardNumber === null ? 'Asignar diana' : 'Reasignar diana'}
+            </Button>
+          )}
+          {match.status === 'IN_PROGRESS' && (
+            <Button
+              variant="primary"
+              size="small"
+              leftIcon="Plus"
+              onClick={() => onAddResult && onAddResult(match.id)}
+            >
+              Añadir resultado
             </Button>
           )}
         </div>

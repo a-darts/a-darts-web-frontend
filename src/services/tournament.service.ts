@@ -152,6 +152,7 @@ export interface MatchScore {
 export interface Match {
   id: string;
   round: number;
+  matchIndex: number;
   boardNumber: number | null;
   startedAt: string | null;
   finishedAt: string | null;
@@ -627,6 +628,26 @@ export const tournamentService = {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ newBoardNumber: boardNumber }),
+      });
+      await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  addMatchResult: async (matchId: string, result: { p1Sets: number, p1Legs: number, p2Sets: number, p2Legs: number }): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/matches/${matchId}/result`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(result),
       });
       await handleResponse(response);
     } catch (error: any) {

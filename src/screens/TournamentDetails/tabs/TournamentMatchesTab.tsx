@@ -28,6 +28,15 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
   const [newBoardValue, setNewBoardValue] = useState('');
   const [assigningBoardLoading, setAssigningBoardLoading] = useState(false);
 
+  // Add result modal states
+  const [isAddResultModalOpen, setIsAddResultModalOpen] = useState(false);
+  const [addingResultMatchId, setAddingResultMatchId] = useState<string | null>(null);
+  const [p1Sets, setP1Sets] = useState<number>(0);
+  const [p1Legs, setP1Legs] = useState<number>(0);
+  const [p2Sets, setP2Sets] = useState<number>(0);
+  const [p2Legs, setP2Legs] = useState<number>(0);
+  const [addingResultLoading, setAddingResultLoading] = useState(false);
+
   const toggleFilter = (filterKey: string) => {
     setActiveFilters(prev =>
       prev.includes(filterKey)
@@ -93,6 +102,37 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
     }
   };
 
+  const handleAddResult = (matchId: string) => {
+    setAddingResultMatchId(matchId);
+    setP1Sets(0);
+    setP1Legs(0);
+    setP2Sets(0);
+    setP2Legs(0);
+    setIsAddResultModalOpen(true);
+  };
+
+  const handleConfirmAddResult = async () => {
+    if (!addingResultMatchId) return;
+
+    try {
+      setAddingResultLoading(true);
+      await tournamentService.addMatchResult(addingResultMatchId, {
+        p1Sets,
+        p1Legs,
+        p2Sets,
+        p2Legs
+      });
+      showToast('Resultado añadido con éxito.', 'success');
+      setIsAddResultModalOpen(false);
+      await fetchMatches();
+    } catch (err: any) {
+      console.error('Error adding result:', err);
+      showToast(err.message || 'Error al añadir el resultado.', 'error');
+    } finally {
+      setAddingResultLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
@@ -152,6 +192,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
                 isAdmin={isAdmin}
                 onStartMatch={handleStartMatch}
                 onAssignBoard={handleAssignBoard}
+                onAddResult={handleAddResult}
               />
             ))}
           </div>
@@ -250,6 +291,60 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
         onConfirm={handleConfirmAssignBoard}
         loading={assigningBoardLoading}
         confirmDisabled={!newBoardValue.trim()}
+      />
+
+      {/* Modal para añadir resultado */}
+      <Modal
+        isOpen={isAddResultModalOpen}
+        onClose={() => setIsAddResultModalOpen(false)}
+        title="Añadir Resultado"
+        description={
+          <div style={{ marginTop: '1rem', width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.9rem', lineHeight: '1.5', margin: 0 }}>
+              Introduce el número de sets y legs ganados por cada jugador.
+            </p>
+            <div style={{ display: 'flex', gap: '1.5rem', width: '100%' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <span style={{ color: 'var(--btn-primary-bg, #C4E866)', fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Jugador 1</span>
+                <TextInput
+                  label="Sets Ganados"
+                  type="number"
+                  min="0"
+                  value={p1Sets.toString()}
+                  onChange={(e) => setP1Sets(Number(e.target.value))}
+                />
+                <TextInput
+                  label="Legs Ganados"
+                  type="number"
+                  min="0"
+                  value={p1Legs.toString()}
+                  onChange={(e) => setP1Legs(Number(e.target.value))}
+                />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <span style={{ color: 'var(--btn-primary-bg, #C4E866)', fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Jugador 2</span>
+                <TextInput
+                  label="Sets Ganados"
+                  type="number"
+                  min="0"
+                  value={p2Sets.toString()}
+                  onChange={(e) => setP2Sets(Number(e.target.value))}
+                />
+                <TextInput
+                  label="Legs Ganados"
+                  type="number"
+                  min="0"
+                  value={p2Legs.toString()}
+                  onChange={(e) => setP2Legs(Number(e.target.value))}
+                />
+              </div>
+            </div>
+          </div>
+        }
+        confirmLabel="Guardar Resultado"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmAddResult}
+        loading={addingResultLoading}
       />
     </div>
   );
