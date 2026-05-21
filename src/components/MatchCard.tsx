@@ -103,16 +103,6 @@ const MatchCard: React.FC<MatchCardProps> = ({
       {/* Admin Quick Action Buttons */}
       {isAdmin && (
         <div style={styles.actionButtonsContainer}>
-          {match.status === 'READY' && (
-            <Button
-              variant="primary"
-              size="small"
-              leftIcon="Play"
-              onClick={() => onStartMatch && onStartMatch(match.id)}
-            >
-              Iniciar partida
-            </Button>
-          )}
           {(match.status === 'PENDING' || match.status === 'READY') && (
             <Button
               variant="primary"
@@ -121,6 +111,16 @@ const MatchCard: React.FC<MatchCardProps> = ({
               onClick={() => onAssignBoard && onAssignBoard(match.id)}
             >
               {match.boardNumber === null ? 'Asignar diana' : 'Reasignar diana'}
+            </Button>
+          )}
+          {match.status === 'READY' && (
+            <Button
+              variant="primary"
+              size="small"
+              leftIcon="Play"
+              onClick={() => onStartMatch && onStartMatch(match.id)}
+            >
+              Iniciar partida
             </Button>
           )}
           {match.status === 'IN_PROGRESS' && (

@@ -167,7 +167,13 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
     : matches.filter(m => m.round === selectedRound);
 
   const inProgressList = filteredMatches.filter(m => m.status === 'IN_PROGRESS');
-  const pendingList = filteredMatches.filter(m => m.status === 'PENDING' || m.status === 'READY');
+  const pendingList = filteredMatches
+    .filter(m => m.status === 'PENDING' || m.status === 'READY')
+    .sort((a, b) => {
+      if (a.status === 'READY' && b.status !== 'READY') return -1;
+      if (a.status !== 'READY' && b.status === 'READY') return 1;
+      return 0;
+    });
   const finishedList = filteredMatches.filter(m => m.status === 'FINISHED');
   const othersList = filteredMatches.filter(m => m.status === 'CANCELLED' || m.status === 'SUSPENDED');
 
