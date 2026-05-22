@@ -30,6 +30,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
   const [selectedBoard, setSelectedBoard] = useState<number | null>(null);
   const [selectedMatchId, setSelectedMatchId] = useState<string>('');
   const [isAssigning, setIsAssigning] = useState(false);
+  const [isModifyingBoards, setIsModifyingBoards] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -102,6 +103,37 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
       showToast(err.message || 'Error al liberar la diana', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddBoard = async () => {
+    if (!playingArea) return;
+    try {
+      setIsModifyingBoards(true);
+      await tournamentService.addBoardToPlayingArea(playingArea.id);
+      showToast('Nueva diana añadida correctamente', 'success');
+      await fetchData();
+    } catch (err: any) {
+      console.error('Error adding board:', err);
+      showToast(err.message || 'Error al añadir la diana', 'error');
+    } finally {
+      setIsModifyingBoards(false);
+    }
+  };
+
+  const handleRemoveLastBoard = async () => {
+    if (!playingArea) return;
+    if (playingArea.boards.length === 0) return;
+    try {
+      setIsModifyingBoards(true);
+      await tournamentService.removeLastBoardFromPlayingArea(playingArea.id);
+      showToast('Última diana eliminada correctamente', 'success');
+      await fetchData();
+    } catch (err: any) {
+      console.error('Error removing last board:', err);
+      showToast(err.message || 'Error al eliminar la última diana', 'error');
+    } finally {
+      setIsModifyingBoards(false);
     }
   };
 
@@ -182,7 +214,29 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
 
   return (
     <div style={styles.container}>
-      <h3 style={styles.title}>Salón de Juego</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <h2 style={{ ...styles.title, marginBottom: 0 }}>Salón de Juego</h2>
+        {playingArea && (
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <Button
+              variant="secondary"
+              leftIcon="Minus"
+              onClick={handleRemoveLastBoard}
+              disabled={isModifyingBoards || playingArea.boards.length === 0}
+            >
+              Eliminar última diana
+            </Button>
+            <Button
+              variant="primary"
+              leftIcon="Plus"
+              onClick={handleAddBoard}
+              disabled={isModifyingBoards}
+            >
+              Añadir nueva diana
+            </Button>
+          </div>
+        )}
+      </div>
       <div style={styles.statsContainer}>
         <StatCard
           title="Dianas en total"
@@ -258,7 +312,6 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
 
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
-    padding: '2rem 0',
   },
   message: {
     color: 'rgba(255, 255, 255, 0.5)',
