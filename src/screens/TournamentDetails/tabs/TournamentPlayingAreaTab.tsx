@@ -9,6 +9,7 @@ import StatCard from '../../../components/StatCard';
 import Modal from '../../../components/Modal';
 import Select from '../../../components/Select';
 import { Match } from '../../../services/tournament.service';
+import EmptyState from '../../../components/EmptyState';
 
 interface TournamentPlayingAreaTabProps {
   tournamentId: string;
@@ -104,23 +105,34 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     }
   };
 
-  if (loading) return <div style={styles.message}>Cargando salón de juego...</div>;
-  if (error) return <ErrorMessage message={error} />;
+  if (loading) {
+    return (
+      <div style={styles.message}>
+        Cargando salón de juego...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <ErrorMessage message={error} />
+    );
+  }
 
   if (!playingArea && !isConfiguring) {
     return (
-      <div style={styles.container}>
-        <div style={styles.emptyState}>
-          <p style={styles.emptyText}>No hay salón de juego configurado para este torneo.</p>
-          <Button
-            variant="primary"
-            onClick={() => setIsConfiguring(true)}
-            leftIcon='Settings'
-          >
-            Configurar salón de juego
-          </Button>
-        </div>
-      </div>
+      <EmptyState
+        title="Salón de juego sin configurar"
+        description="No hay salón de juego configurado para este torneo."
+      >
+        <Button
+          variant="primary"
+          onClick={() => setIsConfiguring(true)}
+          leftIcon='Settings'
+        >
+          Configurar salón de juego
+        </Button>
+      </EmptyState>
     );
   }
 
@@ -252,20 +264,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: 'rgba(255, 255, 255, 0.5)',
     textAlign: 'center',
     padding: '4rem',
-  },
-  emptyState: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '4rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-    borderRadius: '1rem',
-    border: '1px dashed rgba(255, 255, 255, 0.1)',
-  },
-  emptyText: {
-    color: 'rgba(255, 255, 255, 0.6)',
-    marginBottom: '1.5rem',
   },
   formContainer: {
     maxWidth: '400px',

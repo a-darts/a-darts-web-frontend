@@ -8,6 +8,7 @@ import Button from '../../../components/Button';
 import { useToast } from '../../../context/ToastContext';
 import Modal from '../../../components/Modal';
 import TextInput from '../../../components/TextInput';
+import EmptyState from '../../../components/EmptyState';
 
 interface TournamentMatchesTabProps {
   tournamentId: string;
@@ -148,13 +149,15 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
 
   if (matches.length === 0) {
     return (
-      <div style={styles.emptyContainer}>
-        <Icon name="CalendarX" size={48} style={{ color: 'rgba(255, 255, 255, 0.2)', marginBottom: '1.5rem' }} />
-        <h3 style={styles.emptyTitle}>Sin partidas generadas</h3>
-        <p style={styles.emptyText}>
-          Aún no se han generado las partidas para este torneo. Asegúrate de configurar e iniciar el cuadrante primero.
-        </p>
-      </div>
+      <EmptyState
+        title="Sin partidas generadas"
+        description={
+          <>
+            <span>Aún no se han generado las partidas para este torneo.</span>
+            {isAdmin && <span>Asegúrate de configurar e iniciar el cuadrante primero.</span>}
+          </>
+        }
+      />
     );
   }
 
@@ -415,30 +418,6 @@ const styles: { [key: string]: any } = {
     justifyContent: 'center',
     padding: '6rem 2rem',
     color: 'rgba(255, 255, 255, 0.5)',
-  },
-  emptyContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '6rem 2rem',
-    background: 'rgba(255, 255, 255, 0.01)',
-    borderRadius: '16px',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
-    textAlign: 'center',
-  },
-  emptyTitle: {
-    fontSize: '1.25rem',
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.9)',
-    margin: '0 0 0.5rem 0',
-  },
-  emptyText: {
-    fontSize: '0.9rem',
-    color: 'rgba(255, 255, 255, 0.4)',
-    maxWidth: '400px',
-    lineHeight: '1.5',
-    margin: 0,
   },
   filterContainer: {
     display: 'flex',

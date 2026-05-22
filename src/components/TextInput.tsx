@@ -51,6 +51,7 @@ const TextInput: React.FC<TextInputProps> = ({
           className={className}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          onWheel={(e) => e.currentTarget.blur()}
           {...props}
         />
       </div>

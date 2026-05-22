@@ -7,6 +7,7 @@ import { useAuth, UserRoles } from '../../../context/AuthContext';
 import { useToast } from '../../../context/ToastContext';
 import Button from '../../../components/Button';
 import TournamentBracketStatusTag from '../../../components/TournamentBracketStatusTag';
+import EmptyState from '../../../components/EmptyState';
 
 interface TournamentBracketTabProps {
   tournament: Tournament;
@@ -156,13 +157,16 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
 
   if (loading) return <div style={styles.message}>Cargando cuadrante...</div>;
   if (isNotPublished) return (
-    <div style={styles.infoContainer}>
-      <h3 style={styles.infoTitle}>Cuadrante no disponible</h3>
-      <p style={styles.infoText}>
-        {isAdmin
-          ? 'El cuadrante aún no ha sido generado para este torneo. Como administrador, puedes generarlo automáticamente con los participantes inscritos.'
-          : 'Aún no se ha publicado el cuadrante para este torneo. Por favor, vuelve a consultar más tarde.'}
-      </p>
+    <EmptyState
+      title="Cuadrante no disponible"
+      description={
+        <span>
+          {isAdmin
+            ? 'El cuadrante aún no ha sido generado para este torneo. Como administrador, puedes generarlo automáticamente con los participantes inscritos.'
+            : 'Aún no se ha publicado el cuadrante para este torneo. Por favor, vuelve a consultar más tarde.'}
+        </span>
+      }
+    >
       {isAdmin && (
         <>
           <Button
@@ -170,23 +174,21 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
             leftIcon="Network"
             onClick={handleGenerateBracketAutomatically}
             loading={isGenerating}
-            style={{ marginTop: '1.5rem' }}
           >
             Generar cuadrante automáticamente
           </Button>
 
           <Button
             variant="primary"
-            leftIcon="Network"
+            leftIcon="Settings"
             onClick={handleGenerateBracketManually}
             loading={isGenerating}
-            style={{ marginTop: '1rem' }}
           >
             Configurar cuadrante manualmente
           </Button>
         </>
       )}
-    </div>
+    </EmptyState>
   );
   if (error) return <ErrorMessage message={error} />;
   if (!bracket || !bracket.positions) return <div style={styles.message}>No hay datos del cuadrante</div>;
@@ -472,31 +474,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: 'center',
     color: 'rgba(255, 255, 255, 0.5)',
     fontSize: '1.1rem',
-  },
-  infoContainer: {
-    padding: '5rem 2rem',
-    textAlign: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-    borderRadius: '24px',
-    border: '1px dashed rgba(255, 255, 255, 0.1)',
-    marginTop: '2rem',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  infoTitle: {
-    fontSize: '1.25rem',
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: '1rem',
-  },
-  infoText: {
-    fontSize: '1rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-    maxWidth: '400px',
-    margin: '0 auto',
-    lineHeight: '1.6',
   },
   bracketStatusActionsContainer: {
     display: 'flex',
