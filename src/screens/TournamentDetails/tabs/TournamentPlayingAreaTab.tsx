@@ -6,6 +6,9 @@ import { useToast } from '../../../context/ToastContext';
 import TextInput from '../../../components/TextInput';
 import BoardCard from '../../../components/BoardCard';
 import StatCard from '../../../components/StatCard';
+import Modal from '../../../components/Modal';
+import Select from '../../../components/Select';
+import { Match } from '../../../services/tournament.service';
 
 interface TournamentPlayingAreaTabProps {
   tournamentId: string;
@@ -21,22 +24,32 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
   const [numBoards, setNumBoards] = useState(1);
   const [isCreating, setIsCreating] = useState(false);
 
-  const fetchPlayingArea = async () => {
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [selectedBoard, setSelectedBoard] = useState<number | null>(null);
+  const [selectedMatchId, setSelectedMatchId] = useState<string>('');
+  const [isAssigning, setIsAssigning] = useState(false);
+
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const area = await tournamentService.getPlayingArea(tournamentId);
+      const [area, fetchedMatches] = await Promise.all([
+        tournamentService.getPlayingArea(tournamentId),
+        tournamentService.getTournamentMatches(tournamentId)
+      ]);
       setPlayingArea(area);
+      setMatches(fetchedMatches);
       setError(null);
     } catch (err: any) {
-      console.error('Error fetching playing area:', err);
-      setError(err.message || 'Error al cargar el salón de juego');
+      console.error('Error fetching data:', err);
+      setError(err.message || 'Error al cargar los datos');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPlayingArea();
+    fetchData();
   }, [tournamentId]);
 
   const handleCreatePlayingArea = async () => {
@@ -51,6 +64,28 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
       showToast(err.message || 'Error al crear el salón de juego', 'error');
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const handleOpenAssignModal = (boardNumber: number) => {
+    setSelectedBoard(boardNumber);
+    setSelectedMatchId('');
+    setIsAssignModalOpen(true);
+  };
+
+  const handleAssignMatch = async () => {
+    if (!playingArea || !selectedBoard || !selectedMatchId) return;
+    try {
+      setIsAssigning(true);
+      await tournamentService.occupyPlayingAreaBoard(playingArea.id, selectedBoard, selectedMatchId);
+      showToast('Partida asignada correctamente', 'success');
+      setIsAssignModalOpen(false);
+      await fetchData();
+    } catch (err: any) {
+      console.error('Error assigning match:', err);
+      showToast(err.message || 'Error al asignar la partida', 'error');
+    } finally {
+      setIsAssigning(false);
     }
   };
 
@@ -140,13 +175,47 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
       </div>
 
       <div style={styles.boardsGrid}>
-        {playingArea?.boards?.map((board) => (
-          <BoardCard
-            key={board.number}
-            board={board}
-          />
-        ))}
+        {playingArea?.boards?.map((board) => {
+          const boardMatch = matches.find((m) => m.id === board.matchId);
+          return (
+            <BoardCard
+              key={board.number}
+              board={board}
+              match={boardMatch}
+              onAssignMatch={handleOpenAssignModal}
+            />
+          );
+        })}
       </div>
+
+      <Modal
+        description='Selecciona una partida para asignar a la diana.'
+        isOpen={isAssignModalOpen}
+        onClose={() => setIsAssignModalOpen(false)}
+        title={`Asignar partida a la Diana ${selectedBoard}`}
+        confirmLabel="Asignar"
+        cancelLabel="Cancelar"
+        onConfirm={handleAssignMatch}
+        loading={isAssigning}
+        confirmDisabled={!selectedMatchId}
+      >
+        <div style={{ padding: '1rem 0' }}>
+          <Select
+            label="Selecciona una partida"
+            value={selectedMatchId}
+            onChange={setSelectedMatchId}
+            options={[
+              { value: '', label: 'Seleccionar partida...' },
+              ...matches
+                .filter((m) => m.status === 'PENDING' || m.status === 'READY')
+                .map((m) => ({
+                  value: m.id,
+                  label: `Ronda ${m.round} - Partida ${m.matchIndex} (${m.participant1?.alias || '?'} vs ${m.participant2?.alias || '?'})`,
+                })),
+            ]}
+          />
+        </div>
+      </Modal>
     </div>
   );
 };

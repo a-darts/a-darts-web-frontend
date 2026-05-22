@@ -1,12 +1,15 @@
 import React from 'react';
-import { Board } from '../services/tournament.service';
+import { Board, Match } from '../services/tournament.service';
 import i18n from '../i18n';
+import Button from './Button';
 
 interface BoardCardProps {
   board: Board;
+  match?: Match;
+  onAssignMatch?: (boardNumber: number) => void;
 }
 
-const BoardCard: React.FC<BoardCardProps> = ({ board }) => {
+const BoardCard: React.FC<BoardCardProps> = ({ board, match, onAssignMatch }) => {
   return (
     <div style={styles.boardCard}>
       <div style={styles.boardHeader}>
@@ -19,9 +22,33 @@ const BoardCard: React.FC<BoardCardProps> = ({ board }) => {
           {i18n.t(`playingArea.${board.status}`)}
         </span>
       </div>
-      {board.matchId && (
+      {match && (
+        <div style={styles.matchInfoContainer}>
+          <div style={styles.matchParticipant}>
+            <span style={styles.participantName}>{match.participant1?.alias || '?'}</span>
+            <span style={styles.participantScore}>{match.matchScore?.participant1?.setsWon || 0}</span>
+          </div>
+          <div style={styles.matchParticipant}>
+            <span style={styles.participantName}>{match.participant2?.alias || '?'}</span>
+            <span style={styles.participantScore}>{match.matchScore?.participant2?.setsWon || 0}</span>
+          </div>
+        </div>
+      )}
+      {!match && board.matchId && (
         <div style={styles.matchInfo}>
           Partida en curso
+        </div>
+      )}
+      {board.status === 'AVAILABLE' && onAssignMatch && (
+        <div style={{ marginTop: 'auto' }}>
+          <Button
+            variant="secondary"
+            size="small"
+            leftIcon='Plus'
+            onClick={() => onAssignMatch(board.number)}
+          >
+            Asignar partida
+          </Button>
         </div>
       )}
     </div>
@@ -61,6 +88,46 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '0.875rem',
     color: 'rgba(255, 255, 255, 0.8)',
     textAlign: 'center',
+  },
+  matchInfoContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    borderRadius: '0.5rem',
+    padding: '1rem',
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '0.5rem',
+  },
+  matchParticipant: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '0.75rem',
+    flex: '1 1 120px',
+  },
+  participantName: {
+    color: 'white',
+    fontWeight: '500',
+    fontSize: '0.75rem',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '120px',
+  },
+  participantScore: {
+    backgroundColor: '#2c2c2c',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    color: '#ffffff',
+    fontWeight: '600',
+    fontSize: '0.875rem',
+    padding: '0.15rem 0.65rem',
+    borderRadius: '0.25rem',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '1.75rem',
   }
 };
 

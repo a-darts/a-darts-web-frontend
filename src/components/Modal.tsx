@@ -14,6 +14,7 @@ interface ModalProps {
   loading?: boolean;
   maxWidth?: string;
   confirmDisabled?: boolean;
+  children?: React.ReactNode;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -28,6 +29,7 @@ const Modal: React.FC<ModalProps> = ({
   loading = false,
   maxWidth = '480px',
   confirmDisabled = false,
+  children,
 }) => {
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -57,7 +59,8 @@ const Modal: React.FC<ModalProps> = ({
         </header>
 
         <div style={styles.body}>
-          <p style={styles.description}>{description}</p>
+          {description && <div style={styles.description}>{description}</div>}
+          {children}
         </div>
 
         <footer style={styles.footer}>
