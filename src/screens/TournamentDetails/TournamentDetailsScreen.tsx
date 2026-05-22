@@ -14,6 +14,7 @@ import TournamentRegistrationTab from './tabs/TournamentRegistrationTab';
 import TournamentBracketTab from './tabs/TournamentBracketTab';
 import TournamentCreateBracketTab from './tabs/TournamentCreateBracketTab';
 import TournamentMatchesTab from './tabs/TournamentMatchesTab';
+import TournamentPlayingAreaTab from './tabs/TournamentPlayingAreaTab';
 import TournamentRegistrationStatusTag from '../../components/TournamentRegistrationStatusTag';
 import Modal from '../../components/Modal';
 import { useAuth, UserRoles } from '../../context/AuthContext';
@@ -249,6 +250,7 @@ const TournamentDetailsScreen: React.FC = () => {
     { id: 'bracket', label: 'Cuadrante' },
     { id: 'matches', label: 'Partidas' },
     ...(isAdmin && isEditingBracket ? [{ id: 'create-bracket', label: 'Configurar cuadrante' }] : []),
+    ...(isAdmin && status !== TournamentStatus.FINISHED ? [{ id: 'playing-area', label: 'Salón de juego' }] : []),
   ];
 
   return (
@@ -412,6 +414,9 @@ const TournamentDetailsScreen: React.FC = () => {
       )}
       {activeTab === 'matches' && (
         <TournamentMatchesTab tournamentId={tournament.id} isAdmin={isAdmin} />
+      )}
+      {activeTab === 'playing-area' && (
+        <TournamentPlayingAreaTab tournamentId={tournament.id} />
       )}
     </div>
   );

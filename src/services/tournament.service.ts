@@ -138,6 +138,19 @@ export interface MatchParticipant {
   federation: string;
 }
 
+export interface Board {
+  number: number;
+  status: string;
+  matchId: string | null;
+}
+
+export interface PlayingArea {
+  id: string;
+  tournamentId: string;
+  boards: Board[];
+}
+
+
 export interface MatchScore {
   participant1: {
     setsWon: number;
@@ -668,6 +681,49 @@ export const tournamentService = {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ name, seasonStartYear, info }),
+      });
+      const result = await handleResponse(response);
+      return result.data;
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  getPlayingArea: async (tournamentId: string): Promise<PlayingArea | null> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/playing-areas`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const result = await handleResponse(response);
+      return result.data;
+    } catch (error: any) {
+      if (error.message.includes('Playing area not found')) {
+        return null;
+      }
+      throw handleFetchError(error);
+    }
+  },
+
+  createPlayingArea: async (tournamentId: string, numBoards: number): Promise<PlayingArea> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/playing-areas`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ numBoards }),
       });
       const result = await handleResponse(response);
       return result.data;
