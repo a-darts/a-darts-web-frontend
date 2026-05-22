@@ -241,7 +241,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
             onClick={() => toggleFilter('in_progress')}
             size="medium"
           >
-            En juego
+            En curso
           </Button>
           <Button
             variant={activeFilters.includes('pending') ? 'primary' : 'secondary'}
@@ -264,8 +264,8 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
 
       {/* Categorized Matches Lists */}
       <div style={styles.sectionsWrapper}>
-        {activeFilters.includes('in_progress') && renderSection('Partidas en juego', inProgressList, 'Play', '#fbbf24')}
-        {activeFilters.includes('pending') && renderSection('Partidas pendientes', pendingList, 'Clock', '#C4E866')}
+        {activeFilters.includes('in_progress') && renderSection('Partidas en curso', inProgressList, 'Play', '#4ade80')}
+        {activeFilters.includes('pending') && renderSection('Partidas pendientes', pendingList, 'Clock', '#fbbf24')}
         {activeFilters.includes('finished') && renderSection('Partidas finalizadas', finishedList, 'CheckCircle2', '#f87171')}
         {renderSection('Otras partidas', othersList, 'AlertTriangle', '#60a5fa')}
       </div>

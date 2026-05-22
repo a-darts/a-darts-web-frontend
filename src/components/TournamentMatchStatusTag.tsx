@@ -42,19 +42,23 @@ const styles: { [key: string]: any } = {
 
     switch (status) {
       case 'PENDING':
-        color = 'rgba(255, 255, 255, 0.4)';
-        bgColor = 'rgba(255, 255, 255, 0.02)';
-        borderColor = 'rgba(255, 255, 255, 0.05)';
-        break;
-      case 'READY':
-        color = '#C4E866';
-        bgColor = 'rgba(196, 232, 102, 0.1)';
-        borderColor = 'rgba(196, 232, 102, 0.2)';
-        break;
-      case 'IN_PROGRESS':
+        // color = 'rgba(255, 255, 255, 0.4)';
+        // bgColor = 'rgba(255, 255, 255, 0.02)';
+        // borderColor = 'rgba(255, 255, 255, 0.05)';
+        // break;
         color = '#fbbf24';
         bgColor = 'rgba(245, 158, 11, 0.1)';
         borderColor = 'rgba(245, 158, 11, 0.2)';
+        break;
+      case 'READY':
+        color = '#fbbf24';
+        bgColor = 'rgba(245, 158, 11, 0.1)';
+        borderColor = 'rgba(245, 158, 11, 0.2)';
+        break;
+      case 'IN_PROGRESS':
+        color = '#4ade80';
+        bgColor = 'rgba(34, 197, 94, 0.1)';
+        borderColor = 'rgba(34, 197, 94, 0.2)';
         break;
       case 'FINISHED':
         color = '#f87171';

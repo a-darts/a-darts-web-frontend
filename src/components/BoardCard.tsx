@@ -2,18 +2,26 @@ import React from 'react';
 import { Board, Match } from '../services/tournament.service';
 import i18n from '../i18n';
 import Button from './Button';
+import IconButton from './IconButton';
+import TournamentMatchStatusTag from './TournamentMatchStatusTag';
 
 interface BoardCardProps {
   board: Board;
   match?: Match;
   onAssignMatch?: (boardNumber: number) => void;
+  onReleaseBoard?: (boardNumber: number) => void;
 }
 
-const BoardCard: React.FC<BoardCardProps> = ({ board, match, onAssignMatch }) => {
+const BoardCard: React.FC<BoardCardProps> = ({ board, match, onAssignMatch, onReleaseBoard }) => {
+  const isInProgress = match?.status === 'IN_PROGRESS';
+  const isFinished = match?.status === 'FINISHED';
+
   return (
     <div style={styles.boardCard}>
       <div style={styles.boardHeader}>
-        <span style={styles.boardTitle}>Diana {board.number}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={styles.boardTitle}>Diana {board.number}</span>
+        </div>
         <span style={{
           ...styles.statusBadge,
           backgroundColor: board.status === 'AVAILABLE' ? 'rgba(34, 197, 94, 0.2)' : (board.status === 'OCCUPIED' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.1)'),
@@ -23,14 +31,33 @@ const BoardCard: React.FC<BoardCardProps> = ({ board, match, onAssignMatch }) =>
         </span>
       </div>
       {match && (
-        <div style={styles.matchInfoContainer}>
+        <div style={{
+          ...styles.matchInfoContainer,
+          borderColor: isFinished ? '#f87171' : (isInProgress ? '#4ade80' : 'rgba(255, 255, 255, 0.05)'),
+        }}>
           <div style={styles.matchParticipant}>
             <span style={styles.participantName}>{match.participant1?.alias || '?'}</span>
-            <span style={styles.participantScore}>{match.matchScore?.participant1?.setsWon || 0}</span>
+            <span style={styles.participantScore}>{match.matchScore?.participant1?.legsWon || 0}</span>
           </div>
           <div style={styles.matchParticipant}>
             <span style={styles.participantName}>{match.participant2?.alias || '?'}</span>
-            <span style={styles.participantScore}>{match.matchScore?.participant2?.setsWon || 0}</span>
+            <span style={styles.participantScore}>{match.matchScore?.participant2?.legsWon || 0}</span>
+          </div>
+
+          <div style={styles.releaseActionRow}>
+            <TournamentMatchStatusTag
+              status={match.status}
+            />
+            {isFinished && onReleaseBoard && (
+              <Button
+                variant="danger"
+                size="small"
+                leftIcon="X"
+                onClick={() => onReleaseBoard(board.number)}
+              >
+                Liberar diana
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -128,7 +155,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: '1.75rem',
-  }
+  },
+  releaseActionRow: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    paddingTop: '0.5rem',
+    borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+    marginTop: '0.25rem',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
+  },
 };
 
 export default BoardCard;

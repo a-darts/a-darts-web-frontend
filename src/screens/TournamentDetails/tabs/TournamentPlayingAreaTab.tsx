@@ -89,6 +89,21 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     }
   };
 
+  const handleReleaseBoard = async (boardNumber: number) => {
+    if (!playingArea) return;
+    try {
+      setLoading(true);
+      await tournamentService.releasePlayingAreaBoard(playingArea.id, boardNumber);
+      showToast('Diana liberada correctamente', 'success');
+      await fetchData();
+    } catch (err: any) {
+      console.error('Error releasing board:', err);
+      showToast(err.message || 'Error al liberar la diana', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) return <div style={styles.message}>Cargando salón de juego...</div>;
   if (error) return <ErrorMessage message={error} />;
 
@@ -187,6 +202,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
               board={board}
               match={boardMatch}
               onAssignMatch={handleOpenAssignModal}
+              onReleaseBoard={handleReleaseBoard}
             />
           );
         })}
@@ -219,7 +235,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
             />
           ) : (
             <div style={styles.noMatchesTextContainer}>
-              <p style={styles.noMatchesText}>No hay partidas pendientes disponibles para asignar en este momento. Todas las partidas listas ya están en curso.</p>
+              <p style={styles.noMatchesText}>No hay partidas pendientes disponibles para asignar en este momento</p>
             </div>
           )}
         </div>
