@@ -67,7 +67,7 @@ const BoardCard: React.FC<BoardCardProps> = ({ board, match, onAssignMatch, onRe
         </div>
       )}
       {board.status === 'AVAILABLE' && onAssignMatch && (
-        <div style={{ marginTop: 'auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'auto' }}>
           <Button
             variant="secondary"
             size="small"

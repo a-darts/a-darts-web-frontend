@@ -174,7 +174,12 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
       if (a.status !== 'READY' && b.status === 'READY') return 1;
       return 0;
     });
-  const finishedList = filteredMatches.filter(m => m.status === 'FINISHED');
+  const finishedList = filteredMatches
+    .filter(m => m.status === 'FINISHED')
+    .sort((a, b) => {
+      if (a.round !== b.round) return b.round - a.round;
+      return a.matchIndex - b.matchIndex;
+    });
   const othersList = filteredMatches.filter(m => m.status === 'CANCELLED' || m.status === 'SUSPENDED');
 
   const renderSection = (title: string, list: Match[], icon: string, iconColor: string) => {
