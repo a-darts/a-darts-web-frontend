@@ -4,7 +4,8 @@ import Button from '../../../components/Button';
 import ErrorMessage from '../../../components/ErrorMessage';
 import { useToast } from '../../../context/ToastContext';
 import TextInput from '../../../components/TextInput';
-import InfoCard from '../../../components/InfoCard';
+import BoardCard from '../../../components/BoardCard';
+import StatCard from '../../../components/StatCard';
 
 interface TournamentPlayingAreaTabProps {
   tournamentId: string;
@@ -108,57 +109,42 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     );
   }
 
+  const totalBoards = playingArea?.boards?.length || 0;
+  const availableBoards = playingArea?.boards?.filter(b => b.status === 'AVAILABLE').length || 0;
+  const occupiedBoards = playingArea?.boards?.filter(b => b.status === 'OCCUPIED').length || 0;
+  const disabledBoards = playingArea?.boards?.filter(b => b.status === 'DISABLED').length || 0;
+
   return (
     <div style={styles.container}>
       <h3 style={styles.title}>Salón de Juego</h3>
-      {/* <div style={styles.statsContainer}>
-        <div style={styles.statCard}>
-          <span style={styles.statLabel}>Dianas totales</span>
-          <span style={styles.statValue}>{playingArea?.boards?.length || 0}</span>
-        </div>
-      </div> */}
       <div style={styles.statsContainer}>
-        <InfoCard
+        <StatCard
           title="Dianas en total"
-          content={playingArea?.boards?.length || 0}
-          icon='Target'
+          value={totalBoards}
         />
-        <InfoCard
+        <StatCard
           title="Dianas libres"
-          content={playingArea?.boards?.length || 0}
-          icon='Target'
+          value={availableBoards}
+          color="#4ade80"
         />
-        <InfoCard
+        <StatCard
           title="Dianas ocupadas"
-          content={playingArea?.boards?.length || 0}
-          icon='Target'
+          value={occupiedBoards}
+          color="#f87171"
         />
-        <InfoCard
+        <StatCard
           title="Dianas inutilizables"
-          content={playingArea?.boards?.length || 0}
-          icon='Target'
+          value={disabledBoards}
+          color="#fbbf24"
         />
       </div>
 
       <div style={styles.boardsGrid}>
         {playingArea?.boards?.map((board) => (
-          <div key={board.number} style={styles.boardCard}>
-            <div style={styles.boardHeader}>
-              <span style={styles.boardTitle}>Diana {board.number}</span>
-              <span style={{
-                ...styles.statusBadge,
-                backgroundColor: board.status === 'AVAILABLE' ? 'rgba(34, 197, 94, 0.2)' : (board.status === 'OCCUPIED' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.1)'),
-                color: board.status === 'AVAILABLE' ? '#4ade80' : (board.status === 'OCCUPIED' ? '#f87171' : '#fbbf24'),
-              }}>
-                {board.status === 'AVAILABLE' ? 'Libre' : (board.status === 'OCCUPIED' ? 'Ocupada' : (board.status === 'DISABLED' ? 'Inutilizable' : board.status))}
-              </span>
-            </div>
-            {board.matchId && (
-              <div style={styles.matchInfo}>
-                Partida en curso
-              </div>
-            )}
-          </div>
+          <BoardCard
+            key={board.number}
+            board={board}
+          />
         ))}
       </div>
     </div>
@@ -220,39 +206,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
     gap: '1rem',
-  },
-  boardCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
-    borderRadius: '0.75rem',
-    padding: '1.25rem',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-  },
-  boardHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  boardTitle: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: '1.1rem',
-  },
-  statusBadge: {
-    padding: '0.25rem 0.75rem',
-    borderRadius: '9999px',
-    fontSize: '0.75rem',
-    fontWeight: '600',
-  },
-  matchInfo: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    padding: '0.75rem',
-    borderRadius: '0.5rem',
-    fontSize: '0.875rem',
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
   }
 };
 

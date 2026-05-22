@@ -121,6 +121,11 @@ const resources = {
         'CEUTA': 'Ceuta',
         'MELILLA': 'Melilla',
       },
+      playingArea: {
+        'AVAILABLE': 'Libre',
+        'OCCUPIED': 'Ocupada',
+        'DISABLED': 'Inutilizable',
+      },
     }
   },
   en: {
@@ -235,6 +240,11 @@ const resources = {
         'COMUNIDAD_VALENCIANA': 'Valencian Community',
         'CEUTA': 'Ceuta',
         'MELILLA': 'Melilla',
+      },
+      playingArea: {
+        'AVAILABLE': 'Available',
+        'OCCUPIED': 'Occupied',
+        'DISABLED': 'Disabled',
       },
     }
   }
