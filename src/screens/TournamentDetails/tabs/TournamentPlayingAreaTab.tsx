@@ -145,9 +145,13 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
   }
 
   const totalBoards = playingArea?.boards?.length || 0;
-  const availableBoards = playingArea?.boards?.filter(b => b.status === 'AVAILABLE').length || 0;
-  const occupiedBoards = playingArea?.boards?.filter(b => b.status === 'OCCUPIED').length || 0;
-  const disabledBoards = playingArea?.boards?.filter(b => b.status === 'DISABLED').length || 0;
+  const availableBoards = playingArea?.boards?.filter((b) => b.status === 'AVAILABLE').length || 0;
+  const occupiedBoards = playingArea?.boards?.filter((b) => b.status === 'OCCUPIED').length || 0;
+  const disabledBoards = playingArea?.boards?.filter((b) => b.status === 'DISABLED').length || 0;
+
+  const assignableMatches = matches.filter(
+    (m) => (m.status === 'PENDING' || m.status === 'READY') && !playingArea?.boards?.some((b) => b.matchId === m.id)
+  );
 
   return (
     <div style={styles.container}>
@@ -200,20 +204,24 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
         confirmDisabled={!selectedMatchId}
       >
         <div style={{ padding: '1rem 0' }}>
-          <Select
-            label="Selecciona una partida"
-            value={selectedMatchId}
-            onChange={setSelectedMatchId}
-            options={[
-              { value: '', label: 'Seleccionar partida...' },
-              ...matches
-                .filter((m) => m.status === 'PENDING' || m.status === 'READY')
-                .map((m) => ({
+          {assignableMatches.length > 0 ? (
+            <Select
+              label="Selecciona una partida"
+              value={selectedMatchId}
+              onChange={setSelectedMatchId}
+              options={[
+                { value: '', label: 'Seleccionar partida...' },
+                ...assignableMatches.map((m) => ({
                   value: m.id,
                   label: `Ronda ${m.round} - Partida ${m.matchIndex} (${m.participant1?.alias || '?'} vs ${m.participant2?.alias || '?'})`,
                 })),
-            ]}
-          />
+              ]}
+            />
+          ) : (
+            <div style={styles.noMatchesTextContainer}>
+              <p style={styles.noMatchesText}>No hay partidas pendientes disponibles para asignar en este momento. Todas las partidas listas ya están en curso.</p>
+            </div>
+          )}
         </div>
       </Modal>
     </div>
@@ -275,6 +283,18 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
     gap: '1rem',
+  },
+  noMatchesTextContainer: {
+    textAlign: 'center',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderRadius: '0.5rem',
+    color: 'rgba(255, 255, 255, 0.6)',
+    padding: '1rem',
+  },
+  noMatchesText: {
+    margin: 0,
+    fontSize: '0.875rem',
   }
 };
 
