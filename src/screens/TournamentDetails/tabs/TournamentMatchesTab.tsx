@@ -89,9 +89,16 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
       return;
     }
 
+    const match = matches.find(m => m.id === assigningMatchId);
+    if (!match) return;
+
     try {
       setAssigningBoardLoading(true);
-      await tournamentService.assignMatchBoard(assigningMatchId, boardNum);
+      if (match.boardNumber !== null) {
+        await tournamentService.reassignMatchBoard(assigningMatchId, boardNum);
+      } else {
+        await tournamentService.assignMatchBoard(assigningMatchId, boardNum);
+      }
       showToast(`Diana ${boardNum} asignada con éxito.`, 'success');
       setIsAssignBoardModalOpen(false);
       await fetchMatches();
