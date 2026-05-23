@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { tournamentService, TournamentResult } from '../../../services/tournament.service';
+import { tournamentService, TournamentResult, ParticipantResult } from '../../../services/tournament.service';
 import ErrorMessage from '../../../components/ErrorMessage';
 import Icon from '../../../components/Icon';
 import EmptyState from '../../../components/EmptyState';
+import Table, { Column } from '../../../components/Table';
 import { getFederationFlag, getFederationLabel } from '../../../utils/tournament.utils';
 
 interface TournamentResultsTabProps {
@@ -24,6 +25,10 @@ const getPositionLabel = (pos: number) => {
   if (pos === 1025) return '1025º - 2048º';
   return `${pos}º`;
 };
+
+interface TableResult extends ParticipantResult {
+  id: string;
+}
 
 const TournamentResultsTab: React.FC<TournamentResultsTabProps> = ({ tournamentId }) => {
   const [results, setResults] = useState<TournamentResult | null>(null);
@@ -71,52 +76,59 @@ const TournamentResultsTab: React.FC<TournamentResultsTabProps> = ({ tournamentI
 
   // Sort results by position
   const sortedResults = [...results.participantsResults].sort((a, b) => a.finalPosition - b.finalPosition);
+  const tableData: TableResult[] = sortedResults.map(r => ({ ...r, id: r.participantId }));
+
+  const columns: Column<TableResult>[] = [
+    {
+      key: 'finalPosition',
+      header: 'Posición',
+      render: (item) => (
+        <div style={styles.positionBadge(item.finalPosition)}>
+          {getPositionLabel(item.finalPosition)}
+        </div>
+      )
+    },
+    {
+      key: 'alias',
+      header: 'Jugador',
+      render: (item) => (
+        <div style={styles.playerInfo}>
+          {getFederationFlag(item.federation) && (
+            <img
+              src={getFederationFlag(item.federation)!}
+              alt="Flag"
+              style={styles.flag}
+              title={getFederationLabel(item.federation)}
+            />
+          )}
+          <span style={styles.playerName}>{item.alias}</span>
+        </div>
+      )
+    },
+    {
+      key: 'matchesWon',
+      header: 'Victorias',
+      render: (item) => (
+        <span>{item.matchesWon}</span>
+      )
+    },
+    {
+      key: 'matchesLost',
+      header: 'Derrotas',
+      render: (item) => (
+        <span>{item.matchesLost}</span>
+      )
+    },
+  ];
 
   return (
     <div style={styles.container}>
       <h3 style={styles.sectionTitle}>Clasificación Final</h3>
-      <div style={styles.tableContainer}>
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.th}>Posición</th>
-              <th style={styles.th}>Jugador</th>
-              <th style={styles.th}>Victorias</th>
-              <th style={styles.th}>Derrotas</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedResults.map((result) => (
-              <tr key={result.participantId} style={styles.tr}>
-                <td style={styles.td}>
-                  <div style={styles.positionBadge(result.finalPosition)}>
-                    {getPositionLabel(result.finalPosition)}
-                  </div>
-                </td>
-                <td style={styles.td}>
-                  <div style={styles.playerInfo}>
-                    {getFederationFlag(result.federation) && (
-                      <img
-                        src={getFederationFlag(result.federation)!}
-                        alt="Flag"
-                        style={styles.flag}
-                        title={getFederationLabel(result.federation)}
-                      />
-                    )}
-                    <span style={styles.playerName}>{result.alias}</span>
-                  </div>
-                </td>
-                <td style={styles.td}>
-                  <span style={styles.statG}>{result.matchesWon}</span>
-                </td>
-                <td style={styles.td}>
-                  <span style={styles.statP}>{result.matchesLost}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <Table<TableResult>
+        data={tableData}
+        columns={columns}
+        emptyMessage="No hay resultados disponibles"
+      />
     </div>
   );
 };
@@ -141,35 +153,6 @@ const styles: { [key: string]: any } = {
     padding: '6rem 2rem',
     color: 'rgba(255, 255, 255, 0.5)',
   },
-  tableContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-    borderRadius: '12px',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
-    overflow: 'hidden',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    textAlign: 'left',
-  },
-  th: {
-    padding: '1rem',
-    fontSize: '0.875rem',
-    fontWeight: '600',
-    color: 'rgba(255, 255, 255, 0.5)',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-  },
-  tr: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-  },
-  td: {
-    padding: '1rem',
-    fontSize: '0.95rem',
-    color: 'rgba(255, 255, 255, 0.8)',
-    verticalAlign: 'middle',
-  },
   positionBadge: (pos: number) => ({
     display: 'inline-flex',
     alignItems: 'center',
@@ -192,14 +175,6 @@ const styles: { [key: string]: any } = {
     borderRadius: '2px',
   },
   playerName: {
-    fontWeight: '600',
-  },
-  statG: {
-    color: '#4ade80',
-    fontWeight: '600',
-  },
-  statP: {
-    color: '#f87171',
     fontWeight: '600',
   },
 };
