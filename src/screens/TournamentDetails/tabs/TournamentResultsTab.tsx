@@ -10,10 +10,13 @@ interface TournamentResultsTabProps {
   tournamentId: string;
 }
 
-const getPositionLabel = (pos: number) => {
+const getPositionLabel = (pos: number, results: ParticipantResult[]) => {
+  const hasFourth = results.some(r => r.finalPosition === 4);
+
   if (pos === 1) return '1º';
   if (pos === 2) return '2º';
-  if (pos === 3) return '3º - 4º';
+  if (pos === 3) return hasFourth ? '3º' : '3º - 4º';
+  if (pos === 4) return '4º';
   if (pos === 5) return '5º - 8º';
   if (pos === 9) return '9º - 16º';
   if (pos === 17) return '17º - 32º';
@@ -30,18 +33,18 @@ interface TableResult extends ParticipantResult {
   id: string;
 }
 
-const getMedalStyle = (index: number) => {
-  switch (index) {
-    case 0: return { color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)', border: 'rgba(251, 191, 36, 0.4)', label: 'Oro', icon: 'Trophy' };
-    case 1: return { color: '#e5e7eb', bg: 'rgba(156, 163, 175, 0.15)', border: 'rgba(156, 163, 175, 0.4)', label: 'Plata', icon: 'Medal' };
-    case 2: return { color: '#d97706', bg: 'rgba(217, 119, 6, 0.15)', border: 'rgba(217, 119, 6, 0.4)', label: 'Bronce', icon: 'Medal' };
-    case 3: return { color: '#775948ff', bg: 'rgba(120, 53, 15, 0.2)', border: 'rgba(120, 53, 15, 0.5)', label: '', icon: 'Medal' };
+const getMedalStyle = (pos: number) => {
+  switch (pos) {
+    case 1: return { color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)', border: 'rgba(251, 191, 36, 0.4)', label: 'Oro', icon: 'Trophy' };
+    case 2: return { color: '#e5e7eb', bg: 'rgba(156, 163, 175, 0.15)', border: 'rgba(156, 163, 175, 0.4)', label: 'Plata', icon: 'Medal' };
+    case 3: return { color: '#d97706', bg: 'rgba(217, 119, 6, 0.15)', border: 'rgba(217, 119, 6, 0.4)', label: 'Bronce', icon: 'Medal' };
+    case 4: return { color: '#775948ff', bg: 'rgba(120, 53, 15, 0.2)', border: 'rgba(120, 53, 15, 0.5)', label: 'Chocolate', icon: 'Medal' };
     default: return { color: '#ffffff', bg: 'rgba(255, 255, 255, 0.05)', border: 'rgba(255, 255, 255, 0.1)', label: '', icon: 'Medal' };
   }
 };
 
-const TopPlayerCard = ({ player, index }: { player: TableResult, index: number }) => {
-  const medal = getMedalStyle(index);
+const TopPlayerCard = ({ player, results }: { player: TableResult, results: ParticipantResult[] }) => {
+  const medal = getMedalStyle(player.finalPosition);
 
   return (
     <div style={{
@@ -63,7 +66,7 @@ const TopPlayerCard = ({ player, index }: { player: TableResult, index: number }
         height: '48px',
         borderRadius: '50%',
         backgroundColor: medal.color,
-        color: '#000',
+        color: '#000000',
         boxShadow: `0 0 15px ${medal.bg}`,
       }}>
         <Icon name={medal.icon as any} size={24} />
@@ -77,17 +80,11 @@ const TopPlayerCard = ({ player, index }: { player: TableResult, index: number }
               style={{ width: '22px', borderRadius: '3px' }}
             />
           )}
-          <span style={{ fontWeight: '700', fontSize: '1rem', color: '#fff', letterSpacing: '0.2px' }}>{player.alias}</span>
+          <span style={{ fontWeight: '700', fontSize: '1.15rem', color: '#fff', letterSpacing: '0.2px' }}>{player.alias}</span>
         </div>
-        {medal.label ? (
-          <span style={{ fontSize: '0.8rem', color: medal.color, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            {medal.label} • {getPositionLabel(player.finalPosition)}
-          </span>
-        ) : (
-          <span style={{ fontSize: '0.8rem', color: medal.color, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            {getPositionLabel(player.finalPosition)}
-          </span>
-        )}
+        <span style={{ fontSize: '0.8rem', color: medal.color, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          {medal.label ? `${medal.label} • ` : ''}{getPositionLabel(player.finalPosition, results)}
+        </span>
       </div>
     </div>
   );
@@ -146,9 +143,7 @@ const TournamentResultsTab: React.FC<TournamentResultsTabProps> = ({ tournamentI
       key: 'finalPosition',
       header: 'Posición',
       render: (item) => (
-        <div style={styles.positionBadge(item.finalPosition)}>
-          {getPositionLabel(item.finalPosition)}
-        </div>
+        <span>{getPositionLabel(item.finalPosition, results.participantsResults)}</span>
       )
     },
     {
@@ -192,8 +187,8 @@ const TournamentResultsTab: React.FC<TournamentResultsTabProps> = ({ tournamentI
       <div style={styles.contentWrapper}>
         {topPlayers.length > 0 && (
           <div style={styles.cardsContainer}>
-            {topPlayers.map((player, index) => (
-              <TopPlayerCard key={player.id} player={player} index={index} />
+            {topPlayers.map((player) => (
+              <TopPlayerCard key={player.id} player={player} results={results.participantsResults} />
             ))}
           </div>
         )}
@@ -246,17 +241,6 @@ const styles: { [key: string]: any } = {
     padding: '6rem 2rem',
     color: 'rgba(255, 255, 255, 0.5)',
   },
-  positionBadge: (pos: number) => ({
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '0.25rem 0.75rem',
-    borderRadius: '999px',
-    fontSize: '0.85rem',
-    fontWeight: '700',
-    backgroundColor: pos === 1 ? 'rgba(251, 191, 36, 0.15)' : pos === 2 ? 'rgba(156, 163, 175, 0.15)' : pos === 3 ? 'rgba(180, 83, 9, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-    color: pos === 1 ? '#fbbf24' : pos === 2 ? '#9ca3af' : pos === 3 ? '#b45309' : 'rgba(255, 255, 255, 0.7)',
-  }),
   playerInfo: {
     display: 'flex',
     alignItems: 'center',
