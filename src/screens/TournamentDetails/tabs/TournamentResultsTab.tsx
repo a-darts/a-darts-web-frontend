@@ -30,6 +30,69 @@ interface TableResult extends ParticipantResult {
   id: string;
 }
 
+const getMedalStyle = (index: number) => {
+  switch (index) {
+    case 0: return { color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)', border: 'rgba(251, 191, 36, 0.4)', label: 'Oro', icon: 'Trophy' };
+    case 1: return { color: '#e5e7eb', bg: 'rgba(156, 163, 175, 0.15)', border: 'rgba(156, 163, 175, 0.4)', label: 'Plata', icon: 'Medal' };
+    case 2: return { color: '#d97706', bg: 'rgba(217, 119, 6, 0.15)', border: 'rgba(217, 119, 6, 0.4)', label: 'Bronce', icon: 'Medal' };
+    case 3: return { color: '#775948ff', bg: 'rgba(120, 53, 15, 0.2)', border: 'rgba(120, 53, 15, 0.5)', label: '', icon: 'Medal' };
+    default: return { color: '#ffffff', bg: 'rgba(255, 255, 255, 0.05)', border: 'rgba(255, 255, 255, 0.1)', label: '', icon: 'Medal' };
+  }
+};
+
+const TopPlayerCard = ({ player, index }: { player: TableResult, index: number }) => {
+  const medal = getMedalStyle(index);
+
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1.25rem',
+      padding: '1.25rem',
+      backgroundColor: medal.bg,
+      border: `1px solid ${medal.border}`,
+      borderRadius: '16px',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+      transition: 'transform 0.2s ease',
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '48px',
+        height: '48px',
+        borderRadius: '50%',
+        backgroundColor: medal.color,
+        color: '#000',
+        boxShadow: `0 0 15px ${medal.bg}`,
+      }}>
+        <Icon name={medal.icon as any} size={24} />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          {getFederationFlag(player.federation) && (
+            <img
+              src={getFederationFlag(player.federation)!}
+              alt="Flag"
+              style={{ width: '22px', borderRadius: '3px' }}
+            />
+          )}
+          <span style={{ fontWeight: '700', fontSize: '1rem', color: '#fff', letterSpacing: '0.2px' }}>{player.alias}</span>
+        </div>
+        {medal.label ? (
+          <span style={{ fontSize: '0.8rem', color: medal.color, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            {medal.label} • {getPositionLabel(player.finalPosition)}
+          </span>
+        ) : (
+          <span style={{ fontSize: '0.8rem', color: medal.color, fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            {getPositionLabel(player.finalPosition)}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const TournamentResultsTab: React.FC<TournamentResultsTabProps> = ({ tournamentId }) => {
   const [results, setResults] = useState<TournamentResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -121,14 +184,27 @@ const TournamentResultsTab: React.FC<TournamentResultsTabProps> = ({ tournamentI
     },
   ];
 
+  const topPlayers = tableData.slice(0, 4);
+
   return (
     <div style={styles.container}>
       <h3 style={styles.sectionTitle}>Clasificación Final</h3>
-      <Table<TableResult>
-        data={tableData}
-        columns={columns}
-        emptyMessage="No hay resultados disponibles"
-      />
+      <div style={styles.contentWrapper}>
+        {topPlayers.length > 0 && (
+          <div style={styles.cardsContainer}>
+            {topPlayers.map((player, index) => (
+              <TopPlayerCard key={player.id} player={player} index={index} />
+            ))}
+          </div>
+        )}
+        <div style={styles.tableWrapper}>
+          <Table<TableResult>
+            data={tableData}
+            columns={columns}
+            emptyMessage="No hay resultados disponibles"
+          />
+        </div>
+      </div>
     </div>
   );
 };
@@ -144,6 +220,23 @@ const styles: { [key: string]: any } = {
     fontWeight: '700',
     color: 'rgba(255, 255, 255, 0.9)',
     margin: 0,
+  },
+  contentWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '2rem',
+    flexWrap: 'wrap',
+  },
+  cardsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.25rem',
+    flex: '1 1 300px',
+    minWidth: '300px',
+  },
+  tableWrapper: {
+    flex: '2 1 500px',
+    minWidth: '0',
   },
   loadingContainer: {
     display: 'flex',
