@@ -161,7 +161,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
         description={
           <>
             <span>Aún no se han generado las partidas para este torneo.</span>
-            {isAdmin && <span>Asegúrate de configurar e iniciar el cuadrante primero.</span>}
+            {isAdmin && <span>Asegúrate de configurar el cuadrante e iniciar el torneo primero.</span>}
           </>
         }
       />

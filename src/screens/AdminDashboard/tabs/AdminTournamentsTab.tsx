@@ -40,8 +40,7 @@ const AdminTournamentsTab: React.FC = () => {
 
   const filtered = tournaments.filter(t => {
     const matchesQuery = t.name.toLowerCase().includes(tournamentQuery.toLowerCase()) ||
-      (t.info?.mode && getModeLabel(t.info.mode).toLowerCase().includes(tournamentQuery.toLowerCase())) ||
-      (t.info?.schedule && getScheduleTypeLabel(t.info.schedule).toLowerCase().includes(tournamentQuery.toLowerCase()));
+      (t.info?.mode && getModeLabel(t.info.mode).toLowerCase().includes(tournamentQuery.toLowerCase()));
 
     const matchesFed = federationFilter === '' || t.info?.federation === federationFilter;
     const matchesMode = modeFilter === '' || t.info?.mode === modeFilter;
@@ -66,7 +65,7 @@ const AdminTournamentsTab: React.FC = () => {
         </div>
         <div style={styles.viewActionsContainer}>
           <div style={styles.searchWrapper}>
-            <SearchInput value={tournamentQuery} onChange={setTournamentQuery} placeholder="Buscar por nombre, formato o modalidad..." />
+            <SearchInput value={tournamentQuery} onChange={setTournamentQuery} placeholder="Buscar por nombre o modalidad..." />
           </div>
           <div style={styles.filtersWrapper}>
             <div style={styles.filterItem}>
