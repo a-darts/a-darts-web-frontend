@@ -4,7 +4,7 @@ import SearchInput from '../../../components/SearchInput';
 import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
 import IconButton from '../../../components/IconButton';
-import { tournamentService, Tournament, Federations, GameModes } from '../../../services/tournament.service';
+import { tournamentService, Tournament, Federations, GameModes, TournamentStatus } from '../../../services/tournament.service';
 import { getModeLabel, getScheduleTypeLabel, formatTournamentDate, getSeasonEndYear, getFederationFlag } from '../../../utils/tournament.utils';
 import TournamentStatusTag from '../../../components/TournamentStatusTag';
 import Select from '../../../components/Select';
@@ -134,10 +134,6 @@ const AdminTournamentsTab: React.FC = () => {
                     {t.info ? `${getModeLabel(t.info.mode)}` : 'N/A'}
                   </td>
                   <td style={styles.td}>
-                    {/* <span style={{ fontWeight: '600' }}>
-                      {t.registration?.registeredParticipantsIds?.length || 0}
-                    </span>
-                    {t.info?.maxPlayers ? ` / ${t.info.maxPlayers}` : ''} */}
                     <div style={styles.playerFederationVal}>
                       {getFederationFlag(t.info.federation) && (
                         <img
@@ -162,11 +158,13 @@ const AdminTournamentsTab: React.FC = () => {
                         onClick={() => navigate(`/torneos/${t.id}`)}
                         title="Administrar torneo"
                       />
-                      <IconButton
-                        name="Edit"
-                        onClick={() => navigate(`/admin/torneos/${t.id}/editar`, { state: { from: '/admin' } })}
-                        title="Editar torneo"
-                      />
+                      {t.status !== TournamentStatus.FINISHED && t.status !== TournamentStatus.CANCELLED && (
+                        <IconButton
+                          name="Edit"
+                          onClick={() => navigate(`/admin/torneos/${t.id}/editar`, { state: { from: '/admin' } })}
+                          title="Editar torneo"
+                        />
+                      )}
                     </div>
                   </td>
                 </tr>
