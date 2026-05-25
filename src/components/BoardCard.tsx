@@ -9,8 +9,8 @@ interface BoardCardProps {
   board: Board;
   match?: Match;
   onAssignMatch?: (boardNumber: number) => void;
+  onAssignBoard?: (matchId: string) => void;
   onReleaseBoard?: (boardNumber: number) => void;
-  onAssignBoard?: (boardNumber: number) => void;
   onStartMatch?: (matchId: string) => void;
   onSuspendMatch?: (matchId: string) => void;
   onResumeMatch?: (matchId: string) => void;
@@ -21,8 +21,8 @@ const BoardCard: React.FC<BoardCardProps> = ({
   board,
   match,
   onAssignMatch,
-  onReleaseBoard,
   onAssignBoard,
+  onReleaseBoard,
   onStartMatch,
   onSuspendMatch,
   onResumeMatch,
@@ -62,64 +62,100 @@ const BoardCard: React.FC<BoardCardProps> = ({
             <span style={styles.participantScore}>{match.matchScore?.participant2?.legsWon || 0}</span>
           </div>
 
-          <div style={styles.releaseActionRow}>
+          <div style={styles.releaseActionsSection}>
             <TournamentMatchStatusTag
               status={match.status}
             />
-            {isFinished && onReleaseBoard && (
-              <Button
-                variant="danger"
-                size="small"
-                leftIcon="X"
-                onClick={() => onReleaseBoard(board.number)}
-              >
-                Liberar diana
-              </Button>
-            )}
-            {isReady && onStartMatch && (
-              <Button
-                variant="primary"
-                size="small"
-                leftIcon="Play"
-                onClick={() => onStartMatch(match.id)}
-              >
-                Iniciar partida
-              </Button>
-            )}
-            {isSuspended && onResumeMatch && (
-              <Button
-                variant="primary"
-                size="small"
-                leftIcon="Play"
-                onClick={() => onResumeMatch(match.id)}
-              >
-                Reanudar partida
-              </Button>
-            )}
-            {isInProgress && (
-              <>
-                {onAddResult && (
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    leftIcon="Plus"
-                    onClick={() => onAddResult(match.id)}
-                  >
-                    Añadir resultado
-                  </Button>
-                )}
-                {onSuspendMatch && (
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    leftIcon="Pause"
-                    onClick={() => onSuspendMatch(match.id)}
-                  >
-                    Suspender partida
-                  </Button>
-                )}
-              </>
-            )}
+            <div style={styles.releaseActionsRow}>
+              {isFinished && onReleaseBoard && (
+                <Button
+                  variant="danger"
+                  size="small"
+                  leftIcon="X"
+                  onClick={() => onReleaseBoard(board.number)}
+                >
+                  Liberar diana
+                </Button>
+              )}
+              {isPending && onAssignBoard && (
+                <Button
+                  variant="secondary"
+                  size="small"
+                  leftIcon="Edit"
+                  onClick={() => onAssignBoard(match.id)}
+                >
+                  Reasignar diana
+                </Button>
+              )}
+              {isReady && (
+                <>
+                  {onStartMatch && (
+                    <Button
+                      variant="primary"
+                      size="small"
+                      leftIcon="Play"
+                      onClick={() => onStartMatch(match.id)}
+                    >
+                      Iniciar partida
+                    </Button>
+                  )}
+                  {onAssignBoard && (
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      leftIcon="Edit"
+                      onClick={() => onAssignBoard(match.id)}
+                    >
+                      Reasignar diana
+                    </Button>
+                  )}
+                </>
+              )}
+              {isSuspended && onResumeMatch && (
+                <Button
+                  variant="primary"
+                  size="small"
+                  leftIcon="Play"
+                  onClick={() => onResumeMatch(match.id)}
+                >
+                  Reanudar
+                </Button>
+              )}
+              {isInProgress && (
+                <>
+                  {onAddResult && (
+                    <Button
+                      variant="primary"
+                      size="small"
+                      leftIcon="Plus"
+                      onClick={() => onAddResult(match.id)}
+                    >
+                      Añadir resultado
+                    </Button>
+                  )}
+                  {onSuspendMatch && (
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      leftIcon="Pause"
+                      onClick={() => onSuspendMatch(match.id)}
+                    >
+                      Suspender
+                    </Button>
+                  )}
+                  {onAssignBoard && (
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      leftIcon="Edit"
+                      onClick={() => onAssignBoard(match.id)}
+                    >
+                      Reasignar diana
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -218,7 +254,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'center',
     minWidth: '1.75rem',
   },
-  releaseActionRow: {
+  releaseActionsSection: {
     width: '100%',
     display: 'flex',
     justifyContent: 'center',
@@ -227,6 +263,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     marginTop: '0.25rem',
     gap: '0.5rem',
     flexWrap: 'wrap',
+  },
+  releaseActionsRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: '0.5rem',
+    justifyContent: 'center',
   },
 };
 

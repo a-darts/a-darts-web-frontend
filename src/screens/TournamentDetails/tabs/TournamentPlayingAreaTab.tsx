@@ -273,6 +273,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
               board={board}
               match={boardMatch}
               onAssignMatch={handleOpenAssignModal}
+              onAssignBoard={matchActions.handleAssignBoard}
               onReleaseBoard={handleReleaseBoard}
               onStartMatch={matchActions.handleStartMatch}
               onSuspendMatch={matchActions.handleSuspendMatch}
@@ -359,7 +360,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   boardsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
     gap: '1rem',
   },
   noMatchesTextContainer: {

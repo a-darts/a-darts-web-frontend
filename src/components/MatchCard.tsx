@@ -1,5 +1,5 @@
 import React from 'react';
-import { Match } from '../services/tournament.service';
+import { Match, MatchStatus } from '../services/tournament.service';
 import { getFederationFlag } from '../utils/tournament.utils';
 import TournamentMatchStatusTag from './TournamentMatchStatusTag';
 import Button from './Button';
@@ -107,9 +107,29 @@ const MatchCard: React.FC<MatchCardProps> = ({
       {/* Admin Quick Action Buttons */}
       {isAdmin && (
         <div style={styles.actionButtonsContainer}>
-          {(match.status === 'PENDING' || match.status === 'READY') && (
+          {match.status === 'IN_PROGRESS' && (
+            <>
+              <Button
+                variant="primary"
+                size="small"
+                leftIcon="Plus"
+                onClick={() => onAddResult && onAddResult(match.id)}
+              >
+                Añadir resultado
+              </Button>
+              <Button
+                variant="secondary"
+                size="small"
+                leftIcon="Pause"
+                onClick={() => onSuspendMatch && onSuspendMatch(match.id)}
+              >
+                Suspender
+              </Button>
+            </>
+          )}
+          {(match.status === MatchStatus.PENDING || match.status === MatchStatus.READY || match.status === MatchStatus.IN_PROGRESS) && (
             <Button
-              variant="primary"
+              variant="secondary"
               size="small"
               leftIcon={match.boardNumber === null ? 'Plus' : 'Edit'}
               onClick={() => onAssignBoard && onAssignBoard(match.id)}
@@ -127,26 +147,6 @@ const MatchCard: React.FC<MatchCardProps> = ({
               Iniciar partida
             </Button>
           )}
-          {match.status === 'IN_PROGRESS' && (
-            <>
-              <Button
-                variant="primary"
-                size="small"
-                leftIcon="Plus"
-                onClick={() => onAddResult && onAddResult(match.id)}
-              >
-                Añadir resultado
-              </Button>
-              <Button
-                variant="primary"
-                size="small"
-                leftIcon="Pause"
-                onClick={() => onSuspendMatch && onSuspendMatch(match.id)}
-              >
-                Suspender partida
-              </Button>
-            </>
-          )}
           {match.status === 'SUSPENDED' && (
             <Button
               variant="primary"
@@ -154,7 +154,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
               leftIcon="Play"
               onClick={() => onResumeMatch && onResumeMatch(match.id)}
             >
-              Reanudar partida
+              Reanudar
             </Button>
           )}
         </div>
