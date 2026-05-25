@@ -220,7 +220,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <Button
               variant="secondary"
-              leftIcon="Minus"
+              leftIcon="Trash2"
               onClick={handleRemoveLastBoard}
               disabled={isModifyingBoards || playingArea.boards.length === 0}
             >
@@ -269,6 +269,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
               match={boardMatch}
               onAssignMatch={handleOpenAssignModal}
               onReleaseBoard={handleReleaseBoard}
+            // onAssignBoard={}
             />
           );
         })}

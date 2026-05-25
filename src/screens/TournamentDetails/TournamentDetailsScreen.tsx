@@ -249,10 +249,10 @@ const TournamentDetailsScreen: React.FC = () => {
     { id: 'info', label: 'Información' },
     { id: 'registration', label: 'Inscripciones' },
     { id: 'bracket', label: 'Cuadrante' },
-    { id: 'matches', label: 'Partidas' },
-    ...(status === TournamentStatus.FINISHED ? [{ id: 'results', label: 'Resultados' }] : []),
     ...(isAdmin && isEditingBracket ? [{ id: 'create-bracket', label: 'Configurar cuadrante' }] : []),
     ...(isAdmin && status !== TournamentStatus.FINISHED ? [{ id: 'playing-area', label: 'Salón de juego' }] : []),
+    { id: 'matches', label: 'Partidas' },
+    ...(status === TournamentStatus.FINISHED ? [{ id: 'results', label: 'Resultados' }] : []),
   ];
 
   return (

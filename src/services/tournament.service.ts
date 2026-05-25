@@ -69,6 +69,15 @@ export enum BracketStatus {
   CANCELLED = 'CANCELLED',
 }
 
+export enum MatchStatus {
+  PENDING = 'PENDING',
+  READY = 'READY',
+  IN_PROGRESS = 'IN_PROGRESS',
+  FINISHED = 'FINISHED',
+  SUSPENDED = 'SUSPENDED',
+  CANCELLED = 'CANCELLED',
+}
+
 
 export interface Tournament {
   id: string;

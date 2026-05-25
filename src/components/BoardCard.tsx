@@ -1,5 +1,5 @@
 import React from 'react';
-import { Board, Match } from '../services/tournament.service';
+import { Board, Match, MatchStatus } from '../services/tournament.service';
 import i18n from '../i18n';
 import Button from './Button';
 import IconButton from './IconButton';
@@ -10,11 +10,21 @@ interface BoardCardProps {
   match?: Match;
   onAssignMatch?: (boardNumber: number) => void;
   onReleaseBoard?: (boardNumber: number) => void;
+  onAssignBoard?: (boardNumber: number) => void;
 }
 
-const BoardCard: React.FC<BoardCardProps> = ({ board, match, onAssignMatch, onReleaseBoard }) => {
-  const isInProgress = match?.status === 'IN_PROGRESS';
-  const isFinished = match?.status === 'FINISHED';
+const BoardCard: React.FC<BoardCardProps> = ({
+  board,
+  match,
+  onAssignMatch,
+  onReleaseBoard,
+  onAssignBoard,
+}) => {
+  const isPending = match?.status === MatchStatus.PENDING;
+  const isReady = match?.status === MatchStatus.READY;
+  const isInProgress = match?.status === MatchStatus.IN_PROGRESS;
+  const isFinished = match?.status === MatchStatus.FINISHED;
+  const isSuspended = match?.status === MatchStatus.SUSPENDED;
 
   return (
     <div style={styles.boardCard}>
@@ -57,6 +67,46 @@ const BoardCard: React.FC<BoardCardProps> = ({ board, match, onAssignMatch, onRe
               >
                 Liberar diana
               </Button>
+            )}
+            {/* {isPending && (
+              <Button
+                variant="danger"
+                size="small"
+                leftIcon="X"
+              // onClick={() => onReleaseBoard(board.number)}
+              >
+                Asignar diana
+              </Button>
+            )} */}
+            {/* {isReady && (
+              <Button
+                variant="danger"
+                size="small"
+                leftIcon="X"
+              // onClick={() => onReleaseBoard(board.number)}
+              >
+                Reasignar diana
+              </Button>
+            )} */}
+            {isInProgress && (
+              <>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  leftIcon="Plus"
+                // onClick={() => onReleaseBoard(board.number)}
+                >
+                  Añadir resultado
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="small"
+                  leftIcon="Pause"
+                // onClick={() => onReleaseBoard(board.number)}
+                >
+                  Suspender partida
+                </Button>
+              </>
             )}
           </div>
         </div>

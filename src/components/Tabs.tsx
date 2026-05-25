@@ -49,7 +49,7 @@ const styles: { [key: string]: any } = {
     background: 'none',
     border: 'none',
     padding: '1rem 0.25rem',
-    color: active ? '#C4E866' : 'rgba(255, 255, 255, 0.4)',
+    color: active ? '#C4E866' : '#b0b0b0',
     fontWeight: '700',
     fontSize: '0.85rem',
     cursor: 'pointer',

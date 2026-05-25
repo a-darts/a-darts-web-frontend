@@ -9,6 +9,7 @@ import { useToast } from '../../../context/ToastContext';
 import Modal from '../../../components/Modal';
 import TextInput from '../../../components/TextInput';
 import EmptyState from '../../../components/EmptyState';
+import { useMatchActions } from '../../../hooks/useMatchActions';
 
 interface TournamentMatchesTabProps {
   tournamentId: string;
@@ -22,29 +23,6 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
   const [error, setError] = useState<string | null>(null);
   const [selectedRound, setSelectedRound] = useState<number | 'all'>('all');
   const [activeFilters, setActiveFilters] = useState<string[]>(['in_progress', 'pending', 'finished']);
-
-  // Assign board modal states
-  const [isAssignBoardModalOpen, setIsAssignBoardModalOpen] = useState(false);
-  const [assigningMatchId, setAssigningMatchId] = useState<string | null>(null);
-  const [newBoardValue, setNewBoardValue] = useState('');
-  const [assigningBoardLoading, setAssigningBoardLoading] = useState(false);
-
-  // Add result modal states
-  const [isAddResultModalOpen, setIsAddResultModalOpen] = useState(false);
-  const [addingResultMatchId, setAddingResultMatchId] = useState<string | null>(null);
-  const [p1Sets, setP1Sets] = useState<number>(0);
-  const [p1Legs, setP1Legs] = useState<number>(0);
-  const [p2Sets, setP2Sets] = useState<number>(0);
-  const [p2Legs, setP2Legs] = useState<number>(0);
-  const [addingResultLoading, setAddingResultLoading] = useState(false);
-
-  const toggleFilter = (filterKey: string) => {
-    setActiveFilters(prev =>
-      prev.includes(filterKey)
-        ? prev.filter(f => f !== filterKey)
-        : [...prev, filterKey]
-    );
-  };
 
   const fetchMatches = async (showLoading = false) => {
     try {
@@ -63,104 +41,39 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
     fetchMatches(true);
   }, [tournamentId]);
 
-  const handleStartMatch = async (matchId: string) => {
-    try {
-      await tournamentService.startMatch(matchId);
-      showToast('Partida iniciada con éxito.', 'success');
-      await fetchMatches();
-    } catch (err: any) {
-      console.error('Error starting match:', err);
-      showToast(err.message || 'Error al iniciar la partida.', 'error');
-    }
-  };
+  const {
+    handleStartMatch,
+    handleSuspendMatch,
+    handleResumeMatch,
+    handleAssignBoard,
+    handleConfirmAssignBoard,
+    handleAddResult,
+    handleConfirmAddResult,
+    isAssignBoardModalOpen,
+    setIsAssignBoardModalOpen,
+    newBoardValue,
+    setNewBoardValue,
+    assigningBoardLoading,
+    isAddResultModalOpen,
+    setIsAddResultModalOpen,
+    p1Sets,
+    setP1Sets,
+    p1Legs,
+    setP1Legs,
+    p2Sets,
+    setP2Sets,
+    p2Legs,
+    setP2Legs,
+    addingResultLoading
+  } = useMatchActions({ matches, onSuccess: fetchMatches });
 
-  const handleSuspendMatch = async (matchId: string) => {
-    try {
-      await tournamentService.suspendMatch(matchId);
-      showToast('Partida suspendida con éxito.', 'success');
-      await fetchMatches();
-    } catch (err: any) {
-      console.error('Error suspending match:', err);
-      showToast(err.message || 'Error al suspender la partida.', 'error');
-    }
-  };
 
-  const handleResumeMatch = async (matchId: string) => {
-    try {
-      await tournamentService.resumeMatch(matchId);
-      showToast('Partida reanudada con éxito.', 'success');
-      await fetchMatches();
-    } catch (err: any) {
-      console.error('Error resuming match:', err);
-      showToast(err.message || 'Error al reanudar la partida.', 'error');
-    }
-  };
-
-  const handleAssignBoard = (matchId: string) => {
-    setAssigningMatchId(matchId);
-    setNewBoardValue('');
-    setIsAssignBoardModalOpen(true);
-  };
-
-  const handleConfirmAssignBoard = async () => {
-    if (!assigningMatchId) return;
-
-    const boardNum = Number(newBoardValue.trim());
-    if (!newBoardValue.trim() || isNaN(boardNum) || boardNum <= 0) {
-      showToast('Por favor, introduce un número de diana válido mayor que 0.', 'error');
-      return;
-    }
-
-    const match = matches.find(m => m.id === assigningMatchId);
-    if (!match) return;
-
-    try {
-      setAssigningBoardLoading(true);
-      if (match.boardNumber !== null) {
-        await tournamentService.reassignMatchBoard(assigningMatchId, boardNum);
-      } else {
-        await tournamentService.assignMatchBoard(assigningMatchId, boardNum);
-      }
-      showToast(`Diana ${boardNum} asignada con éxito.`, 'success');
-      setIsAssignBoardModalOpen(false);
-      await fetchMatches();
-    } catch (err: any) {
-      console.error('Error assigning board:', err);
-      showToast(err.message || 'Error al asignar la diana.', 'error');
-    } finally {
-      setAssigningBoardLoading(false);
-    }
-  };
-
-  const handleAddResult = (matchId: string) => {
-    setAddingResultMatchId(matchId);
-    setP1Sets(0);
-    setP1Legs(0);
-    setP2Sets(0);
-    setP2Legs(0);
-    setIsAddResultModalOpen(true);
-  };
-
-  const handleConfirmAddResult = async () => {
-    if (!addingResultMatchId) return;
-
-    try {
-      setAddingResultLoading(true);
-      await tournamentService.addMatchResult(addingResultMatchId, {
-        p1Sets,
-        p1Legs,
-        p2Sets,
-        p2Legs
-      });
-      showToast('Resultado añadido con éxito.', 'success');
-      setIsAddResultModalOpen(false);
-      await fetchMatches();
-    } catch (err: any) {
-      console.error('Error adding result:', err);
-      showToast(err.message || 'Error al añadir el resultado.', 'error');
-    } finally {
-      setAddingResultLoading(false);
-    }
+  const toggleFilter = (filterKey: string) => {
+    setActiveFilters(prev =>
+      prev.includes(filterKey)
+        ? prev.filter(f => f !== filterKey)
+        : [...prev, filterKey]
+    );
   };
 
   if (loading) {
@@ -351,37 +264,46 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', width: '100%' }}>
               <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <span style={{ color: 'var(--btn-primary-bg, #C4E866)', fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Jugador 1</span>
-                <TextInput
-                  label="Sets Ganados"
-                  type="number"
-                  min="0"
-                  value={p1Sets.toString()}
-                  onChange={(e) => setP1Sets(Number(e.target.value))}
-                />
-                <TextInput
-                  label="Legs Ganados"
-                  type="number"
-                  min="0"
-                  value={p1Legs.toString()}
-                  onChange={(e) => setP1Legs(Number(e.target.value))}
-                />
+
+                <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1rem' }}>
+                  <TextInput
+                    label="Sets Ganados"
+                    type="number"
+                    min="0"
+                    value={p1Sets.toString()}
+                    onChange={(e) => setP1Sets(Number(e.target.value))}
+                    style={{ maxWidth: '140px' }}
+                  />
+                  <TextInput
+                    label="Legs Ganados"
+                    type="number"
+                    min="0"
+                    value={p1Legs.toString()}
+                    onChange={(e) => setP1Legs(Number(e.target.value))}
+                    style={{ maxWidth: '140px' }}
+                  />
+                </div>
               </div>
               <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                 <span style={{ color: 'var(--btn-primary-bg, #C4E866)', fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Jugador 2</span>
-                <TextInput
-                  label="Sets Ganados"
-                  type="number"
-                  min="0"
-                  value={p2Sets.toString()}
-                  onChange={(e) => setP2Sets(Number(e.target.value))}
-                />
-                <TextInput
-                  label="Legs Ganados"
-                  type="number"
-                  min="0"
-                  value={p2Legs.toString()}
-                  onChange={(e) => setP2Legs(Number(e.target.value))}
-                />
+                <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1rem' }}>
+                  <TextInput
+                    label="Sets Ganados"
+                    type="number"
+                    min="0"
+                    value={p2Sets.toString()}
+                    onChange={(e) => setP2Sets(Number(e.target.value))}
+                    style={{ maxWidth: '140px' }}
+                  />
+                  <TextInput
+                    label="Legs Ganados"
+                    type="number"
+                    min="0"
+                    value={p2Legs.toString()}
+                    onChange={(e) => setP2Legs(Number(e.target.value))}
+                    style={{ maxWidth: '140px' }}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -390,7 +312,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
         cancelLabel="Cancelar"
         onConfirm={handleConfirmAddResult}
         loading={addingResultLoading}
-        maxWidth='600px'
+        maxWidth='750px'
       />
     </div>
   );
