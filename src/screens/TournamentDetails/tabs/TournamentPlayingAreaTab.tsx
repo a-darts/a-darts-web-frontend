@@ -7,9 +7,12 @@ import TextInput from '../../../components/TextInput';
 import BoardCard from '../../../components/BoardCard';
 import StatCard from '../../../components/StatCard';
 import Modal from '../../../components/Modal';
+import MatchActionModals from '../../../components/MatchActionModals';
 import Select from '../../../components/Select';
 import { Match } from '../../../services/tournament.service';
 import EmptyState from '../../../components/EmptyState';
+import { useMatchActions } from '../../../hooks/useMatchActions';
+
 
 interface TournamentPlayingAreaTabProps {
   tournamentId: string;
@@ -53,6 +56,8 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
   useEffect(() => {
     fetchData();
   }, [tournamentId]);
+
+  const matchActions = useMatchActions({ matches, onSuccess: fetchData });
 
   const handleCreatePlayingArea = async () => {
     try {
@@ -269,11 +274,16 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
               match={boardMatch}
               onAssignMatch={handleOpenAssignModal}
               onReleaseBoard={handleReleaseBoard}
-            // onAssignBoard={}
+              onStartMatch={matchActions.handleStartMatch}
+              onSuspendMatch={matchActions.handleSuspendMatch}
+              onResumeMatch={matchActions.handleResumeMatch}
+              onAddResult={matchActions.handleAddResult}
             />
           );
         })}
       </div>
+
+      <MatchActionModals {...matchActions} />
 
       <Modal
         description='Selecciona una partida para asignar a la diana.'

@@ -11,6 +11,10 @@ interface BoardCardProps {
   onAssignMatch?: (boardNumber: number) => void;
   onReleaseBoard?: (boardNumber: number) => void;
   onAssignBoard?: (boardNumber: number) => void;
+  onStartMatch?: (matchId: string) => void;
+  onSuspendMatch?: (matchId: string) => void;
+  onResumeMatch?: (matchId: string) => void;
+  onAddResult?: (matchId: string) => void;
 }
 
 const BoardCard: React.FC<BoardCardProps> = ({
@@ -19,6 +23,10 @@ const BoardCard: React.FC<BoardCardProps> = ({
   onAssignMatch,
   onReleaseBoard,
   onAssignBoard,
+  onStartMatch,
+  onSuspendMatch,
+  onResumeMatch,
+  onAddResult,
 }) => {
   const isPending = match?.status === MatchStatus.PENDING;
   const isReady = match?.status === MatchStatus.READY;
@@ -68,44 +76,48 @@ const BoardCard: React.FC<BoardCardProps> = ({
                 Liberar diana
               </Button>
             )}
-            {/* {isPending && (
+            {isReady && onStartMatch && (
               <Button
-                variant="danger"
+                variant="primary"
                 size="small"
-                leftIcon="X"
-              // onClick={() => onReleaseBoard(board.number)}
+                leftIcon="Play"
+                onClick={() => onStartMatch(match.id)}
               >
-                Asignar diana
+                Iniciar partida
               </Button>
-            )} */}
-            {/* {isReady && (
+            )}
+            {isSuspended && onResumeMatch && (
               <Button
-                variant="danger"
+                variant="primary"
                 size="small"
-                leftIcon="X"
-              // onClick={() => onReleaseBoard(board.number)}
+                leftIcon="Play"
+                onClick={() => onResumeMatch(match.id)}
               >
-                Reasignar diana
+                Reanudar partida
               </Button>
-            )} */}
+            )}
             {isInProgress && (
               <>
-                <Button
-                  variant="secondary"
-                  size="small"
-                  leftIcon="Plus"
-                // onClick={() => onReleaseBoard(board.number)}
-                >
-                  Añadir resultado
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="small"
-                  leftIcon="Pause"
-                // onClick={() => onReleaseBoard(board.number)}
-                >
-                  Suspender partida
-                </Button>
+                {onAddResult && (
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    leftIcon="Plus"
+                    onClick={() => onAddResult(match.id)}
+                  >
+                    Añadir resultado
+                  </Button>
+                )}
+                {onSuspendMatch && (
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    leftIcon="Pause"
+                    onClick={() => onSuspendMatch(match.id)}
+                  >
+                    Suspender partida
+                  </Button>
+                )}
               </>
             )}
           </div>
