@@ -76,6 +76,7 @@ export interface Tournament {
   seasonStartYear: number;
   createdAt: string;
   status: TournamentStatus;
+  isDelayed: boolean;
   info: {
     place: string;
     dateTime: string;

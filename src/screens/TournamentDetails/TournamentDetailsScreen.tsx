@@ -269,6 +269,9 @@ const TournamentDetailsScreen: React.FC = () => {
                 {status === TournamentStatus.PUBLISHED && (
                   <TournamentRegistrationStatusTag status={registration.status} size="medium" />
                 )}
+                {tournament.isDelayed && (
+                  <TournamentStatusTag status='DELAYED' size="medium" />
+                )}
               </div>
             </div>
             <div style={styles.subtitleMetadata}>
