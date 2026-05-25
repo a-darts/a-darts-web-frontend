@@ -15,7 +15,12 @@ interface BracketMatchProps {
   status?: string;
 }
 
-const BracketMatch: React.FC<BracketMatchProps> = ({ player1, player2, showPositions = false, status }) => {
+const BracketMatch: React.FC<BracketMatchProps> = ({
+  player1,
+  player2,
+  showPositions = false,
+  status,
+}) => {
   const truncateAlias = (alias: string | null) => {
     if (!alias) return '-';
     return alias.length > 21 ? `${alias.substring(0, 21)}...` : alias;
@@ -29,7 +34,9 @@ const BracketMatch: React.FC<BracketMatchProps> = ({ player1, player2, showPosit
       borderBottom: isFirst ? '1px solid rgba(255, 255, 255, 0.05)' : 'none'
     }}>
       <div style={styles.participantInfo}>
-        {showPositions && <span style={styles.positionNumber}>{pos.position}</span>}
+        {showPositions && (
+          <span style={styles.positionNumber}>{pos.position}</span>
+        )}
         <div style={styles.aliasFederationContainer}>
           {pos.federation && pos.federation !== 'N/A' && (
             <img

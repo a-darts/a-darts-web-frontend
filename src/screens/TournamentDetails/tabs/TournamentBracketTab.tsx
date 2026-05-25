@@ -230,7 +230,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
     // Sort matches by matchIndex to maintain bracket order
     roundMatches.sort((a, b) => a.matchIndex - b.matchIndex);
 
-    const formattedMatches: { player1: BracketParticipant; player2: BracketParticipant; status: string }[] = roundMatches.map(m => ({
+    const formattedMatches: { player1: BracketParticipant; player2: BracketParticipant; status: string; boardNumber: number | null }[] = roundMatches.map(m => ({
       player1: {
         position: 0,
         alias: m.participant1.alias,
@@ -243,7 +243,8 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
         federation: m.participant2.federation,
         score: m.matchScore.participant2.legsWon
       },
-      status: m.status
+      status: m.status,
+      boardNumber: m.boardNumber,
     }));
 
     // Fill missing matches if the round is not yet fully generated/fetched
@@ -252,7 +253,8 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       formattedMatches.push({
         player1: { position: 0, alias: null, federation: null, score: undefined },
         player2: { position: 0, alias: null, federation: null, score: undefined },
-        status: 'PENDING'
+        status: 'PENDING',
+        boardNumber: null,
       });
     }
 
@@ -362,50 +364,59 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
                 {roundIndex === numRounds - 1 ? 'Final' : `Ronda ${roundIndex + 1}`}
               </div>
               <div style={styles.matchesContainer}>
-                {round.map((match, matchIndex) => (
-                  <div key={matchIndex} style={{
-                    ...styles.matchWrapper,
-                    height: `${roundMatchContainerHeight}px`
-                  }}>
-                    <div style={styles.matchCentering}>
-                      <div style={styles.matchAndStatus}>
-                        {match.status && (
-                          <div style={styles.statusTagContainer}>
-                            <TournamentMatchStatusTag status={match.status} size="small" />
-                          </div>
-                        )}
-                        <BracketMatch
-                          player1={match.player1}
-                          player2={match.player2}
-                          showPositions={roundIndex === 0}
-                          status={match.status}
-                        />
-                      </div>
-                    </div>
+                {round.map((match, matchIndex) => {
+                  const isByeMatch = match.player1.alias === 'Bye' || match.player2.alias === 'Bye';
 
-                    {roundIndex < numRounds - 1 && (
-                      <div style={{
-                        ...styles.connectorWrapper,
-                        height: `${roundMatchContainerHeight}px`
-                      }}>
-                        <div style={styles.lineHorizontal} />
-                        <div style={{
-                          ...styles.lineVertical,
-                          height: `${roundMatchContainerHeight / 2}px`,
-                          top: matchIndex % 2 === 0 ? '50%' : 'auto',
-                          bottom: matchIndex % 2 === 1 ? '50%' : 'auto',
-                          borderLeft: '2px solid rgba(255, 255, 255, 0.1)',
-                        }} />
-                        {matchIndex % 2 === 0 && (
-                          <div style={{
-                            ...styles.lineHorizontalNext,
-                            top: `${roundMatchContainerHeight}px`
-                          }} />
-                        )}
+                  return (
+                    <div key={matchIndex} style={{
+                      ...styles.matchWrapper,
+                      height: `${roundMatchContainerHeight}px`
+                    }}>
+                      <div style={styles.matchCentering}>
+                        <div style={styles.matchAndStatus}>
+                          {match.status && (
+                            <div style={styles.statusTagContainer}>
+                              <TournamentMatchStatusTag status={match.status} size="small" />
+                              {!isByeMatch && (match.boardNumber ? (
+                                <span style={styles.boardNumberText}>Diana {match.boardNumber}</span>
+                              ) : (
+                                <span style={styles.boardNumberText}>Diana sin asignar</span>
+                              ))}
+                            </div>
+                          )}
+                          <BracketMatch
+                            player1={match.player1}
+                            player2={match.player2}
+                            showPositions={roundIndex === 0}
+                            status={match.status}
+                          />
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+
+                      {roundIndex < numRounds - 1 && (
+                        <div style={{
+                          ...styles.connectorWrapper,
+                          height: `${roundMatchContainerHeight}px`
+                        }}>
+                          <div style={styles.lineHorizontal} />
+                          <div style={{
+                            ...styles.lineVertical,
+                            height: `${roundMatchContainerHeight / 2}px`,
+                            top: matchIndex % 2 === 0 ? '50%' : 'auto',
+                            bottom: matchIndex % 2 === 1 ? '50%' : 'auto',
+                            borderLeft: '2px solid rgba(255, 255, 255, 0.1)',
+                          }} />
+                          {matchIndex % 2 === 0 && (
+                            <div style={{
+                              ...styles.lineHorizontalNext,
+                              top: `${roundMatchContainerHeight}px`
+                            }} />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
@@ -481,6 +492,16 @@ const styles: { [key: string]: React.CSSProperties } = {
   statusTagContainer: {
     alignSelf: 'flex-start',
     marginLeft: '4px',
+  },
+  boardNumberText: {
+    fontSize: '0.75rem',
+    fontWeight: '400',
+    color: '#a1a1a1',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '4px',
+    padding: '0.15rem 0.5rem',
+    marginLeft: '0.5rem',
   },
   connectorWrapper: {
     position: 'absolute',

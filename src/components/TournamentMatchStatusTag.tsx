@@ -42,10 +42,6 @@ const styles: { [key: string]: any } = {
 
     switch (status) {
       case 'PENDING':
-        // color = 'rgba(255, 255, 255, 0.4)';
-        // bgColor = 'rgba(255, 255, 255, 0.02)';
-        // borderColor = 'rgba(255, 255, 255, 0.05)';
-        // break;
         color = '#fbbf24';
         bgColor = 'rgba(245, 158, 11, 0.1)';
         borderColor = 'rgba(245, 158, 11, 0.2)';
