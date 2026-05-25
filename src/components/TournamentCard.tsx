@@ -34,6 +34,9 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
         <div style={styles.header}>
           <h3 style={styles.name}>{name}</h3>
           <TournamentStatusTag status={tournament.status} />
+          {tournament.isDelayed && (
+            <TournamentStatusTag status='DELAYED' size="small" />
+          )}
         </div>
         <div style={styles.federationWrapper}>
           {getFederationFlag(federation) && (
@@ -61,19 +64,6 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
           <Icon name="Clock" size={16} style={styles.icon} />
           <span style={styles.text}>{formattedTime}</span>
         </div>
-        {/* <div style={styles.infoItem}>
-          <Icon name="Flag" size={16} style={styles.icon} />
-          <div style={styles.federationWrapper}>
-            {getFederationFlag(federation) && (
-              <img
-                src={getFederationFlag(federation)!}
-                alt="Flag"
-                style={styles.flag}
-              />
-            )}
-            <span style={styles.text}>{getFederationLabel(federation)}</span>
-          </div>
-        </div> */}
       </div>
 
       <div style={styles.footer}>
