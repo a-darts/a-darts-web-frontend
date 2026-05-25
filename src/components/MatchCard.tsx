@@ -8,6 +8,8 @@ interface MatchCardProps {
   match: Match;
   isAdmin?: boolean;
   onStartMatch?: (matchId: string) => void;
+  onSuspendMatch?: (matchId: string) => void;
+  onResumeMatch?: (matchId: string) => void;
   onAssignBoard?: (matchId: string) => void;
   onAddResult?: (matchId: string) => void;
   style?: React.CSSProperties;
@@ -17,6 +19,8 @@ const MatchCard: React.FC<MatchCardProps> = ({
   match,
   isAdmin,
   onStartMatch,
+  onSuspendMatch,
+  onResumeMatch,
   onAssignBoard,
   onAddResult,
   style
@@ -124,13 +128,33 @@ const MatchCard: React.FC<MatchCardProps> = ({
             </Button>
           )}
           {match.status === 'IN_PROGRESS' && (
+            <>
+              <Button
+                variant="primary"
+                size="small"
+                leftIcon="Plus"
+                onClick={() => onAddResult && onAddResult(match.id)}
+              >
+                Añadir resultado
+              </Button>
+              <Button
+                variant="primary"
+                size="small"
+                leftIcon="Pause"
+                onClick={() => onSuspendMatch && onSuspendMatch(match.id)}
+              >
+                Suspender partida
+              </Button>
+            </>
+          )}
+          {match.status === 'SUSPENDED' && (
             <Button
               variant="primary"
               size="small"
-              leftIcon="Plus"
-              onClick={() => onAddResult && onAddResult(match.id)}
+              leftIcon="Play"
+              onClick={() => onResumeMatch && onResumeMatch(match.id)}
             >
-              Añadir resultado
+              Reanudar partida
             </Button>
           )}
         </div>

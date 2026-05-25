@@ -74,6 +74,28 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
     }
   };
 
+  const handleSuspendMatch = async (matchId: string) => {
+    try {
+      await tournamentService.suspendMatch(matchId);
+      showToast('Partida suspendida con éxito.', 'success');
+      await fetchMatches();
+    } catch (err: any) {
+      console.error('Error suspending match:', err);
+      showToast(err.message || 'Error al suspender la partida.', 'error');
+    }
+  };
+
+  const handleResumeMatch = async (matchId: string) => {
+    try {
+      await tournamentService.resumeMatch(matchId);
+      showToast('Partida reanudada con éxito.', 'success');
+      await fetchMatches();
+    } catch (err: any) {
+      console.error('Error resuming match:', err);
+      showToast(err.message || 'Error al reanudar la partida.', 'error');
+    }
+  };
+
   const handleAssignBoard = (matchId: string) => {
     setAssigningMatchId(matchId);
     setNewBoardValue('');
@@ -212,6 +234,8 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
                 match={match}
                 isAdmin={isAdmin}
                 onStartMatch={handleStartMatch}
+                onSuspendMatch={handleSuspendMatch}
+                onResumeMatch={handleResumeMatch}
                 onAssignBoard={handleAssignBoard}
                 onAddResult={handleAddResult}
               />
