@@ -33,10 +33,12 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
       <div>
         <div style={styles.header}>
           <h3 style={styles.name}>{name}</h3>
-          <TournamentStatusTag status={tournament.status} />
-          {tournament.isDelayed && (
-            <TournamentStatusTag status='DELAYED' size="small" />
-          )}
+          <div style={styles.tagContainer}>
+            <TournamentStatusTag status={tournament.status} />
+            {tournament.isDelayed && (
+              <TournamentStatusTag status='DELAYED' size="small" />
+            )}
+          </div>
         </div>
         <div style={styles.federationWrapper}>
           {getFederationFlag(federation) && (
@@ -110,6 +112,12 @@ const styles: { [key: string]: any } = {
     color: '#fff',
     margin: 0,
     lineHeight: '1.4',
+  },
+  tagContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: '0.5rem',
   },
   infoGrid: {
     display: 'grid',

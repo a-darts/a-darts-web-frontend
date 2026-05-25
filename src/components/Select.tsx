@@ -135,8 +135,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
+    maxHeight: '200px',
+    overflowY: 'auto',
   },
   item: {
+    flexShrink: 0,
     display: 'flex',
     alignItems: 'center',
     gap: '0.75rem',
