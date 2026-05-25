@@ -8,6 +8,7 @@ import { useToast } from '../../../context/ToastContext';
 import Button from '../../../components/Button';
 import TournamentBracketStatusTag from '../../../components/TournamentBracketStatusTag';
 import EmptyState from '../../../components/EmptyState';
+import Modal from '../../../components/Modal';
 
 interface TournamentBracketTabProps {
   tournament: Tournament;
@@ -93,12 +94,8 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       showToast('¡Cuadrante publicado correctamente!', 'success');
 
       // Re-fetch bracket data to reflect the new status
-      const [bracketData, matchesData] = await Promise.all([
-        tournamentService.getTournamentBracket(tournament.id),
-        tournamentService.getTournamentMatches(tournament.id)
-      ]);
+      const bracketData = await tournamentService.getTournamentBracket(tournament.id);
       setBracket(bracketData);
-      setMatches(matchesData);
     } catch (err: any) {
       console.error('Error publishing bracket:', err);
       showToast(err.message || 'Error al publicar el cuadrante.', 'error');
@@ -126,6 +123,28 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       showToast(err.message || 'Error al ocultar el cuadrante.', 'error');
     } finally {
       setIsPublishing(false);
+    }
+  };
+
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const confirmDeleteBracket = async () => {
+    if (!bracket) return;
+    try {
+      setIsDeleting(true);
+      await tournamentService.deleteBracket(bracket.id);
+      showToast('¡Cuadrante eliminado correctamente!', 'success');
+
+      setBracket(null);
+      setMatches([]);
+      setIsNotPublished(true);
+      setIsDeleteModalOpen(false);
+    } catch (err: any) {
+      console.error('Error deleting bracket:', err);
+      showToast(err.message || 'Error al eliminar el cuadrante.', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -272,7 +291,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
             size="medium"
           />
           <Button
-            variant="primary"
+            variant="secondary"
             leftIcon="Megaphone"
             onClick={handlePublishBracket}
             loading={isPublishing}
@@ -315,11 +334,19 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
             </div>
 
             <Button
-              variant="secondary"
+              variant="primary"
               leftIcon="Edit3"
               onClick={onStartEditing}
             >
-              Editar posiciones
+              Editar cuadrante
+            </Button>
+            <Button
+              variant="danger"
+              leftIcon="Trash2"
+              onClick={() => setIsDeleteModalOpen(true)}
+              loading={isDeleting}
+            >
+              Eliminar cuadrante
             </Button>
           </div>
         )
@@ -384,6 +411,18 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
           );
         })}
       </div>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => !isDeleting && setIsDeleteModalOpen(false)}
+        title="Eliminar cuadrante"
+        description="¿Estás seguro de que deseas eliminar este cuadrante? Esta acción no se puede deshacer y se perderán todos los datos de los enfrentamientos."
+        confirmLabel="Sí, eliminar cuadrante"
+        cancelLabel="Cancelar"
+        onConfirm={confirmDeleteBracket}
+        variant="danger"
+        loading={isDeleting}
+      />
     </div>
   )
 };
