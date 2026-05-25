@@ -38,6 +38,12 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
 
   useEffect(() => {
     fetchMatches(true);
+
+    const intervalId = setInterval(() => {
+      fetchMatches(false);
+    }, 15000); // Refrescar cada 15 segundos
+
+    return () => clearInterval(intervalId);
   }, [tournamentId]);
 
   const matchActions = useMatchActions({ matches, onSuccess: fetchMatches });

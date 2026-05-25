@@ -150,9 +150,9 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
 
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (isInitial = false) => {
       try {
-        setLoading(true);
+        if (isInitial) setLoading(true);
         const [bracketData, matchesData] = await Promise.all([
           tournamentService.getTournamentBracket(tournament.id),
           tournamentService.getTournamentMatches(tournament.id)
@@ -167,11 +167,17 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
           setError(err.message || 'Error al cargar el cuadrante.');
         }
       } finally {
-        setLoading(false);
+        if (isInitial) setLoading(false);
       }
     };
 
-    fetchData();
+    fetchData(true);
+
+    const intervalId = setInterval(() => {
+      fetchData(false);
+    }, 15000); // Refrescar cada 15 segundos
+
+    return () => clearInterval(intervalId);
   }, [tournament.id, tournament.status]);
 
   if (loading) return <div style={styles.message}>Cargando cuadrante...</div>;

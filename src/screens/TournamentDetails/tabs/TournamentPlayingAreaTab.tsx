@@ -35,9 +35,9 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
   const [isAssigning, setIsAssigning] = useState(false);
   const [isModifyingBoards, setIsModifyingBoards] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = async (showLoading = false) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const [area, fetchedMatches] = await Promise.all([
         tournamentService.getPlayingArea(tournamentId),
         tournamentService.getTournamentMatches(tournamentId)
@@ -49,15 +49,21 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
       console.error('Error fetching data:', err);
       setError(err.message || 'Error al cargar los datos');
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchData(true);
+
+    const intervalId = setInterval(() => {
+      fetchData(false);
+    }, 15000); // Refrescar cada 15 segundos
+
+    return () => clearInterval(intervalId);
   }, [tournamentId]);
 
-  const matchActions = useMatchActions({ matches, onSuccess: fetchData });
+  const matchActions = useMatchActions({ matches, onSuccess: () => fetchData(false) });
 
   const handleCreatePlayingArea = async () => {
     try {
