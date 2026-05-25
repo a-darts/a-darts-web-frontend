@@ -53,6 +53,14 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
   const { showToast } = useToast();
   const [isToggling, setIsToggling] = useState(false);
 
+  React.useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (onRefresh) onRefresh();
+    }, 60000); // Refresh every 1 minute
+
+    return () => clearInterval(intervalId);
+  }, [onRefresh]);
+
   const handleToggleRegistration = async () => {
     if (isToggling) return;
     try {
