@@ -1,36 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { Match, MatchStatus, tournamentService } from '../services/tournament.service';
-import { SOCKET_URL } from '../services/api';
+import { Match, tournamentService } from '../services/tournament.service';
 import { useParams, useNavigate } from 'react-router-dom';
+// Importamos el hook y los tipos que acabamos de extraer
+import { useLiveMatchSocket, LiveMatchStatus, LiveMatch } from '../hooks/useLiveMatchSocket';
 
 interface LiveMatchMonitorScreenProps {
     matchId?: string;
     boardId?: string;
     onBack?: () => void;
 }
-
-
-interface LiveMatch {
-    score: number;
-    participant1: LiveMatchParticipant;
-    participant2: LiveMatchParticipant;
-    activePlayerIndex: number;
-    status: LiveMatchStatus;
-}
-
-interface LiveMatchParticipant {
-    remainingScore: number;
-    setsWon: number;
-    legsWon: number;
-}
-
-enum LiveMatchStatus {
-    PLAYING,
-    FINISHED,
-}
-
-
 
 const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     matchId: propsMatchId,
@@ -43,40 +21,46 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     const matchId = propsMatchId || urlMatchId || '';
     const boardId = propsBoardId || urlBoardId || 'default_room';
 
-    // Manejador por si se entra por URL directa y no existe el callback 'onBack'
+    const [match, setMatch] = useState<Match | null>(null);
+    const [defaultInitialData, setDefaultInitialData] = useState<LiveMatch | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // Consumimos el estado del Socket mediante nuestro Custom Hook aislado
+    const { liveData, isLiveConnected } = useLiveMatchSocket({
+        boardId,
+        matchId,
+        initialData: defaultInitialData
+    });
+
     const handleBackClick = () => {
         if (onBack) {
             onBack();
         } else {
-            navigate(-1); // Regresa a la página anterior en el historial del navegador
+            navigate(-1);
         }
     };
 
-    const [match, setMatch] = useState<Match | null>(null); // Datos estáticos del partido
-    const [liveData, setLiveData] = useState<LiveMatch | null>(null); // Datos recibidos del socket
-
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [isLiveConnected, setIsLiveConnected] = useState<boolean>(false);
-
-    // 1. Cargar datos iniciales del partido
+    // 1. Cargar datos iniciales del partido mediante la API
     useEffect(() => {
         const fetchMatchDetails = async () => {
             try {
                 setIsLoading(true);
                 const data = await tournamentService.getMatchById(matchId);
                 setMatch(data);
-                setLiveData({
+
+                // Preparamos la estructura por defecto en caso de que Redis esté vacío al inicio
+                setDefaultInitialData({
                     score: 0,
                     activePlayerIndex: 0,
                     status: LiveMatchStatus.PLAYING,
                     participant1: {
-                        remainingScore: 501, // MIRAR: cambiar
+                        remainingScore: 501,
                         setsWon: data.matchScore?.participant1?.setsWon || 0,
                         legsWon: data.matchScore?.participant1?.legsWon || 0,
                     },
                     participant2: {
-                        remainingScore: 501, // MIRAR: cambiar
+                        remainingScore: 501,
                         setsWon: data.matchScore?.participant2?.setsWon || 0,
                         legsWon: data.matchScore?.participant2?.legsWon || 0,
                     }
@@ -92,66 +76,6 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
 
         fetchMatchDetails();
     }, [matchId]);
-
-    // 2. Conexión en tiempo real al Socket del Servidor
-    useEffect(() => {
-        console.log(`[LiveMonitor] Inicializando conexión para diana: ${boardId}`);
-
-        // Inicializar socket con reconexión automática y forzando WebSockets si es necesario
-        const socket: Socket = io(SOCKET_URL, {
-            transports: ['websocket', 'polling'],
-            autoConnect: true
-        });
-
-        socket.on('connect', () => {
-            console.log(`[LiveMonitor] ¡Conectado con éxito! ID: ${socket.id}`);
-            setIsLiveConnected(true);
-            // Unirse a la sala lógica
-            socket.emit('join_board', boardId);
-        });
-
-        // Escuchar actualizaciones de puntuación en directo
-        socket.on('score_update', (data: { matchId: string; throwData: any }) => {
-            console.log('[LiveMonitor] ¡Evento score_update recibido en Web!', data);
-
-            if (data.matchId === matchId && data.throwData) {
-                setLiveData(prev => ({
-                    score: data.throwData.score ?? 0,
-                    activePlayerIndex: data.throwData.activePlayerIndex ?? prev?.activePlayerIndex ?? 0,
-                    status: data.throwData.status ?? LiveMatchStatus.PLAYING,
-                    participant1: {
-                        remainingScore: data.throwData.participant1?.remainingScore ?? prev?.participant1.remainingScore ?? 501,
-                        setsWon: data.throwData.participant1?.setsWon ?? prev?.participant1.setsWon ?? 0,
-                        legsWon: data.throwData.participant1?.legsWon ?? prev?.participant1.legsWon ?? 0,
-                    },
-                    participant2: {
-                        remainingScore: data.throwData.participant2?.remainingScore ?? prev?.participant2.remainingScore ?? 501,
-                        setsWon: data.throwData.participant2?.setsWon ?? prev?.participant2.setsWon ?? 0,
-                        legsWon: data.throwData.participant2?.legsWon ?? prev?.participant2.legsWon ?? 0,
-                    }
-                }));
-            }
-        });
-
-        socket.on('connect_error', (err) => {
-            console.error('[LiveMonitor] Error de conexión Socket:', err.message);
-        });
-
-        socket.on('disconnect', (reason) => {
-            console.warn('[LiveMonitor] Socket desconectado por el motivo:', reason);
-            setIsLiveConnected(false);
-        });
-
-        // Limpieza al desmontar la pantalla REALMENTE
-        return () => {
-            console.log('[LiveMonitor] Desmontando hook. Cerrando socket...');
-            socket.off('connect');
-            socket.off('score_update');
-            socket.off('disconnect');
-            socket.off('connect_error');
-            socket.disconnect();
-        };
-    }, [boardId, matchId]);
 
     if (isLoading) return <div style={styles.centerContainer}>Cargando estado del partido...</div>;
     if (error) return <div style={styles.centerContainer}>Error: {error}</div>;
@@ -208,6 +132,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     );
 };
 
+// ... Mantén tus estilos (styles) intactos aquí abajo ...
 const styles: { [key: string]: React.CSSProperties } = {
     container: { padding: '2rem', backgroundColor: '#121212', color: 'white', minHeight: '100vh' },
     centerContainer: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white', backgroundColor: '#121212' },
