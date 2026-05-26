@@ -12,6 +12,7 @@ import Select from '../../../components/Select';
 import { Match } from '../../../services/tournament.service';
 import EmptyState from '../../../components/EmptyState';
 import { useMatchActions } from '../../../hooks/useMatchActions';
+import { useNavigate } from 'react-router-dom';
 
 
 interface TournamentPlayingAreaTabProps {
@@ -19,6 +20,8 @@ interface TournamentPlayingAreaTabProps {
 }
 
 const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tournamentId }) => {
+  const navigate = useNavigate();
+
   const [playingArea, setPlayingArea] = useState<PlayingArea | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -146,6 +149,10 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     } finally {
       setIsModifyingBoards(false);
     }
+  };
+
+  const handleViewMatchLive = (matchId: string, boardId: string) => {
+    navigate(`/torneos/partido/${matchId}/diana/${boardId}/ver`);
   };
 
   if (loading) {
@@ -285,6 +292,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
               onSuspendMatch={matchActions.handleSuspendMatch}
               onResumeMatch={matchActions.handleResumeMatch}
               onAddResult={matchActions.handleAddResult}
+              onViewMatchLive={handleViewMatchLive}
             />
           );
         })}

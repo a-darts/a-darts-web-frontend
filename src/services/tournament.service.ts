@@ -149,6 +149,7 @@ export interface MatchParticipant {
 }
 
 export interface Board {
+  id: string;
   number: number;
   status: string;
   matchId: string | null;
@@ -371,6 +372,22 @@ export const tournamentService = {
   getTournamentMatches: async (id: string): Promise<Match[]> => {
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/matches`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+        },
+      });
+
+      const result = await handleResponse(response);
+      return result.data;
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  getMatchById: async (id: string): Promise<Match> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/matches/${id}`, {
         method: 'GET',
         headers: {
           'accept': 'application/json',

@@ -14,6 +14,7 @@ import AdminEditUserScreen from './screens/AdminDashboard/AdminEditUserScreen';
 import AdminEditPlayerScreen from './screens/AdminDashboard/AdminEditPlayerScreen';
 import AdminCreatePlayerScreen from './screens/AdminDashboard/AdminCreatePlayerScreen';
 import AdminCreateTournamentScreen from './screens/AdminDashboard/AdminCreateTournamentScreen';
+import LiveMatchMonitorScreen from './screens/LiveMatchMonitorScreen';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <Route path="/admin/jugadores/registrar" element={<AdminCreatePlayerScreen />} />
         <Route path="/admin/torneos/crear" element={<AdminCreateTournamentScreen />} />
         <Route path="/admin/torneos/:id/editar" element={<AdminEditTournamentScreen />} />
+        <Route path="/torneos/partido/:matchId/diana/:boardId/ver" element={<LiveMatchMonitorScreen />} />
       </Routes>
 
       <footer style={styles.footer}>

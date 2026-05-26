@@ -15,6 +15,7 @@ interface BoardCardProps {
   onSuspendMatch?: (matchId: string) => void;
   onResumeMatch?: (matchId: string) => void;
   onAddResult?: (matchId: string) => void;
+  onViewMatchLive?: (matchId: string, boardId: string) => void;
 }
 
 const BoardCard: React.FC<BoardCardProps> = ({
@@ -27,6 +28,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
   onSuspendMatch,
   onResumeMatch,
   onAddResult,
+  onViewMatchLive,
 }) => {
   const isPending = match?.status === MatchStatus.PENDING;
   const isReady = match?.status === MatchStatus.READY;
@@ -151,6 +153,16 @@ const BoardCard: React.FC<BoardCardProps> = ({
                       onClick={() => onAssignBoard(match.id)}
                     >
                       Reasignar diana
+                    </Button>
+                  )}
+                  {onViewMatchLive && (
+                    <Button
+                      variant="primary"
+                      size="small"
+                      leftIcon="Play"
+                      onClick={() => onViewMatchLive(match.id, board.id)}
+                    >
+                      Ver
                     </Button>
                   )}
                 </>
