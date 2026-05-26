@@ -42,7 +42,13 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     // Auto-scroll al último tiro dentro del feed inferior si es necesario
     useEffect(() => {
         if (historyEndRef.current) {
-            historyEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            const container = historyEndRef.current.parentElement;
+            if (container) {
+                container.scrollTo({
+                    top: container.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
         }
     }, [historyThrows]);
 
@@ -99,8 +105,6 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     const currentLegThrows = (() => {
         if (!historyThrows || historyThrows.length === 0) return [];
 
-        // Buscamos el índice del último reinicio de Leg (donde ambos vuelven a estar en 501 tras un tiro de inicialización)
-        // Recorremos de atrás hacia adelante para encontrar el corte del Leg activo rápidamente
         let lastLegStartIndex = 0;
         for (let i = historyThrows.length - 1; i >= 0; i--) {
             const t = historyThrows[i];
@@ -110,7 +114,6 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
             }
         }
 
-        // Devolvemos solo los tiros que van desde ese reinicio hasta el último tiro registrado
         return historyThrows.slice(lastLegStartIndex);
     })();
 
@@ -184,54 +187,57 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                         </div>
                     </div>
 
+                    {/* Contenedor de la Tabla con scroll */}
                     <div style={styles.tableContainer}>
-                        {/* Columna Jugador 1 */}
-                        <div style={styles.tableColumn}>
-                            {p1Throws.map((t: any, idx) => {
-                                // Como filtraste por p1Throws, sabemos que activePlayerIndex era 0
-                                const scoreRestante = t.participant1?.remainingScore;
-                                return (
-                                    <div key={`p1-${idx}`} style={styles.tableRow}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                                            <span style={styles.remainingScoreText}>
-                                                {scoreRestante !== undefined ? `${scoreRestante}` : '---'}
+                        {/* Wrapper interno que crece dinámicamente con el contenido */}
+                        <div style={styles.tableScrollWrapper}>
+                            {/* Columna Jugador 1 */}
+                            <div style={styles.tableColumn}>
+                                {p1Throws.map((t: any, idx) => {
+                                    const scoreRestante = t.participant1?.remainingScore;
+                                    return (
+                                        <div key={`p1-${idx}`} style={styles.tableRow}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                                <span style={styles.remainingScoreText}>
+                                                    {scoreRestante !== undefined ? `${scoreRestante}` : '---'}
+                                                </span>
+                                            </div>
+                                            <span style={styles.tableScore}>
+                                                {t.score}
                                             </span>
                                         </div>
-                                        <span style={styles.tableScore}>
-                                            {t.score}
-                                        </span>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                                    );
+                                })}
+                            </div>
 
-                        {/* Columna central separadora */}
-                        {historyThrows.length > 0 && <div style={styles.tableDivider} />}
+                            {/* Columna central separadora estricta flex */}
+                            {historyThrows.length > 0 && <div style={styles.tableDivider} />}
 
-                        {/* Columna Jugador 2 */}
-                        <div style={styles.tableColumn}>
-                            {p2Throws.map((t: any, idx) => {
-                                // Como filtraste por p2Throws, sabemos que activePlayerIndex era 1
-                                const scoreRestante = t.participant2?.remainingScore;
-                                return (
-                                    <div key={`p2-${idx}`} style={styles.tableRow}>
-                                        <span style={styles.tableScore}>
-                                            {t.score}
-                                        </span>
-                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                                            <span style={styles.remainingScoreText}>
-                                                {scoreRestante !== undefined ? `${scoreRestante}` : '---'}
+                            {/* Columna Jugador 2 */}
+                            <div style={styles.tableColumn}>
+                                {p2Throws.map((t: any, idx) => {
+                                    const scoreRestante = t.participant2?.remainingScore;
+                                    return (
+                                        <div key={`p2-${idx}`} style={styles.tableRow}>
+                                            <span style={styles.tableScore}>
+                                                {t.score}
                                             </span>
+                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                                <span style={styles.remainingScoreText}>
+                                                    {scoreRestante !== undefined ? `${scoreRestante}` : '---'}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                                    );
+                                })}
+                            </div>
 
-                        {historyThrows.length === 0 && (
-                            <div style={styles.emptyHistory}>No hay lanzamientos registrados en este leg todavía.</div>
-                        )}
-                        <div ref={historyEndRef} />
+                            {historyThrows.length === 0 && (
+                                <div style={styles.emptyHistory}>No hay lanzamientos registrados en este leg todavía.</div>
+                            )}
+
+                            <div ref={historyEndRef} style={{ float: 'left', clear: 'both' }} />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -239,7 +245,6 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     );
 };
 
-// Estilos web actualizados en base a tu paleta y la arquitectura del diseño móvil
 const styles: { [key: string]: React.CSSProperties } = {
     container: {
         padding: '24px',
@@ -301,7 +306,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     scoreboardSide: {
         flex: 1,
-        maxWidth: '1000px', // Limita el ancho en pantallas ultra-wide para mantener consistencia
+        maxWidth: '1000px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
@@ -377,8 +382,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
 
     tableContainer: {
-        display: 'flex',
-        flexDirection: 'row',
         backgroundColor: '#1A1A1A',
         border: '1px solid #4C4C4C',
         borderRadius: '16px',
@@ -386,6 +389,12 @@ const styles: { [key: string]: React.CSSProperties } = {
         minHeight: '180px',
         maxHeight: '300px',
         overflowY: 'auto',
+    },
+    tableScrollWrapper: {
+        display: 'flex',
+        flexDirection: 'row',
+        width: '100%',
+        minHeight: '100%',
         position: 'relative',
         gap: '16px'
     },
@@ -398,7 +407,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     tableDivider: {
         width: '1px',
         backgroundColor: '#4C4C4C',
-        alignSelf: 'stretch'
+        alignSelf: 'stretch', // Al estar en un wrapper flex que se estira con el scroll, esto funcionará perfecto
     },
     tableRow: {
         display: 'flex',
@@ -407,6 +416,10 @@ const styles: { [key: string]: React.CSSProperties } = {
         padding: '10px 14px',
     },
     tableScore: {
+        fontSize: '16px',
+        color: '#ffffff',
+    },
+    remainingScoreText: {
         fontSize: '16px',
         color: '#ffffff',
     },
