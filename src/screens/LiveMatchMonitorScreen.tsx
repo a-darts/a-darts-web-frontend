@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Match, tournamentService } from '../services/tournament.service';
 import { useParams, useNavigate } from 'react-router-dom';
-// Importamos el hook y los tipos que acabamos de extraer
 import { useLiveMatchSocket, LiveMatchStatus, LiveMatch } from '../hooks/useLiveMatchSocket';
+
+// Inyección dinámica de las fuentes de Google Fonts para asegurar Manrope y Space Grotesk
+const fontLink = document.createElement('link');
+fontLink.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap';
+fontLink.rel = 'stylesheet';
+document.head.appendChild(fontLink);
 
 interface LiveMatchMonitorScreenProps {
     matchId?: string;
@@ -26,7 +31,6 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Consumimos el estado del Socket mediante nuestro Custom Hook aislado
     const { liveData, isLiveConnected } = useLiveMatchSocket({
         boardId,
         matchId,
@@ -41,7 +45,6 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
         }
     };
 
-    // 1. Cargar datos iniciales del partido mediante la API
     useEffect(() => {
         const fetchMatchDetails = async () => {
             try {
@@ -49,7 +52,6 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                 const data = await tournamentService.getMatchById(matchId);
                 setMatch(data);
 
-                // Preparamos la estructura por defecto en caso de que Redis esté vacío al inicio
                 setDefaultInitialData({
                     score: 0,
                     activePlayerIndex: 0,
@@ -81,75 +83,263 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     if (error) return <div style={styles.centerContainer}>Error: {error}</div>;
     if (!match || !liveData) return <div style={styles.centerContainer}>No se encontró el partido.</div>;
 
+    const p1Name = match.participant1?.alias || 'Jugador 1';
+    const p2Name = match.participant2?.alias || 'Jugador 2';
+
     return (
         <div style={styles.container}>
-            {/* Header */}
+            {/* Header superior */}
             <div style={styles.header}>
                 <button onClick={handleBackClick} style={styles.backButton}>← Volver</button>
                 <div style={styles.liveIndicator}>
-                    <div style={{ ...styles.dot, backgroundColor: isLiveConnected ? '#4ade80' : '#f87171' }} />
-                    <span>{isLiveConnected ? 'EN VIVO' : 'DESCONECTADO'}</span>
+                    <div style={{
+                        ...styles.dot,
+                        backgroundColor: isLiveConnected ? '#BFE55F' : '#FF4C4C',
+                        color: isLiveConnected ? '#BFE55F' : '#FF4C4C'
+                    }} />
+                    <span>{isLiveConnected ? 'TRANSMISIÓN EN VIVO' : 'DESCONECTADO'}</span>
                 </div>
             </div>
 
-            <h2 style={styles.title}>Marcador en Tiempo Real</h2>
+            {/* Fila de Marcador principal (Réplica de headerRow móvil 4:2:4) */}
+            <div style={styles.headerRow}>
 
-            {/* Marcador Principal */}
-            <div style={styles.scoreboard}>
-                {/* JUGADOR 1 */}
+                {/* Jugador 1 Card */}
                 <div style={{
-                    ...styles.playerSection,
-                    border: liveData.activePlayerIndex === 0 ? '2px solid #fbbf24' : '2px solid transparent',
-                    borderRadius: '0.5rem', padding: '1rem'
+                    ...styles.playerCard,
+                    ...(liveData.activePlayerIndex === 0 ? styles.playerCardActive : {})
                 }}>
-                    <span style={styles.playerName}>{match.participant1?.alias || 'Jugador 1'}</span>
-                    <span style={styles.x01Score}>{liveData.participant1.remainingScore} pts</span>
-                    <span style={styles.legs}>{liveData.participant1.legsWon} Legs</span>
+                    <span style={styles.playerName}>{p1Name}</span>
+                    <span style={{
+                        ...styles.scoreLeftText,
+                        ...(liveData.activePlayerIndex === 0 ? styles.scoreActiveText : {})
+                    }}>
+                        {liveData.participant1.remainingScore}
+                    </span>
                 </div>
 
-                <div style={styles.vsContainer}>VS</div>
+                {/* Marcador Central de Stats */}
+                <div style={styles.statsCard}>
+                    <div style={styles.statsSection}>
+                        <span style={styles.statsRowText}>
+                            {liveData.participant1.legsWon} - {liveData.participant2.legsWon}
+                        </span>
+                        <span style={styles.statsLabel}>LEGS</span>
+                    </div>
 
-                {/* JUGADOR 2 */}
-                <div style={{
-                    ...styles.playerSection,
-                    border: liveData.activePlayerIndex === 1 ? '2px solid #fbbf24' : '2px solid transparent',
-                    borderRadius: '0.5rem', padding: '1rem'
-                }}>
-                    <span style={styles.playerName}>{match.participant2?.alias || 'Jugador 2'}</span>
-                    <span style={styles.x01Score}>{liveData.participant2.remainingScore} pts</span>
-                    <span style={styles.legs}>{liveData.participant2.legsWon} Legs</span>
+                    <div style={{ ...styles.statsSection, marginTop: '24px' }}>
+                        <span style={styles.statsRowText}>
+                            {liveData.participant1.setsWon} - {liveData.participant2.setsWon}
+                        </span>
+                        <span style={styles.statsLabel}>SETS</span>
+                    </div>
                 </div>
+
+                {/* Jugador 2 Card */}
+                <div style={{
+                    ...styles.playerCard,
+                    ...(liveData.activePlayerIndex === 1 ? styles.playerCardActive : {})
+                }}>
+                    <span style={styles.playerName}>{p2Name}</span>
+                    <span style={{
+                        ...styles.scoreLeftText,
+                        ...(liveData.activePlayerIndex === 1 ? styles.scoreActiveText : {})
+                    }}>
+                        {liveData.participant2.remainingScore}
+                    </span>
+                </div>
+
             </div>
 
-            {/* Alerta de último tiro */}
-            <div style={styles.liveAlertContainer}>
-                <span style={styles.alertLabel}>ÚLTIMA PUNTUACIÓN RECIBIDA:</span>
-                <div style={styles.scoreDisplay}>
-                    {liveData.score > 0 ? `${liveData.score} Puntos` : 'Esperando tiro...'}
+            {/* Área Inferior de Control (Réplica visual de controlsArea e inputBox) */}
+            <div style={styles.controlsArea}>
+                <span style={styles.alertLabel}>ÚLTIMO LANZAMIENTO RECIBIDO</span>
+                <div style={styles.inputBox}>
+                    <span style={styles.inputText}>
+                        {liveData.score > 0 ? `${liveData.score}` : 'ESPERANDO TIRO...'}
+                    </span>
                 </div>
             </div>
         </div>
     );
 };
 
-// ... Mantén tus estilos (styles) intactos aquí abajo ...
+// Mapeo exacto de tu TypeScript Theme a CSS en línea Web
 const styles: { [key: string]: React.CSSProperties } = {
-    container: { padding: '2rem', backgroundColor: '#121212', color: 'white', minHeight: '100vh' },
-    centerContainer: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'white', backgroundColor: '#121212' },
-    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' },
-    backButton: { background: 'none', border: 'none', color: '#60a5fa', cursor: 'pointer', fontSize: '1rem' },
-    liveIndicator: { display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 'bold' },
-    dot: { width: '10px', height: '10px', borderRadius: '50%' },
-    title: { textAlign: 'center', marginBottom: '2rem', fontWeight: '500' },
-    scoreboard: { display: 'flex', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#1e1e1e', padding: '2rem', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.05)' },
-    playerSection: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' },
-    playerName: { fontSize: '1.5rem', fontWeight: 'bold' },
-    legs: { backgroundColor: '#2c2c2c', padding: '0.25rem 1rem', borderRadius: '0.5rem', fontSize: '1.1rem', color: '#4ade80' },
-    vsContainer: { fontSize: '1.2rem', color: 'rgba(255,255,255,0.4)', fontWeight: 'bold' },
-    liveAlertContainer: { marginTop: '3rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' },
-    alertLabel: { fontSize: '0.9rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '1px' },
-    scoreDisplay: { fontSize: '3.5rem', fontWeight: 'bold', color: '#fbbf24', textShadow: '0 0 20px rgba(251,191,36,0.3)' },
-    x01Score: { fontSize: '2.5rem', color: '#60a5fa', fontWeight: 'bold' },
+    container: {
+        padding: '24px', // theme.spacing.lg
+        backgroundColor: '#0E0E0E', // theme.colors.background
+        color: '#FFFFFF', // theme.colors.text
+        minHeight: '100vh',
+        fontFamily: '"Manrope", sans-serif', // theme.typography.fontFamily.regular
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        boxSizing: 'border-box'
+    },
+    centerContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        color: '#FFFFFF',
+        backgroundColor: '#0E0E0E',
+        fontFamily: '"Manrope", sans-serif',
+        fontSize: '16px' // theme.typography.sizes.md
+    },
+    header: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '32px' // theme.spacing.xl
+    },
+    backButton: {
+        background: 'none',
+        border: 'none',
+        color: '#B3B3B3', // theme.colors.textSecondary
+        cursor: 'pointer',
+        fontSize: '16px', // theme.typography.sizes.md
+        fontFamily: '"Space Grotesk", sans-serif', // theme.typography.fontFamily.subTitle
+        fontWeight: 500,
+        letterSpacing: '0.5px'
+    },
+    liveIndicator: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px', // theme.spacing.sm
+        fontSize: '12px', // theme.typography.sizes.xs
+        fontFamily: '"Space Grotesk", sans-serif',
+        fontWeight: 700,
+        letterSpacing: '1.5px',
+        color: '#B3B3B3' // theme.colors.tabInactiveText
+    },
+    dot: {
+        width: '10px',
+        height: '10px',
+        borderRadius: '9999px', // theme.borderRadius.round
+        transition: 'all 0.3s ease'
+    },
+
+    // Fila del marcador (Ratio 4:2:4)
+    headerRow: {
+        display: 'flex',
+        flexDirection: 'row',
+        width: '100%',
+        gap: '16px', // theme.spacing.md
+        alignItems: 'stretch',
+        margin: 'auto 0'
+    },
+
+    // Tarjeta del Jugador
+    playerCard: {
+        flex: 4,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        border: '2px solid #4C4C4C', // theme.colors.cardInactiveBorder
+        borderRadius: '16px', // theme.borderRadius.xl
+        backgroundColor: '#1A1A1A', // theme.colors.cardInactiveBackground
+        padding: '40px 24px', // paddingVertical: xxl, paddingHorizontal: lg
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        boxSizing: 'border-box'
+    },
+    playerCardActive: {
+        borderColor: '#BFE55F', // theme.colors.cardActiveBorder
+        backgroundColor: '#1A1A1A', // theme.colors.cardActiveBackground
+        boxShadow: '0px 0px 25px rgba(191, 229, 95, 0.25)', // theme.colors.cardActiveShadow
+        transform: 'scale(1.02)'
+    },
+    playerName: {
+        color: '#FFFFFF', // theme.colors.text
+        fontFamily: '"Space Grotesk", sans-serif', // theme.typography.fontFamily.title
+        fontSize: '24px', // theme.typography.sizes.xxl
+        fontWeight: 700,
+        marginBottom: '16px', // theme.spacing.md
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px'
+    },
+    scoreLeftText: {
+        color: '#B3B3B3', // theme.colors.textSecondary
+        fontFamily: '"Manrope", sans-serif',
+        fontWeight: 700, // theme.typography.fontFamily.bold
+        fontSize: '80px', // Equivale a leftScore escalado para monitores (*2)
+        lineHeight: '1',
+        transition: 'color 0.2s ease'
+    },
+    scoreActiveText: {
+        color: '#BFE55F', // theme.colors.scoreActiveText -> buttonPrimaryBackground
+    },
+
+    // Tarjeta central de estadísticas
+    statsCard: {
+        flex: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px', // theme.spacing.md
+    },
+    statsSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+    },
+    statsRowText: {
+        fontFamily: '"Space Grotesk", sans-serif', // theme.typography.fontFamily.title
+        fontWeight: 700,
+        fontSize: '32px', // theme.typography.sizes.h1
+        color: '#FFFFFF', // theme.colors.text
+        letterSpacing: '1px'
+    },
+    statsLabel: {
+        color: '#B3B3B3', // theme.colors.textSecondary
+        fontFamily: '"Manrope", sans-serif',
+        fontSize: '12px', // theme.typography.sizes.xs
+        fontWeight: 400, // theme.typography.fontFamily.regular
+        letterSpacing: '3px',
+        marginTop: '4px'
+    },
+
+    // Caja inferior (Estilo controles / InputBox)
+    controlsArea: {
+        backgroundColor: '#1A1A1A', // theme.colors.cardBackground
+        borderTopLeftRadius: '16px', // theme.borderRadius.xl
+        borderTopRightRadius: '16px',
+        borderRadius: '16px', // Cerrado completo perimetral para entorno monitor web
+        padding: '24px', // theme.spacing.lg
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '12px',
+        marginTop: '32px', // theme.spacing.xl
+        border: '1px solid #4C4C4C' // theme.colors.line
+    },
+    alertLabel: {
+        fontSize: '12px', // theme.typography.sizes.xs
+        color: '#B3B3B3', // theme.colors.textSecondary
+        fontFamily: '"Space Grotesk", sans-serif',
+        letterSpacing: '2px',
+        fontWeight: 500
+    },
+    inputBox: {
+        minWidth: '320px',
+        minHeight: '72px',
+        backgroundColor: '#242424', // theme.colors.inputBoxBackground
+        borderRadius: '8px', // theme.borderRadius.md
+        borderBottom: '2px solid #BFE55F', // theme.colors.inputBoxBorder
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '0 32px',
+    },
+    inputText: {
+        color: '#FFFFFF', // theme.colors.inputBoxText
+        fontFamily: '"Manrope", sans-serif',
+        fontWeight: 700, // theme.typography.fontFamily.bold
+        fontSize: '28px', // theme.typography.sizes.xxxl
+        letterSpacing: '1px'
+    }
 };
 
 export default LiveMatchMonitorScreen;
