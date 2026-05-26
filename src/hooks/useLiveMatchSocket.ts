@@ -177,6 +177,35 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
             }
         });
 
+        socket.on('score_edit_confirmed', (data: { matchId: string, throwData: any, historyThrows: any[] }) => {
+            console.log(`[LiveMonitor] Edición detectada remota para match: ${data.matchId}. Actualizando interfaz.`);
+
+            if (data.matchId === matchId && data.historyThrows) {
+                let currentLegsSum = 0;
+
+                // 1. Procesamos el nuevo historial reconstruido inyectándole el legIndex correspondiente
+                const processedThrows = data.historyThrows.map((t: any) => {
+                    const legIndex = currentLegsSum;
+                    // Si detectamos que es un reinicio de pierna (ambos en 501), avanzamos el índice de legs
+                    if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
+                        currentLegsSum = (t.participant1?.legsWon || 0) + (t.participant2?.legsWon || 0);
+                    }
+                    return { ...t, legIndex };
+                });
+
+                // 2. Seteamos el historial mapeado con sus respectivos legIndex correctos
+                setHistoryThrows(processedThrows);
+
+                // 3. Forzamos la actualización de los datos en vivo principales con la última tirada recalculada
+                updateLiveDataFromThrow(data.throwData);
+
+                // 4. Sincronizamos el contador de legs del ref por seguridad
+                if (data.throwData.participant1 && data.throwData.participant2) {
+                    totalLegsRef.current = data.throwData.participant1.legsWon + data.throwData.participant2.legsWon;
+                }
+            }
+        });
+
         socket.on('connect_error', (err) => {
             console.error('[LiveMonitor Hook] Error de conexión:', err.message);
         });
