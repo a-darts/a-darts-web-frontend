@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Match, tournamentService } from '../services/tournament.service';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLiveMatchSocket, LiveMatchStatus, LiveMatch } from '../hooks/useLiveMatchSocket';
-import { io } from 'socket.io-client'; // Importante para capturar el nuevo payload extendido si tu hook está cerrado
 
 // Inyección de fuentes
 const fontLink = document.createElement('link');
@@ -32,7 +31,6 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Estado local para almacenar la lista completa de tiradas del leg actual
     const historyEndRef = useRef<HTMLDivElement>(null);
 
     const { liveData, historyThrows, isLiveConnected } = useLiveMatchSocket({
@@ -41,7 +39,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
         initialData: defaultInitialData
     });
 
-    // Auto-scroll al último tiro recibido en la lista
+    // Auto-scroll al último tiro dentro del feed inferior si es necesario
     useEffect(() => {
         if (historyEndRef.current) {
             historyEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -90,46 +88,35 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
         fetchMatchDetails();
     }, [matchId]);
 
-    // useEffect(() => {
-    //     const fetchMatchDetails = async () => {
-    //         try {
-    //             setIsLoading(true);
-    //             const data = await tournamentService.getMatchById(matchId);
-    //             setMatch(data);
-
-    //             setDefaultInitialData({
-    //                 score: 0,
-    //                 activePlayerIndex: 0,
-    //                 status: LiveMatchStatus.PLAYING,
-    //                 participant1: {
-    //                     remainingScore: 501,
-    //                     setsWon: data.matchScore?.participant1?.setsWon || 0,
-    //                     legsWon: data.matchScore?.participant1?.legsWon || 0,
-    //                 },
-    //                 participant2: {
-    //                     remainingScore: 501,
-    //                     setsWon: data.matchScore?.participant2?.setsWon || 0,
-    //                     legsWon: data.matchScore?.participant2?.legsWon || 0,
-    //                 }
-    //             });
-    //             setError(null);
-    //         } catch (err: any) {
-    //             console.error('Error fetching match via service:', err);
-    //             setError(err.message || 'Error al cargar los datos del partido');
-    //         } finally {
-    //             setIsLoading(false);
-    //         }
-    //     };
-
-    //     fetchMatchDetails();
-    // }, [matchId]);
-
     if (isLoading) return <div style={styles.centerContainer}>Cargando estado del partido...</div>;
     if (error) return <div style={styles.centerContainer}>Error: {error}</div>;
     if (!match || !liveData) return <div style={styles.centerContainer}>No se encontró el partido.</div>;
 
     const p1Name = match.participant1?.alias || 'Jugador 1';
     const p2Name = match.participant2?.alias || 'Jugador 2';
+
+    // 1. Aislar únicamente las tiradas pertenecientes al Leg actual en juego
+    const currentLegThrows = (() => {
+        if (!historyThrows || historyThrows.length === 0) return [];
+
+        // Buscamos el índice del último reinicio de Leg (donde ambos vuelven a estar en 501 tras un tiro de inicialización)
+        // Recorremos de atrás hacia adelante para encontrar el corte del Leg activo rápidamente
+        let lastLegStartIndex = 0;
+        for (let i = historyThrows.length - 1; i >= 0; i--) {
+            const t = historyThrows[i];
+            if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
+                lastLegStartIndex = i;
+                break;
+            }
+        }
+
+        // Devolvemos solo los tiros que van desde ese reinicio hasta el último tiro registrado
+        return historyThrows.slice(lastLegStartIndex);
+    })();
+
+    // 2. Separar los tiros filtrados del Leg actual por cada jugador para las columnas
+    const p1Throws = currentLegThrows.filter(t => t.activePlayerIndex === 0);
+    const p2Throws = currentLegThrows.filter(t => t.activePlayerIndex === 1);
 
     return (
         <div style={styles.container}>
@@ -145,11 +132,11 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                 </div>
             </div>
 
-            {/* Layout Principal Dividido en Marcador e Historial */}
+            {/* Layout Principal Centralizado */}
             <div style={styles.mainContent}>
-
-                {/* LADO IZQUIERDO: Marcadores Principales */}
                 <div style={styles.scoreboardSide}>
+
+                    {/* Fila superior: Tarjetas de puntuación restante y Marcador Central */}
                     <div style={styles.headerRow}>
                         {/* Jugador 1 Card */}
                         <div style={{
@@ -165,20 +152,20 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                             </span>
                         </div>
 
-                        {/* Marcador Central de Stats */}
+                        {/* Marcador Central de Stats (LEGS - SETS) */}
                         <div style={styles.statsCard}>
                             <div style={styles.statsSection}>
                                 <span style={styles.statsRowText}>
                                     {liveData.participant1.legsWon} - {liveData.participant2.legsWon}
                                 </span>
-                                <span style={styles.statsLabel}>LEGS</span>
+                                <span style={styles.stylesLabel}>LEGS</span>
                             </div>
 
                             <div style={{ ...styles.statsSection, marginTop: '24px' }}>
                                 <span style={styles.statsRowText}>
                                     {liveData.participant1.setsWon} - {liveData.participant2.setsWon}
                                 </span>
-                                <span style={styles.statsLabel}>SETS</span>
+                                <span style={styles.stylesLabel}>SETS</span>
                             </div>
                         </div>
 
@@ -197,57 +184,62 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                         </div>
                     </div>
 
-                    {/* Último Lanzamiento Recibido */}
-                    <div style={styles.controlsArea}>
-                        <span style={styles.alertLabel}>ÚLTIMO LANZAMIENTO RECIBIDO</span>
-                        <div style={styles.inputBox}>
-                            <span style={styles.inputText}>
-                                {liveData.score > 0 ? `+${liveData.score}` : 'ESPERANDO TIRO...'}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* LADO DERECHO: Historial de Tiradas de este Leg */}
-                <div style={styles.historySide}>
-                    <div style={styles.historyHeader}>
-                        <span style={styles.historyTitle}>HISTORIAL DEL LEG</span>
-                        <span style={styles.historyCounter}>{historyThrows.length} tiros</span>
-                    </div>
-
-                    <div style={styles.historyFeed}>
-                        {historyThrows.length === 0 ? (
-                            <div style={styles.emptyHistory}>No hay lanzamientos registrados en este leg todavía.</div>
-                        ) : (
-                            historyThrows.map((t, index) => {
-                                // Determinamos quién tiró en base a la rotación o índice guardado
-                                const esP1 = t.activePlayerIndex === 0;
+                    <div style={styles.tableContainer}>
+                        {/* Columna Jugador 1 */}
+                        <div style={styles.tableColumn}>
+                            {p1Throws.map((t: any, idx) => {
+                                // Como filtraste por p1Throws, sabemos que activePlayerIndex era 0
+                                const scoreRestante = t.participant1?.remainingScore;
                                 return (
-                                    <div key={index} style={styles.historyRow}>
-                                        <span style={{ ...styles.historyPlayerName, color: esP1 ? '#FFFFFF' : '#B3B3B3' }}>
-                                            {esP1 ? p1Name : p2Name}:
-                                        </span>
-                                        <span style={{
-                                            ...styles.historyScoreBadge,
-                                            color: t.score >= 100 ? '#BFE55F' : '#FFFFFF',
-                                            fontWeight: t.score >= 100 ? '700' : '500'
-                                        }}>
-                                            {t.score} pts
+                                    <div key={`p1-${idx}`} style={styles.tableRow}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                            <span style={styles.remainingScoreText}>
+                                                {scoreRestante !== undefined ? `${scoreRestante}` : '---'}
+                                            </span>
+                                        </div>
+                                        <span style={styles.tableScore}>
+                                            {t.score}
                                         </span>
                                     </div>
                                 );
-                            })
+                            })}
+                        </div>
+
+                        {/* Columna central separadora */}
+                        {historyThrows.length > 0 && <div style={styles.tableDivider} />}
+
+                        {/* Columna Jugador 2 */}
+                        <div style={styles.tableColumn}>
+                            {p2Throws.map((t: any, idx) => {
+                                // Como filtraste por p2Throws, sabemos que activePlayerIndex era 1
+                                const scoreRestante = t.participant2?.remainingScore;
+                                return (
+                                    <div key={`p2-${idx}`} style={styles.tableRow}>
+                                        <span style={styles.tableScore}>
+                                            {t.score}
+                                        </span>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                            <span style={styles.remainingScoreText}>
+                                                {scoreRestante !== undefined ? `${scoreRestante}` : '---'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {historyThrows.length === 0 && (
+                            <div style={styles.emptyHistory}>No hay lanzamientos registrados en este leg todavía.</div>
                         )}
                         <div ref={historyEndRef} />
                     </div>
                 </div>
-
             </div>
         </div>
     );
 };
 
-// Estilos web actualizados usando tu paleta móvil exacta
+// Estilos web actualizados en base a tu paleta y la arquitectura del diseño móvil
 const styles: { [key: string]: React.CSSProperties } = {
     container: {
         padding: '24px',
@@ -304,13 +296,15 @@ const styles: { [key: string]: React.CSSProperties } = {
         flexDirection: 'row',
         gap: '24px',
         flex: 1,
-        alignItems: 'stretch'
+        alignItems: 'stretch',
+        justifyContent: 'center'
     },
     scoreboardSide: {
-        flex: 3,
+        flex: 1,
+        maxWidth: '1000px', // Limita el ancho en pantallas ultra-wide para mantener consistencia
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         gap: '24px'
     },
     headerRow: {
@@ -340,16 +334,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     playerName: {
         color: '#FFFFFF',
         fontFamily: '"Space Grotesk", sans-serif',
-        fontSize: '24px',
-        fontWeight: 700,
+        fontSize: '18px',
+        fontWeight: 500,
         marginBottom: '12px',
-        textTransform: 'uppercase'
+        textTransform: 'uppercase',
+        textAlign: 'center',
     },
     scoreLeftText: {
         color: '#B3B3B3',
         fontFamily: '"Manrope", sans-serif',
         fontWeight: 700,
-        fontSize: '76px',
+        fontSize: '50px',
         lineHeight: '1',
     },
     scoreActiveText: {
@@ -370,115 +365,61 @@ const styles: { [key: string]: React.CSSProperties } = {
     statsRowText: {
         fontFamily: '"Space Grotesk", sans-serif',
         fontWeight: 700,
-        fontSize: '32px',
+        fontSize: '22px',
         color: '#FFFFFF',
     },
-    statsLabel: {
+    stylesLabel: {
         color: '#B3B3B3',
         fontFamily: '"Manrope", sans-serif',
         fontSize: '12px',
         letterSpacing: '2px',
         marginTop: '4px'
     },
-    controlsArea: {
-        backgroundColor: '#1A1A1A',
-        borderRadius: '16px',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '12px',
-        border: '1px solid #4C4C4C'
-    },
-    alertLabel: {
-        fontSize: '11px',
-        color: '#B3B3B3',
-        fontFamily: '"Space Grotesk", sans-serif',
-        letterSpacing: '2px',
-    },
-    inputBox: {
-        minWidth: '280px',
-        minHeight: '64px',
-        backgroundColor: '#242424',
-        borderRadius: '8px',
-        borderBottom: '2px solid #BFE55F',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    inputText: {
-        color: '#FFFFFF',
-        fontFamily: '"Manrope", sans-serif',
-        fontWeight: 700,
-        fontSize: '24px',
-    },
 
-    // ESTILOS NUEVOS: Panel Lateral de Historial del Leg
-    historySide: {
-        flex: 1,
-        minWidth: '280px',
-        backgroundColor: '#1A1A1A', // theme.colors.cardBackground
-        border: '1px solid #4C4C4C', // theme.colors.line
+    tableContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        backgroundColor: '#1A1A1A',
+        border: '1px solid #4C4C4C',
         borderRadius: '16px',
-        padding: '20px',
+        padding: '16px',
+        minHeight: '180px',
+        maxHeight: '300px',
+        overflowY: 'auto',
+        position: 'relative',
+        gap: '16px'
+    },
+    tableColumn: {
+        flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        boxSizing: 'border-box',
-        maxHeight: 'calc(100vh - 120px)'
+        gap: '8px'
     },
-    historyHeader: {
+    tableDivider: {
+        width: '1px',
+        backgroundColor: '#4C4C4C',
+        alignSelf: 'stretch'
+    },
+    tableRow: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        borderBottom: '1px solid #4C4C4C', // theme.colors.avatarDropdownDivider
-        paddingBottom: '12px',
-        marginBottom: '12px'
+        padding: '10px 14px',
     },
-    historyTitle: {
-        fontFamily: '"Space Grotesk", sans-serif',
-        fontWeight: 700,
-        fontSize: '14px',
-        color: '#FFFFFF',
-        letterSpacing: '1px'
-    },
-    historyCounter: {
-        fontFamily: '"Manrope", sans-serif',
-        fontSize: '12px',
-        color: '#B3B3B3' // textSecondary
-    },
-    historyFeed: {
-        flex: 1,
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-        paddingRight: '4px'
+    tableScore: {
+        fontSize: '16px',
+        color: '#ffffff',
     },
     emptyHistory: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: '40%',
         fontSize: '13px',
         color: '#B3B3B3',
         textAlign: 'center',
-        marginTop: '32px',
         fontStyle: 'italic'
     },
-    historyRow: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: '#242424', // theme.colors.keyBackground
-        padding: '10px 14px',
-        borderRadius: '8px', // theme.borderRadius.md
-        border: '1px solid #2C2C2C',
-    },
-    historyPlayerName: {
-        fontFamily: '"Manrope", sans-serif',
-        fontSize: '13px',
-        fontWeight: 500,
-    },
-    historyScoreBadge: {
-        fontFamily: '"Space Grotesk", sans-serif',
-        fontSize: '14px',
-    }
 };
 
 export default LiveMatchMonitorScreen;
