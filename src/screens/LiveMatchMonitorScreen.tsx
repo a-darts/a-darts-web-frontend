@@ -70,6 +70,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                 setDefaultInitialData({
                     score: 0,
                     activePlayerIndex: 0,
+                    throwerPlayerIndex: 0,
                     status: LiveMatchStatus.PLAYING,
                     participant1: {
                         remainingScore: 501,
@@ -102,24 +103,25 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     const p2Name = match.participant2?.alias || 'Jugador 2';
 
     // 1. Aislar únicamente las tiradas pertenecientes al Leg actual en juego
-    const currentLegThrows = (() => {
-        if (!historyThrows || historyThrows.length === 0) return [];
-
-        let lastLegStartIndex = 0;
-        for (let i = historyThrows.length - 1; i >= 0; i--) {
-            const t = historyThrows[i];
-            if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
-                lastLegStartIndex = i;
-                break;
-            }
-        }
-
-        return historyThrows.slice(lastLegStartIndex);
-    })();
+    const currentLegThrows = historyThrows || [];
 
     // 2. Separar los tiros filtrados del Leg actual por cada jugador para las columnas
-    const p1Throws = currentLegThrows.filter(t => t.activePlayerIndex === 0);
-    const p2Throws = currentLegThrows.filter(t => t.activePlayerIndex === 1);
+    let p1Throws = currentLegThrows.filter(
+        t => (t.throwerPlayerIndex !== undefined ? t.throwerPlayerIndex : t.activePlayerIndex) === 0
+    );
+    let p2Throws = currentLegThrows.filter(
+        t => (t.throwerPlayerIndex !== undefined ? t.throwerPlayerIndex : t.activePlayerIndex) === 1
+    );
+
+    // 3. Inyección de la primera tirada nula por defecto
+    p1Throws = [
+        { score: '', participant1: { remainingScore: 501 } },
+        ...p1Throws
+    ];
+    p2Throws = [
+        { score: '', participant2: { remainingScore: 501 } },
+        ...p2Throws
+    ];
 
     return (
         <div style={styles.container}>
@@ -197,14 +199,14 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                                     const scoreRestante = t.participant1?.remainingScore;
                                     return (
                                         <div key={`p1-${idx}`} style={styles.tableRow}>
+                                            <span style={styles.tableScore}>
+                                                {t.score}
+                                            </span>
                                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                                                 <span style={styles.remainingScoreText}>
                                                     {scoreRestante !== undefined ? `${scoreRestante}` : '---'}
                                                 </span>
                                             </div>
-                                            <span style={styles.tableScore}>
-                                                {t.score}
-                                            </span>
                                         </div>
                                     );
                                 })}
@@ -219,14 +221,14 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                                     const scoreRestante = t.participant2?.remainingScore;
                                     return (
                                         <div key={`p2-${idx}`} style={styles.tableRow}>
-                                            <span style={styles.tableScore}>
-                                                {t.score}
-                                            </span>
                                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
                                                 <span style={styles.remainingScoreText}>
                                                     {scoreRestante !== undefined ? `${scoreRestante}` : '---'}
                                                 </span>
                                             </div>
+                                            <span style={styles.tableScore}>
+                                                {t.score}
+                                            </span>
                                         </div>
                                     );
                                 })}

@@ -18,6 +18,7 @@ export interface LiveMatch {
     participant1: LiveMatchParticipant;
     participant2: LiveMatchParticipant;
     activePlayerIndex: number;
+    throwerPlayerIndex: number;
     status: LiveMatchStatus;
 }
 
@@ -64,24 +65,24 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
 
             setLiveData(prev => ({
                 score: throwData.score ?? 0,
-                activePlayerIndex: throwData.activePlayerIndex ?? prev?.activePlayerIndex ?? 0,
+                activePlayerIndex: throwData.activePlayerIndex ?? prev?.activePlayerIndex,
+                throwerPlayerIndex: throwData.throwerPlayerIndex ?? prev?.throwerPlayerIndex,
                 status: throwData.status ?? LiveMatchStatus.PLAYING,
                 participant1: {
-                    remainingScore: throwData.participant1?.remainingScore ?? prev?.participant1.remainingScore ?? 501,
-                    setsWon: throwData.participant1?.setsWon ?? prev?.participant1.setsWon ?? 0,
-                    legsWon: throwData.participant1?.legsWon ?? prev?.participant1.legsWon ?? 0,
+                    remainingScore: throwData.participant1?.remainingScore ?? prev?.participant1.remainingScore,
+                    setsWon: throwData.participant1?.setsWon ?? prev?.participant1.setsWon,
+                    legsWon: throwData.participant1?.legsWon ?? prev?.participant1.legsWon,
                 },
                 participant2: {
-                    remainingScore: throwData.participant2?.remainingScore ?? prev?.participant2.remainingScore ?? 501,
-                    setsWon: throwData.participant2?.setsWon ?? prev?.participant2.setsWon ?? 0,
-                    legsWon: throwData.participant2?.legsWon ?? prev?.participant2.legsWon ?? 0,
+                    remainingScore: throwData.participant2?.remainingScore ?? prev?.participant2.remainingScore,
+                    setsWon: throwData.participant2?.setsWon ?? prev?.participant2.setsWon,
+                    legsWon: throwData.participant2?.legsWon ?? prev?.participant2.legsWon,
                 }
             }));
         };
 
-        // MODIFICADO: Evento de estado inicial del servidor
-        socket.on('initial_state', (data: { matchId: string; historyThrows?: any[] }) => {
-            console.log('[LiveMonitor Hook] ¡Estado inicial de Redis recibido!', data);
+        socket.on('match_restored', (data: { matchId: string; historyThrows?: any[] }) => {
+            console.log('[LiveMonitor Hook] Recibido restaurar partida', data);
 
             if (data.matchId === matchId && data.historyThrows) {
                 // Seteamos todo el array de tiradas guardadas en este leg
@@ -95,21 +96,15 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
             }
         });
 
-        // MODIFICADO: Evento de actualización instantánea de tiro
-        socket.on('score_update', (data: { matchId: string; throwData: any; historyThrows?: any[] }) => {
-            console.log('[LiveMonitor Hook] ¡Evento score_update recibido!', data);
+        socket.on('score_update', (data: { matchId: string; throwData: any; }) => {
+            console.log('[LiveMonitor Hook] Recibido score_update', data);
 
             if (data.matchId === matchId) {
                 // Actualizamos el marcador instantáneo principal
                 updateLiveDataFromThrow(data.throwData);
 
-                // Si el backend envió la lista completa actualizada del leg, la machacamos en el estado
-                if (data.historyThrows) {
-                    setHistoryThrows(data.historyThrows);
-                } else {
-                    // Fallback seguro: si no viene el array entero, acumulamos de forma reactiva local
-                    setHistoryThrows(prev => [...prev, data.throwData]);
-                }
+                // Actualizamos el histórico de tiradas con la nueva tirada
+                setHistoryThrows(prev => [...prev, data.throwData]);
             }
         });
 
