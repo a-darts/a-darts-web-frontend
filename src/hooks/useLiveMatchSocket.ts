@@ -139,6 +139,44 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
             }
         });
 
+        socket.on('score_undo_confirmed', (data: { matchId: string; historyThrows: any[] }) => {
+            console.log('[LiveMonitor Hook] Undo confirmado desde el servidor', data);
+
+            if (data.matchId === matchId) {
+                let currentLegsSum = 0;
+
+                // Procesamos el nuevo historial limpio de Redis
+                const processedThrows = data.historyThrows.map((t: any) => {
+                    const legIndex = currentLegsSum;
+                    if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
+                        currentLegsSum = (t.participant1?.legsWon || 0) + (t.participant2?.legsWon || 0);
+                    }
+                    return { ...t, legIndex };
+                });
+
+                // Actualizamos el array visual de tiradas
+                setHistoryThrows(processedThrows);
+
+                if (processedThrows.length > 0) {
+                    // Si quedan tiradas en el Leg, el estado actual vuelve a ser el de la última tirada viva
+                    const latestThrow = processedThrows[processedThrows.length - 1];
+                    updateLiveDataFromThrow(latestThrow);
+                } else {
+                    // Si borramos la única tirada que había, restauramos al valor por defecto (501 inicial)
+                    const resetState = {
+                        score: 0,
+                        activePlayerIndex: 0,
+                        throwerPlayerIndex: 0,
+                        status: LiveMatchStatus.PLAYING,
+                        participant1: { remainingScore: 501, setsWon: 0, legsWon: 0 },
+                        participant2: { remainingScore: 501, setsWon: 0, legsWon: 0 }
+                    };
+                    setLiveData(resetState);
+                    totalLegsRef.current = 0;
+                }
+            }
+        });
+
         socket.on('connect_error', (err) => {
             console.error('[LiveMonitor Hook] Error de conexión:', err.message);
         });
