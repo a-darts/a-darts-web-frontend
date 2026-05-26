@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react'; // <-- Importamos useRef
 import { io, Socket } from 'socket.io-client';
 import { SOCKET_URL } from '../services/api';
 
@@ -30,20 +30,25 @@ interface UseLiveMatchSocketProps {
 
 export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMatchSocketProps) => {
     const [liveData, setLiveData] = useState<LiveMatch | null>(null);
-    const [historyThrows, setHistoryThrows] = useState<any[]>([]); // <-- NUEVO: Estado para el historial del Leg
+    const [historyThrows, setHistoryThrows] = useState<any[]>([]);
     const [isLiveConnected, setIsLiveConnected] = useState<boolean>(false);
+
+    // NUEVO: Este Ref guardará de forma síncrona los legs totales para que el socket los lea sin reiniciarse
+    const totalLegsRef = useRef<number>(0);
 
     // Sincronizar el liveData cuando los detalles iniciales de la API REST terminen de cargar
     useEffect(() => {
         if (initialData && !liveData) {
             setLiveData(initialData);
+            // Inicializamos el ref con los legs ganados acumulados de la API
+            totalLegsRef.current = initialData.participant1.legsWon + initialData.participant2.legsWon;
         }
     }, [initialData]);
 
     useEffect(() => {
         if (!boardId || !matchId) return;
 
-        console.log(`[LiveMonitor Hook] Inicializando conexión para diana: ${boardId}`);
+        console.log(`[LiveMonitor Hook] Inicializando conexión única para diana: ${boardId}`);
         const socketUrl = new URL(SOCKET_URL).origin;
 
         const socket: Socket = io(socketUrl, {
@@ -59,7 +64,7 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
             socket.emit('join_board', boardId);
         });
 
-        // Función auxiliar para actualizar el estado del partido en base a un throwData (tirada única)
+        // Modificado: Ahora actualiza de forma segura el estado de React y el Ref al mismo tiempo
         const updateLiveDataFromThrow = (throwData: any) => {
             if (!throwData) return null;
 
@@ -82,6 +87,10 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
                         legsWon: throwData.participant2?.legsWon ?? prev?.participant2.legsWon ?? 0,
                     }
                 };
+
+                // Guardamos los legs calculados en el Ref inmediatamente (operación síncrona y segura)
+                totalLegsRef.current = updatedState.participant1.legsWon + updatedState.participant2.legsWon;
+
                 return updatedState;
             });
 
@@ -95,7 +104,6 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
                 let currentLegsSum = 0;
                 const processedThrows = data.historyThrows.map((t: any) => {
                     const legIndex = currentLegsSum;
-                    // Si este tiro cerró un Leg, el próximo tiro pertenecerá al siguiente index
                     if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
                         currentLegsSum = (t.participant1?.legsWon || 0) + (t.participant2?.legsWon || 0);
                     }
@@ -115,23 +123,18 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
             console.log('[LiveMonitor Hook] Recibido score_update', data);
 
             if (data.matchId === matchId) {
-                // 1. Conseguimos el estado actual del juego antes del impacto del tiro para saber en qué leg estamos
-                setHistoryThrows(prevThrows => {
-                    // Calculamos cuál es el legIndex actual del marcador real en pantalla
-                    const currentLegIndex = liveData
-                        ? (liveData.participant1.legsWon + liveData.participant2.legsWon)
-                        : 0;
+                // 1. Leemos el índice del leg directamente desde el Ref (evita depender de liveData)
+                const currentLegIndex = totalLegsRef.current;
 
-                    // Adjuntamos la propiedad legIndex al tiro entrante
+                setHistoryThrows(prevThrows => {
                     const newThrowWithLeg = {
                         ...data.throwData,
                         legIndex: currentLegIndex
                     };
-
                     return [...prevThrows, newThrowWithLeg];
                 });
 
-                // 2. Transicionamos el marcador de la UI (Si este tiro da un leg, los contadores suben a 501)
+                // 2. Transicionamos el marcador e internamente se actualizará el Ref para la siguiente tirada
                 updateLiveDataFromThrow(data.throwData);
             }
         });
@@ -148,14 +151,13 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
         return () => {
             console.log('[LiveMonitor Hook] Limpiando escuchas y cerrando socket...');
             socket.off('connect');
-            socket.off('initial_state');
+            socket.off('match_restored');
             socket.off('score_update');
             socket.off('disconnect');
             socket.off('connect_error');
             socket.disconnect();
         };
-    }, [boardId, matchId, liveData]);
+    }, [boardId, matchId]); // <--- ESTRICTO: Solo se vuelve a ejecutar si la diana o la partida cambian de ID.
 
-    // Retornamos también el array historyThrows hacia la vista del monitor web
     return { liveData, historyThrows, isLiveConnected };
 };
