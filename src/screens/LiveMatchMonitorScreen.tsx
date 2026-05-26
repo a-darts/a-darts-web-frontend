@@ -103,7 +103,8 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     const p2Name = match.participant2?.alias || 'Jugador 2';
 
     // 1. Aislar únicamente las tiradas pertenecientes al Leg actual en juego
-    const currentLegThrows = historyThrows || [];
+    const currentLegIndex = liveData ? (liveData.participant1.legsWon + liveData.participant2.legsWon) : 0;
+    const currentLegThrows = (historyThrows || []).filter(t => t.legIndex === currentLegIndex);
 
     // 2. Separar los tiros filtrados del Leg actual por cada jugador para las columnas
     let p1Throws = currentLegThrows.filter(

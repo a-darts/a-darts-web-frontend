@@ -61,36 +61,51 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
 
         // Función auxiliar para actualizar el estado del partido en base a un throwData (tirada única)
         const updateLiveDataFromThrow = (throwData: any) => {
-            if (!throwData) return;
+            if (!throwData) return null;
 
-            setLiveData(prev => ({
-                score: throwData.score ?? 0,
-                activePlayerIndex: throwData.activePlayerIndex ?? prev?.activePlayerIndex,
-                throwerPlayerIndex: throwData.throwerPlayerIndex ?? prev?.throwerPlayerIndex,
-                status: throwData.status ?? LiveMatchStatus.PLAYING,
-                participant1: {
-                    remainingScore: throwData.participant1?.remainingScore ?? prev?.participant1.remainingScore,
-                    setsWon: throwData.participant1?.setsWon ?? prev?.participant1.setsWon,
-                    legsWon: throwData.participant1?.legsWon ?? prev?.participant1.legsWon,
-                },
-                participant2: {
-                    remainingScore: throwData.participant2?.remainingScore ?? prev?.participant2.remainingScore,
-                    setsWon: throwData.participant2?.setsWon ?? prev?.participant2.setsWon,
-                    legsWon: throwData.participant2?.legsWon ?? prev?.participant2.legsWon,
-                }
-            }));
+            let updatedState: LiveMatch | null = null;
+
+            setLiveData(prev => {
+                updatedState = {
+                    score: throwData.score ?? 0,
+                    activePlayerIndex: throwData.activePlayerIndex ?? prev?.activePlayerIndex ?? 0,
+                    throwerPlayerIndex: throwData.throwerPlayerIndex ?? prev?.throwerPlayerIndex ?? 0,
+                    status: throwData.status ?? LiveMatchStatus.PLAYING,
+                    participant1: {
+                        remainingScore: throwData.participant1?.remainingScore ?? prev?.participant1.remainingScore ?? 501,
+                        setsWon: throwData.participant1?.setsWon ?? prev?.participant1.setsWon ?? 0,
+                        legsWon: throwData.participant1?.legsWon ?? prev?.participant1.legsWon ?? 0,
+                    },
+                    participant2: {
+                        remainingScore: throwData.participant2?.remainingScore ?? prev?.participant2.remainingScore ?? 501,
+                        setsWon: throwData.participant2?.setsWon ?? prev?.participant2.setsWon ?? 0,
+                        legsWon: throwData.participant2?.legsWon ?? prev?.participant2.legsWon ?? 0,
+                    }
+                };
+                return updatedState;
+            });
+
+            return updatedState;
         };
 
         socket.on('match_restored', (data: { matchId: string; historyThrows?: any[] }) => {
             console.log('[LiveMonitor Hook] Recibido restaurar partida', data);
 
             if (data.matchId === matchId && data.historyThrows) {
-                // Seteamos todo el array de tiradas guardadas en este leg
-                setHistoryThrows(data.historyThrows);
+                let currentLegsSum = 0;
+                const processedThrows = data.historyThrows.map((t: any) => {
+                    const legIndex = currentLegsSum;
+                    // Si este tiro cerró un Leg, el próximo tiro pertenecerá al siguiente index
+                    if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
+                        currentLegsSum = (t.participant1?.legsWon || 0) + (t.participant2?.legsWon || 0);
+                    }
+                    return { ...t, legIndex };
+                });
 
-                // Si hay tiros en el historial, usamos el último para reflejar las puntuaciones actuales
-                if (data.historyThrows.length > 0) {
-                    const latestThrow = data.historyThrows[data.historyThrows.length - 1];
+                setHistoryThrows(processedThrows);
+
+                if (processedThrows.length > 0) {
+                    const latestThrow = processedThrows[processedThrows.length - 1];
                     updateLiveDataFromThrow(latestThrow);
                 }
             }
@@ -100,11 +115,24 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
             console.log('[LiveMonitor Hook] Recibido score_update', data);
 
             if (data.matchId === matchId) {
-                // Actualizamos el marcador instantáneo principal
-                updateLiveDataFromThrow(data.throwData);
+                // 1. Conseguimos el estado actual del juego antes del impacto del tiro para saber en qué leg estamos
+                setHistoryThrows(prevThrows => {
+                    // Calculamos cuál es el legIndex actual del marcador real en pantalla
+                    const currentLegIndex = liveData
+                        ? (liveData.participant1.legsWon + liveData.participant2.legsWon)
+                        : 0;
 
-                // Actualizamos el histórico de tiradas con la nueva tirada
-                setHistoryThrows(prev => [...prev, data.throwData]);
+                    // Adjuntamos la propiedad legIndex al tiro entrante
+                    const newThrowWithLeg = {
+                        ...data.throwData,
+                        legIndex: currentLegIndex
+                    };
+
+                    return [...prevThrows, newThrowWithLeg];
+                });
+
+                // 2. Transicionamos el marcador de la UI (Si este tiro da un leg, los contadores suben a 501)
+                updateLiveDataFromThrow(data.throwData);
             }
         });
 
@@ -126,7 +154,7 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
             socket.off('connect_error');
             socket.disconnect();
         };
-    }, [boardId, matchId]);
+    }, [boardId, matchId, liveData]);
 
     // Retornamos también el array historyThrows hacia la vista del monitor web
     return { liveData, historyThrows, isLiveConnected };
