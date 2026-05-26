@@ -90,7 +90,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     if (!playingArea || !selectedBoard || !selectedMatchId) return;
     try {
       setIsAssigning(true);
-      await tournamentService.occupyPlayingAreaBoard(playingArea.id, selectedBoard, selectedMatchId);
+      await tournamentService.assignMatchBoard(selectedMatchId, selectedBoard);
       showToast('Partida asignada correctamente', 'success');
       setIsAssignModalOpen(false);
       await fetchData();

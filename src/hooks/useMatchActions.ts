@@ -78,11 +78,7 @@ export const useMatchActions = ({ matches, onSuccess }: UseMatchActionsProps) =>
 
         try {
             setAssigningBoardLoading(true);
-            if (match.boardNumber !== null) {
-                await tournamentService.reassignMatchBoard(assigningMatchId, boardNum);
-            } else {
-                await tournamentService.assignMatchBoard(assigningMatchId, boardNum);
-            }
+            await tournamentService.assignMatchBoard(assigningMatchId, boardNum);
             showToast(`Diana ${boardNum} asignada con éxito.`, 'success');
             setIsAssignBoardModalOpen(false);
             await onSuccess();

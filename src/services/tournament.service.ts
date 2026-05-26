@@ -727,33 +727,13 @@ export const tournamentService = {
 
     try {
       const response = await fetch(`${API_BASE_URL}/matches/${matchId}/boardNumber`, {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ newBoardNumber: boardNumber }),
-      });
-      await handleResponse(response);
-    } catch (error: any) {
-      throw handleFetchError(error);
-    }
-  },
-
-  reassignMatchBoard: async (matchId: string, boardNumber: number): Promise<void> => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/matches/${matchId}/boardNumber`, {
         method: 'PUT',
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ newBoardNumber: boardNumber }),
+        body: JSON.stringify({ boardNumber: boardNumber }),
       });
       await handleResponse(response);
     } catch (error: any) {
@@ -840,26 +820,6 @@ export const tournamentService = {
       });
       const result = await handleResponse(response);
       return result.data;
-    } catch (error: any) {
-      throw handleFetchError(error);
-    }
-  },
-
-  occupyPlayingAreaBoard: async (playingAreaId: string, boardNumber: number, matchId: string): Promise<void> => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/playing-areas/${playingAreaId}/boards/${boardNumber}/occupy`, {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ matchId }),
-      });
-      await handleResponse(response);
     } catch (error: any) {
       throw handleFetchError(error);
     }
