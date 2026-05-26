@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { SOCKET_URL } from '../services/api';
 
-// Reutilizamos las interfaces/enums necesarios
 export enum LiveMatchStatus {
     PLAYING,
     FINISHED,
@@ -30,6 +29,7 @@ interface UseLiveMatchSocketProps {
 
 export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMatchSocketProps) => {
     const [liveData, setLiveData] = useState<LiveMatch | null>(null);
+    const [historyThrows, setHistoryThrows] = useState<any[]>([]); // <-- NUEVO: Estado para el historial del Leg
     const [isLiveConnected, setIsLiveConnected] = useState<boolean>(false);
 
     // Sincronizar el liveData cuando los detalles iniciales de la API REST terminen de cargar
@@ -58,34 +58,59 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
             socket.emit('join_board', boardId);
         });
 
-        const handleDataUpdate = (data: { matchId: string; throwData: any }) => {
-            if (data.matchId === matchId && data.throwData) {
-                setLiveData(prev => ({
-                    score: data.throwData.score ?? 0,
-                    activePlayerIndex: data.throwData.activePlayerIndex ?? prev?.activePlayerIndex ?? 0,
-                    status: data.throwData.status ?? LiveMatchStatus.PLAYING,
-                    participant1: {
-                        remainingScore: data.throwData.participant1?.remainingScore ?? prev?.participant1.remainingScore ?? 501,
-                        setsWon: data.throwData.participant1?.setsWon ?? prev?.participant1.setsWon ?? 0,
-                        legsWon: data.throwData.participant1?.legsWon ?? prev?.participant1.legsWon ?? 0,
-                    },
-                    participant2: {
-                        remainingScore: data.throwData.participant2?.remainingScore ?? prev?.participant2.remainingScore ?? 501,
-                        setsWon: data.throwData.participant2?.setsWon ?? prev?.participant2.setsWon ?? 0,
-                        legsWon: data.throwData.participant2?.legsWon ?? prev?.participant2.legsWon ?? 0,
-                    }
-                }));
-            }
+        // Función auxiliar para actualizar el estado del partido en base a un throwData (tirada única)
+        const updateLiveDataFromThrow = (throwData: any) => {
+            if (!throwData) return;
+
+            setLiveData(prev => ({
+                score: throwData.score ?? 0,
+                activePlayerIndex: throwData.activePlayerIndex ?? prev?.activePlayerIndex ?? 0,
+                status: throwData.status ?? LiveMatchStatus.PLAYING,
+                participant1: {
+                    remainingScore: throwData.participant1?.remainingScore ?? prev?.participant1.remainingScore ?? 501,
+                    setsWon: throwData.participant1?.setsWon ?? prev?.participant1.setsWon ?? 0,
+                    legsWon: throwData.participant1?.legsWon ?? prev?.participant1.legsWon ?? 0,
+                },
+                participant2: {
+                    remainingScore: throwData.participant2?.remainingScore ?? prev?.participant2.remainingScore ?? 501,
+                    setsWon: throwData.participant2?.setsWon ?? prev?.participant2.setsWon ?? 0,
+                    legsWon: throwData.participant2?.legsWon ?? prev?.participant2.legsWon ?? 0,
+                }
+            }));
         };
 
-        socket.on('initial_state', (data) => {
+        // MODIFICADO: Evento de estado inicial del servidor
+        socket.on('initial_state', (data: { matchId: string; historyThrows?: any[] }) => {
             console.log('[LiveMonitor Hook] ¡Estado inicial de Redis recibido!', data);
-            handleDataUpdate(data);
+
+            if (data.matchId === matchId && data.historyThrows) {
+                // Seteamos todo el array de tiradas guardadas en este leg
+                setHistoryThrows(data.historyThrows);
+
+                // Si hay tiros en el historial, usamos el último para reflejar las puntuaciones actuales
+                if (data.historyThrows.length > 0) {
+                    const latestThrow = data.historyThrows[data.historyThrows.length - 1];
+                    updateLiveDataFromThrow(latestThrow);
+                }
+            }
         });
 
-        socket.on('score_update', (data) => {
+        // MODIFICADO: Evento de actualización instantánea de tiro
+        socket.on('score_update', (data: { matchId: string; throwData: any; historyThrows?: any[] }) => {
             console.log('[LiveMonitor Hook] ¡Evento score_update recibido!', data);
-            handleDataUpdate(data);
+
+            if (data.matchId === matchId) {
+                // Actualizamos el marcador instantáneo principal
+                updateLiveDataFromThrow(data.throwData);
+
+                // Si el backend envió la lista completa actualizada del leg, la machacamos en el estado
+                if (data.historyThrows) {
+                    setHistoryThrows(data.historyThrows);
+                } else {
+                    // Fallback seguro: si no viene el array entero, acumulamos de forma reactiva local
+                    setHistoryThrows(prev => [...prev, data.throwData]);
+                }
+            }
         });
 
         socket.on('connect_error', (err) => {
@@ -108,5 +133,6 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
         };
     }, [boardId, matchId]);
 
-    return { liveData, isLiveConnected };
+    // Retornamos también el array historyThrows hacia la vista del monitor web
+    return { liveData, historyThrows, isLiveConnected };
 };
