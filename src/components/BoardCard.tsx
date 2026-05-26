@@ -2,7 +2,6 @@ import React from 'react';
 import { Board, Match, MatchStatus } from '../services/tournament.service';
 import i18n from '../i18n';
 import Button from './Button';
-import IconButton from './IconButton';
 import TournamentMatchStatusTag from './TournamentMatchStatusTag';
 
 interface BoardCardProps {
@@ -11,7 +10,6 @@ interface BoardCardProps {
   onAssignMatch?: (boardNumber: number) => void;
   onAssignBoard?: (matchId: string) => void;
   onReleaseBoard?: (boardNumber: number) => void;
-  onStartMatch?: (matchId: string) => void;
   onSuspendMatch?: (matchId: string) => void;
   onResumeMatch?: (matchId: string) => void;
   onAddResult?: (matchId: string) => void;
@@ -24,7 +22,6 @@ const BoardCard: React.FC<BoardCardProps> = ({
   onAssignMatch,
   onAssignBoard,
   onReleaseBoard,
-  onStartMatch,
   onSuspendMatch,
   onResumeMatch,
   onAddResult,
@@ -91,16 +88,6 @@ const BoardCard: React.FC<BoardCardProps> = ({
               )}
               {isReady && (
                 <>
-                  {onStartMatch && (
-                    <Button
-                      variant="primary"
-                      size="small"
-                      leftIcon="Play"
-                      onClick={() => onStartMatch(match.id)}
-                    >
-                      Iniciar partida
-                    </Button>
-                  )}
                   {onAssignBoard && (
                     <Button
                       variant="secondary"

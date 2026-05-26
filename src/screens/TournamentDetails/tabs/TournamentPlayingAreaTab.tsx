@@ -288,7 +288,6 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
               onAssignMatch={handleOpenAssignModal}
               onAssignBoard={matchActions.handleAssignBoard}
               onReleaseBoard={handleReleaseBoard}
-              onStartMatch={matchActions.handleStartMatch}
               onSuspendMatch={matchActions.handleSuspendMatch}
               onResumeMatch={matchActions.handleResumeMatch}
               onAddResult={matchActions.handleAddResult}

@@ -25,17 +25,6 @@ export const useMatchActions = ({ matches, onSuccess }: UseMatchActionsProps) =>
     const [p2Legs, setP2Legs] = useState<number>(0);
     const [addingResultLoading, setAddingResultLoading] = useState(false);
 
-    const handleStartMatch = async (matchId: string) => {
-        try {
-            await tournamentService.startMatch(matchId);
-            showToast('Partida iniciada con éxito.', 'success');
-            await onSuccess();
-        } catch (err: any) {
-            console.error('Error starting match:', err);
-            showToast(err.message || 'Error al iniciar la partida.', 'error');
-        }
-    };
-
     const handleSuspendMatch = async (matchId: string) => {
         try {
             await tournamentService.suspendMatch(matchId);
@@ -123,7 +112,6 @@ export const useMatchActions = ({ matches, onSuccess }: UseMatchActionsProps) =>
 
     return {
         // Handlers directos
-        handleStartMatch,
         handleSuspendMatch,
         handleResumeMatch,
         handleAssignBoard,

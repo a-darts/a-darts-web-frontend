@@ -7,7 +7,6 @@ import Button from './Button';
 interface MatchCardProps {
   match: Match;
   isAdmin?: boolean;
-  onStartMatch?: (matchId: string) => void;
   onSuspendMatch?: (matchId: string) => void;
   onResumeMatch?: (matchId: string) => void;
   onAssignBoard?: (matchId: string) => void;
@@ -18,7 +17,6 @@ interface MatchCardProps {
 const MatchCard: React.FC<MatchCardProps> = ({
   match,
   isAdmin,
-  onStartMatch,
   onSuspendMatch,
   onResumeMatch,
   onAssignBoard,
@@ -135,16 +133,6 @@ const MatchCard: React.FC<MatchCardProps> = ({
               onClick={() => onAssignBoard && onAssignBoard(match.id)}
             >
               {match.boardNumber === null ? 'Asignar diana' : 'Reasignar diana'}
-            </Button>
-          )}
-          {match.status === 'READY' && (
-            <Button
-              variant="primary"
-              size="small"
-              leftIcon="Play"
-              onClick={() => onStartMatch && onStartMatch(match.id)}
-            >
-              Iniciar partida
             </Button>
           )}
           {match.status === 'SUSPENDED' && (

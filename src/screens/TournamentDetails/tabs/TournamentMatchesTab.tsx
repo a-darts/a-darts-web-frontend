@@ -126,7 +126,6 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
                 key={match.id}
                 match={match}
                 isAdmin={isAdmin}
-                onStartMatch={matchActions.handleStartMatch}
                 onSuspendMatch={matchActions.handleSuspendMatch}
                 onResumeMatch={matchActions.handleResumeMatch}
                 onAssignBoard={matchActions.handleAssignBoard}
