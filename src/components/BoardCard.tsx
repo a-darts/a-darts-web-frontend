@@ -13,7 +13,7 @@ interface BoardCardProps {
   onSuspendMatch?: (matchId: string) => void;
   onResumeMatch?: (matchId: string) => void;
   onAddResult?: (matchId: string) => void;
-  onViewMatchLive?: (matchId: string, boardId: string) => void;
+  onViewMatchLive?: (matchId: string, boardShortId: string) => void;
 }
 
 const BoardCard: React.FC<BoardCardProps> = ({
@@ -150,7 +150,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
                       variant="primary"
                       size="small"
                       leftIcon="Play"
-                      onClick={() => onViewMatchLive(match.id, board.id)}
+                      onClick={() => onViewMatchLive(match.id, board.shortId)}
                     >
                       Ver
                     </Button>

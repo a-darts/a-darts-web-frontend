@@ -11,20 +11,20 @@ document.head.appendChild(fontLink);
 
 interface LiveMatchMonitorScreenProps {
     matchId?: string;
-    boardId?: string;
+    boardShortId?: string;
     onBack?: () => void;
 }
 
 const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     matchId: propsMatchId,
-    boardId: propsBoardId,
+    boardShortId: propsBoardShortId,
     onBack,
 }) => {
-    const { matchId: urlMatchId, boardId: urlBoardId } = useParams<{ matchId: string; boardId: string }>();
+    const { matchId: urlMatchId, boardShortId: urlBoardShortId } = useParams<{ matchId: string; boardShortId: string }>();
     const navigate = useNavigate();
 
     const matchId = propsMatchId || urlMatchId || '';
-    const boardId = propsBoardId || urlBoardId || 'default_room';
+    const boardShortId = propsBoardShortId || urlBoardShortId || 'default_room';
 
     const [match, setMatch] = useState<Match | null>(null);
     const [defaultInitialData, setDefaultInitialData] = useState<LiveMatch | null>(null);
@@ -34,7 +34,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     const historyEndRef = useRef<HTMLDivElement>(null);
 
     const { liveData, historyThrows, isLiveConnected } = useLiveMatchSocket({
-        boardId,
+        boardShortId,
         matchId,
         initialData: defaultInitialData
     });

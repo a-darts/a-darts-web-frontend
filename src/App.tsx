@@ -35,7 +35,7 @@ function App() {
         <Route path="/admin/jugadores/registrar" element={<AdminCreatePlayerScreen />} />
         <Route path="/admin/torneos/crear" element={<AdminCreateTournamentScreen />} />
         <Route path="/admin/torneos/:id/editar" element={<AdminEditTournamentScreen />} />
-        <Route path="/torneos/partido/:matchId/diana/:boardId/ver" element={<LiveMatchMonitorScreen />} />
+        <Route path="/torneos/partido/:matchId/diana/:boardShortId/ver" element={<LiveMatchMonitorScreen />} />
       </Routes>
 
       <footer style={styles.footer}>

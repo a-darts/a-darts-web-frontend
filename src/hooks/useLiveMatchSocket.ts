@@ -23,12 +23,12 @@ export interface LiveMatch {
 }
 
 interface UseLiveMatchSocketProps {
-    boardId: string;
+    boardShortId: string;
     matchId: string;
     initialData: LiveMatch | null;
 }
 
-export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMatchSocketProps) => {
+export const useLiveMatchSocket = ({ boardShortId, matchId, initialData }: UseLiveMatchSocketProps) => {
     const [liveData, setLiveData] = useState<LiveMatch | null>(null);
     const [historyThrows, setHistoryThrows] = useState<any[]>([]);
     const [isLiveConnected, setIsLiveConnected] = useState<boolean>(false);
@@ -46,9 +46,9 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
     }, [initialData]);
 
     useEffect(() => {
-        if (!boardId || !matchId) return;
+        if (!boardShortId || !matchId) return;
 
-        console.log(`[LiveMonitor Hook] Inicializando conexión única para diana: ${boardId}`);
+        console.log(`[LiveMonitor Hook] Inicializando conexión única para diana: ${boardShortId}`);
         const socketUrl = new URL(SOCKET_URL).origin;
 
         const socket: Socket = io(socketUrl, {
@@ -61,7 +61,7 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
         socket.on('connect', () => {
             console.log(`[LiveMonitor Hook] ¡Conectado con éxito! ID: ${socket.id}`);
             setIsLiveConnected(true);
-            socket.emit('join_board', boardId);
+            socket.emit('join_board', boardShortId);
         });
 
         // Modificado: Ahora actualiza de forma segura el estado de React y el Ref al mismo tiempo
@@ -224,7 +224,7 @@ export const useLiveMatchSocket = ({ boardId, matchId, initialData }: UseLiveMat
             socket.off('connect_error');
             socket.disconnect();
         };
-    }, [boardId, matchId]); // <--- ESTRICTO: Solo se vuelve a ejecutar si la diana o la partida cambian de ID.
+    }, [boardShortId, matchId]); // <--- ESTRICTO: Solo se vuelve a ejecutar si la diana o la partida cambian de ID.
 
     return { liveData, historyThrows, isLiveConnected };
 };

@@ -151,8 +151,8 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     }
   };
 
-  const handleViewMatchLive = (matchId: string, boardId: string) => {
-    navigate(`/torneos/partido/${matchId}/diana/${boardId}/ver`);
+  const handleViewMatchLive = (matchId: string, boardShortId: string) => {
+    navigate(`/torneos/partido/${matchId}/diana/${boardShortId}/ver`);
   };
 
   if (loading) {
