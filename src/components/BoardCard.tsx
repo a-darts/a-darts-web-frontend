@@ -37,7 +37,10 @@ const BoardCard: React.FC<BoardCardProps> = ({
     <div style={styles.boardCard}>
       <div style={styles.boardHeader}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={styles.boardTitle}>Diana {board.number}</span>
+          <div style={styles.boardTitleContainer}>
+            <span style={styles.boardTitle}>Diana {board.number} </span>
+            <span style={styles.boardTitleShortId}>({board.shortId})</span>
+          </div>
         </div>
         <span style={{
           ...styles.statusBadge,
@@ -194,10 +197,22 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  boardTitleContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: '0.5rem',
+    alignItems: 'baseline',
+  },
   boardTitle: {
     color: 'white',
     fontWeight: '600',
-    fontSize: '1.1rem',
+    fontSize: '1rem',
+  },
+  boardTitleShortId: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontWeight: '400',
+    fontSize: '0.7rem',
   },
   statusBadge: {
     padding: '0.25rem 0.75rem',

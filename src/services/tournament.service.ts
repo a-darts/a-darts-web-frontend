@@ -150,6 +150,7 @@ export interface MatchParticipant {
 
 export interface Board {
   id: string;
+  shortId: string;
   number: number;
   status: string;
   matchId: string | null;

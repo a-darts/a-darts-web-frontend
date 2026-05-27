@@ -357,7 +357,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'row',
     gap: '1rem',
-    alignItems: 'center',
+    alignItems: 'baseline',
     margin: 0,
   },
   title: {
