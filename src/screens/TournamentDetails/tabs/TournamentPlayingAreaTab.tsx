@@ -233,7 +233,10 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
   return (
     <div style={styles.container}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <h2 style={{ ...styles.title, marginBottom: 0 }}>Salón de Juego</h2>
+        <div style={styles.titleContainer}>
+          <h2 style={styles.title}>Salón de Juego</h2>
+          <span style={styles.playingAreaShortId}>(ID: {playingArea?.shortId})</span>
+        </div>
         {playingArea && (
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <Button
@@ -350,12 +353,21 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '1rem',
     border: '1px solid rgba(255, 255, 255, 0.05)',
   },
+  titleContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '1rem',
+    alignItems: 'center',
+    margin: 0,
+  },
   title: {
     color: 'white',
     fontSize: '1.25rem',
     fontWeight: '600',
-    marginBottom: '1.5rem',
-    marginTop: 0,
+  },
+  playingAreaShortId: {
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: '1rem',
   },
   inputGroup: {
     marginBottom: '1.5rem',

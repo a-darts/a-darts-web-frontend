@@ -157,6 +157,7 @@ export interface Board {
 
 export interface PlayingArea {
   id: string;
+  shortId: string;
   tournamentId: string;
   boards: Board[];
 }
