@@ -285,3 +285,21 @@ a:hover {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* --- Estilos para el visor de partidas (Ronda y Diana) --- */
+.responsive-board-badge {
+  border-top: 1px solid #2A2A2A;
+  padding-top: 8px;
+  width: 100%;
+  justify-content: center;
+}
+@media (min-width: 360px) {
+  .responsive-board-badge {
+    border-top: none !important;
+    border-left: 1px solid #2A2A2A;
+    padding-top: 0 !important;
+    padding-left: 12px;
+    width: auto;
+    justify-content: flex-start;
+  }
+}

@@ -71,11 +71,13 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                     status: LiveMatchStatus.PLAYING,
                     participant1: {
                         remainingScore: 501,
+                        stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 },
                         setsWon: data.matchScore?.participant1?.setsWon || 0,
                         legsWon: data.matchScore?.participant1?.legsWon || 0,
                     },
                     participant2: {
                         remainingScore: 501,
+                        stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 },
                         setsWon: data.matchScore?.participant2?.setsWon || 0,
                         legsWon: data.matchScore?.participant2?.legsWon || 0,
                     }
@@ -131,7 +133,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                         <span style={styles.badgeLabel}>RONDA</span>
                         <span style={styles.badgeValue}>{match.round}</span>
                     </div>
-                    <div style={styles.boardBadge}>
+                    <div style={styles.boardBadge} className="responsive-board-badge">
                         <span style={styles.badgeLabel}>DIANA</span>
                         <span style={styles.badgeValue}>{match.boardNumber}</span>
                     </div>
@@ -244,6 +246,37 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                         </div>
                     </div>
                 </div>
+
+                <div style={styles.statsColumn}>
+                    <div style={styles.statsColumnTitle}>Estadísticas</div>
+
+                    {/* Cabeceras de columna */}
+                    <div style={styles.statsColHeaders}>
+                        <div style={styles.statsValues}>
+                            <span style={styles.statsColHeader}>{p1Name}</span>
+                            <span style={styles.statsColHeader}>{p2Name}</span>
+                        </div>
+                    </div>
+
+                    {[
+                        { label: 'Media', p1: liveData.participant1.stats?.average?.toFixed(1) ?? '—', p2: liveData.participant2.stats?.average?.toFixed(1) ?? '—', big: true },
+                        { label: '180s',  p1: liveData.participant1.stats?.oneEighties  ?? 0, p2: liveData.participant2.stats?.oneEighties  ?? 0 },
+                        { label: '+140',  p1: liveData.participant1.stats?.hundredFortyPlus ?? 0, p2: liveData.participant2.stats?.hundredFortyPlus ?? 0 },
+                        { label: '+100',  p1: liveData.participant1.stats?.hundredPlus ?? 0, p2: liveData.participant2.stats?.hundredPlus ?? 0 },
+                    ].map((row, i, arr) => (
+                        <div key={row.label} style={i < arr.length - 1 ? styles.statsRow : styles.statsRowLast}>
+                            <span style={styles.statsRowLabel}>{row.label}</span>
+                            <div style={styles.statsValues}>
+                                <span style={{ ...styles.statsVal, fontSize: row.big ? '20px' : '16px' }}>
+                                    {row.p1}
+                                </span>
+                                <span style={{ ...styles.statsVal, fontSize: row.big ? '20px' : '16px' }}>
+                                    {row.p2}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
@@ -270,11 +303,13 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontFamily: '"Manrope", sans-serif',
         fontSize: '16px'
     },
+
+    // Header
     header: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '24px'
+        marginBottom: '24px',
     },
     backButton: {
         background: 'none',
@@ -288,9 +323,11 @@ const styles: { [key: string]: React.CSSProperties } = {
     matchInfoContainer: {
         display: 'flex',
         alignItems: 'center',
-        gap: '12px',
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+        gap: '10px',
         backgroundColor: '#161616',
-        padding: '6px 12px',
+        padding: '6px',
         borderRadius: '12px',
         border: '1px solid #2A2A2A',
     },
@@ -298,14 +335,17 @@ const styles: { [key: string]: React.CSSProperties } = {
         display: 'flex',
         alignItems: 'center',
         gap: '6px',
-        borderRight: '1px solid #2a2a2a',
-        paddingRight: '18px',
     },
     boardBadge: {
         display: 'flex',
         alignItems: 'center',
         gap: '6px',
-        paddingLeft: '4px',
+    },
+    badgeSeparator: {
+        width: '1px',
+        height: '16px',
+        backgroundColor: '#2A2A2A',
+        display: 'block', 
     },
     badgeLabel: {
         fontFamily: '"Space Grotesk", sans-serif',
@@ -328,7 +368,8 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontSize: '12px',
         fontFamily: '"Space Grotesk", sans-serif',
         fontWeight: 700,
-        color: '#B3B3B3'
+        color: '#B3B3B3',
+        marginLeft: '8px',
     },
     dot: {
         width: '10px',
@@ -336,31 +377,38 @@ const styles: { [key: string]: React.CSSProperties } = {
         borderRadius: '9999px',
         transition: 'all 0.3s ease'
     },
+
     mainContent: {
         display: 'flex',
         flexDirection: 'row',
+        flexWrap: 'wrap',
         gap: '24px',
         flex: 1,
-        alignItems: 'stretch',
-        justifyContent: 'center'
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        width: '100%',
     },
+
+    // Left side
     scoreboardSide: {
-        flex: 1,
+        flex: '1 1 500px',
         maxWidth: '1000px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
-        gap: '24px'
+        gap: '24px',
+        width: '100%',
     },
     headerRow: {
         display: 'flex',
         flexDirection: 'row',
+        flexWrap: 'wrap',
         width: '100%',
         gap: '16px',
         alignItems: 'stretch'
     },
     playerCard: {
-        flex: 4,
+        flex: '1 1 150px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -472,6 +520,71 @@ const styles: { [key: string]: React.CSSProperties } = {
         color: '#B3B3B3',
         textAlign: 'center',
         fontStyle: 'italic'
+    },
+
+    // Right column
+    statsColumn: {
+        width: '260px',
+        flexGrow: 0,
+        flexShrink: 1,
+        backgroundColor: '#1A1A1A',
+        border: '1px solid #2A2A2A',
+        borderRadius: '16px',
+        padding: '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0',
+    },
+    statsColumnTitle: {
+        fontSize: '11px',
+        letterSpacing: '1.5px',
+        color: '#606060',
+        fontWeight: 700,
+        textTransform: 'uppercase' as const,
+        textAlign: 'center' as const,
+        marginBottom: '14px',
+    },
+    statsColHeaders: {
+        display: 'flex',
+        justifyContent: 'flex-end',
+        marginBottom: '4px',
+    },
+    statsColHeader: {
+        fontSize: '11px',
+        fontWeight: 700,
+        letterSpacing: '1px',
+        width: '80px',
+        textAlign: 'center' as const,
+        textTransform: 'uppercase' as const,
+    },
+    statsRow: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '10px 0',
+        borderBottom: '1px solid #2a2a2a',
+    },
+    statsRowLast: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '10px 0',
+    },
+    statsRowLabel: {
+        fontSize: '13px',
+        color: '#888',
+        fontWeight: 500,
+    },
+    statsValues: {
+        display: 'flex',
+        width: '160px',
+        justifyContent: 'space-between',
+    },
+    statsVal: {
+        fontSize: '16px',
+        fontWeight: 700,
+        width: '72px',
+        textAlign: 'center' as const,
     },
 };
 

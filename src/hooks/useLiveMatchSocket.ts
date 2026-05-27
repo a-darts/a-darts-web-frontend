@@ -9,8 +9,16 @@ export enum LiveMatchStatus {
 
 export interface LiveMatchParticipant {
     remainingScore: number;
+    stats: LiveMatchParticipantStats;
     setsWon: number;
     legsWon: number;
+}
+
+export interface LiveMatchParticipantStats {
+    average: number;
+    oneEighties: number;
+    hundredFortyPlus: number;
+    hundredPlus: number;
 }
 
 export interface LiveMatch {
@@ -78,11 +86,13 @@ export const useLiveMatchSocket = ({ boardShortId, matchId, initialData }: UseLi
                     status: throwData.status ?? LiveMatchStatus.PLAYING,
                     participant1: {
                         remainingScore: throwData.participant1?.remainingScore ?? prev?.participant1.remainingScore ?? 501,
+                        stats: throwData.participant1?.stats ?? prev?.participant1.stats ?? { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 },
                         setsWon: throwData.participant1?.setsWon ?? prev?.participant1.setsWon ?? 0,
                         legsWon: throwData.participant1?.legsWon ?? prev?.participant1.legsWon ?? 0,
                     },
                     participant2: {
                         remainingScore: throwData.participant2?.remainingScore ?? prev?.participant2.remainingScore ?? 501,
+                        stats: throwData.participant2?.stats ?? prev?.participant2.stats ?? { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 },
                         setsWon: throwData.participant2?.setsWon ?? prev?.participant2.setsWon ?? 0,
                         legsWon: throwData.participant2?.legsWon ?? prev?.participant2.legsWon ?? 0,
                     }
@@ -168,8 +178,8 @@ export const useLiveMatchSocket = ({ boardShortId, matchId, initialData }: UseLi
                         activePlayerIndex: 0,
                         throwerPlayerIndex: 0,
                         status: LiveMatchStatus.PLAYING,
-                        participant1: { remainingScore: 501, setsWon: 0, legsWon: 0 },
-                        participant2: { remainingScore: 501, setsWon: 0, legsWon: 0 }
+                        participant1: { remainingScore: 501, stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 }, setsWon: 0, legsWon: 0 },
+                        participant2: { remainingScore: 501, stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 }, setsWon: 0, legsWon: 0 }
                     };
                     setLiveData(resetState);
                     totalLegsRef.current = 0;
