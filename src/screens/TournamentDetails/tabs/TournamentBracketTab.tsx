@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Tournament, Bracket, tournamentService, Match, TournamentStatus, BracketStatus } from '../../../services/tournament.service';
+import { Tournament, Bracket, tournamentService, Match, TournamentStatus, BracketStatus, MatchStatus } from '../../../services/tournament.service';
 import ErrorMessage from '../../../components/ErrorMessage';
 import BracketMatch, { BracketParticipant } from '../../../components/BracketMatch';
 import TournamentMatchStatusTag from '../../../components/TournamentMatchStatusTag';
@@ -383,11 +383,16 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
                           {match.status && (
                             <div style={styles.statusTagContainer}>
                               <TournamentMatchStatusTag status={match.status} size="small" />
-                              {!isByeMatch && (match.boardNumber ? (
-                                <span style={styles.boardNumberText}>Diana {match.boardNumber}</span>
-                              ) : (
-                                <span style={styles.boardNumberText}>Diana sin asignar</span>
-                              ))}
+                              {match.status !== MatchStatus.FINISHED && (
+                                <>
+                                  {!isByeMatch && (match.boardNumber ? (
+                                    <span style={styles.boardNumberText}>Diana {match.boardNumber}</span>
+                                  ) : (
+                                    <span style={styles.boardNumberText}>Diana sin asignar</span>
+                                  ))}
+                                </>
+                              )}
+                                
                             </div>
                           )}
                           <BracketMatch
