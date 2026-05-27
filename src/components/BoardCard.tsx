@@ -55,13 +55,21 @@ const BoardCard: React.FC<BoardCardProps> = ({
           ...styles.matchInfoContainer,
           borderColor: isFinished ? '#f87171' : (isInProgress ? '#4ade80' : 'rgba(255, 255, 255, 0.05)'),
         }}>
-          <div style={styles.matchParticipant}>
-            <span style={styles.participantName}>{match.participant1?.alias || '?'}</span>
-            <span style={styles.participantScore}>{match.matchScore?.participant1?.legsWon || 0}</span>
-          </div>
-          <div style={styles.matchParticipant}>
-            <span style={styles.participantName}>{match.participant2?.alias || '?'}</span>
-            <span style={styles.participantScore}>{match.matchScore?.participant2?.legsWon || 0}</span>
+          <div style={styles.matchParticipantsContainer}>
+            <div style={styles.matchParticipant}>
+              <span style={styles.participantName}>{match.participant1?.alias || '?'}</span>
+              <div style={styles.matchParticipantScore}>
+                <span style={styles.participantScore}>{match.matchScore?.participant1?.setsWon || 0}</span>
+                <span style={styles.participantScore}>{match.matchScore?.participant1?.legsWon || 0}</span>
+              </div>
+            </div>
+            <div style={styles.matchParticipant}>
+              <span style={styles.participantName}>{match.participant2?.alias || '?'}</span>
+              <div style={styles.matchParticipantScore}>
+                <span style={styles.participantScore}>{match.matchScore?.participant2?.setsWon || 0}</span>
+                <span style={styles.participantScore}>{match.matchScore?.participant2?.legsWon || 0}</span>
+              </div>
+            </div>
           </div>
 
           <div style={styles.releaseActionsSection}>
@@ -188,7 +196,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
     border: '1px solid rgba(255, 255, 255, 0.05)',
     borderRadius: '0.75rem',
-    padding: '1.25rem',
+    padding: '1rem',
     display: 'flex',
     flexDirection: 'column',
     gap: '1rem',
@@ -240,12 +248,22 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'space-between',
     gap: '0.5rem',
   },
+  matchParticipantsContainer: {
+    flex: '1 1 120px',
+    minWidth: 0,
+  },
   matchParticipant: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: '0.75rem',
-    flex: '1 1 120px',
+    marginBottom: '0.25rem',
+    width: '100%',
+    gap: '0.5rem',
+    minWidth: 0,
+  },
+  matchParticipantScore: {
+    display: 'flex',
+    gap: '0.5rem',
   },
   participantName: {
     color: 'white',
@@ -254,7 +272,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: '120px',
+    flex: 1,
+    minWidth: 0,
   },
   participantScore: {
     backgroundColor: '#2c2c2c',

@@ -221,7 +221,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                             </div>
 
                             {/* Columna central separadora estricta flex */}
-                            {historyThrows.length > 0 && <div style={styles.tableDivider} />}
+                            {<div style={styles.tableDivider} />}
 
                             {/* Columna Jugador 2 */}
                             <div style={styles.tableColumn}>
@@ -241,10 +241,6 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                                     );
                                 })}
                             </div>
-
-                            {historyThrows.length === 0 && (
-                                <div style={styles.emptyHistory}>No hay lanzamientos registrados en este leg todavía.</div>
-                            )}
                         </div>
                     </div>
                 </div>
