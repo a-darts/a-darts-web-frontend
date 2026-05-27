@@ -392,7 +392,6 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
                                   ))}
                                 </>
                               )}
-                                
                             </div>
                           )}
                           <BracketMatch

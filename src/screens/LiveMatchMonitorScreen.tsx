@@ -31,7 +31,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const historyEndRef = useRef<HTMLDivElement>(null);
+    const tableContainerRef = useRef<HTMLDivElement>(null);
 
     const { liveData, historyThrows, isLiveConnected } = useLiveMatchSocket({
         boardShortId,
@@ -41,14 +41,11 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
 
     // Auto-scroll al último tiro dentro del feed inferior si es necesario
     useEffect(() => {
-        if (historyEndRef.current) {
-            const container = historyEndRef.current.parentElement;
-            if (container) {
-                container.scrollTo({
-                    top: container.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }
+        if (tableContainerRef.current) {
+            tableContainerRef.current.scrollTo({
+                top: tableContainerRef.current.scrollHeight,
+                behavior: 'smooth'
+            });
         }
     }, [historyThrows]);
 
@@ -191,7 +188,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                     </div>
 
                     {/* Contenedor de la Tabla con scroll */}
-                    <div style={styles.tableContainer}>
+                    <div ref={tableContainerRef} style={styles.tableContainer}>
                         {/* Wrapper interno que crece dinámicamente con el contenido */}
                         <div style={styles.tableScrollWrapper}>
                             {/* Columna Jugador 1 */}
@@ -238,8 +235,6 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                             {historyThrows.length === 0 && (
                                 <div style={styles.emptyHistory}>No hay lanzamientos registrados en este leg todavía.</div>
                             )}
-
-                            <div ref={historyEndRef} style={{ float: 'left', clear: 'both' }} />
                         </div>
                     </div>
                 </div>
