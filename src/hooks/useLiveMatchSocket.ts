@@ -119,8 +119,8 @@ export const useLiveMatchSocket = ({ boardShortId, matchId, initialData }: UseLi
             }
         });
 
-        socket.on('score_update', (data: { matchId: string; throwData: any; }) => {
-            console.log('[LiveMonitor Hook] Recibido score_update', data);
+        socket.on('score_update_confirmed', (data: { matchId: string; throwData: any; }) => {
+            console.log('[LiveMonitor Hook] Recibido score_update_confirmed', data);
 
             if (data.matchId === matchId) {
                 // 1. Leemos el índice del leg directamente desde el Ref (evita depender de liveData)
@@ -219,12 +219,12 @@ export const useLiveMatchSocket = ({ boardShortId, matchId, initialData }: UseLi
             console.log('[LiveMonitor Hook] Limpiando escuchas y cerrando socket...');
             socket.off('connect');
             socket.off('match_restored');
-            socket.off('score_update');
+            socket.off('score_update_confirmed');
             socket.off('disconnect');
             socket.off('connect_error');
             socket.disconnect();
         };
-    }, [boardShortId, matchId]); // <--- ESTRICTO: Solo se vuelve a ejecutar si la diana o la partida cambian de ID.
+    }, [boardShortId, matchId]);
 
     return { liveData, historyThrows, isLiveConnected };
 };
