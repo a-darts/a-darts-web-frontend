@@ -48,6 +48,10 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   content: {
     flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    gap: '2px',
   },
   title: {
     fontSize: '0.75rem',
@@ -55,6 +59,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: 'var(--text-secondary-color)',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
+    margin: 0,
   },
   value: {
     fontSize: '0.875rem',
