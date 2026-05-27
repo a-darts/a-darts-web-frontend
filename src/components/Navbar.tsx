@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Button from './Button';
@@ -10,15 +10,32 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { t } = useTranslation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isCompact, setIsCompact] = useState(false);
+
+  useEffect(() => {
+    const checkBreakpoints = () => {
+      setIsMobile(window.innerWidth < 640);
+      setIsCompact(window.innerWidth < 900);
+    };
+    checkBreakpoints();
+    window.addEventListener('resize', checkBreakpoints);
+    return () => window.removeEventListener('resize', checkBreakpoints);
+  }, []);
+
+  // Cierra el menú al navegar
+  const handleNavigation = (path: string) => {
+    setIsMobileMenuOpen(false);
+    navigate(path);
+  };
 
   const userMenuItems: DropdownItem[] = [
-    ...(user?.role === UserRoles.ADMIN ? [
-      {
-        label: 'Administración',
-        icon: 'Shield' as any,
-        onClick: () => navigate('/admin')
-      }
-    ] : []),
+    ...(user?.role === UserRoles.ADMIN ? [{
+      label: 'Administración',
+      icon: 'Shield' as any,
+      onClick: () => navigate('/admin')
+    }] : []),
     {
       label: t('common.dropdown.profile'),
       icon: 'User',
@@ -37,50 +54,91 @@ const Navbar: React.FC = () => {
     },
   ];
 
+  const tabs = [
+    { label: t('common.navbar.tournaments'), path: '/torneos' },
+    ...(user?.role === UserRoles.ADMIN ? [{ label: t('common.navbar.admin_panel'), path: '/admin' }] : []),
+  ];
+
   return (
-    <header style={styles.header}>
-      <nav style={styles.nav}>
-        <Link to="/" style={styles.logo}>
-          A-Darts
-        </Link>
-
-        <div style={styles.tabs}>
-          <Link to="/torneos" style={styles.tabLink}>{t('common.navbar.tournaments')}</Link>
-          {user?.role === UserRoles.ADMIN && (
-            <Link to="/admin" style={styles.tabLink}>Panel de administración</Link>
-          )}
-        </div>
-
-        <div style={styles.auth}>
-          {user ? (
-            <Dropdown
-              trigger={(isOpen) => (
-                <div style={styles.userProfile}>
-                  <div style={styles.avatar}>
-                    {user.alias.charAt(0).toUpperCase()}
-                  </div>
-                  <div style={styles.userInfo}>
-                    <span style={styles.userAlias}>
-                      {user.alias.length > 16 ? `${user.alias.substring(0, 16)}...` : user.alias}
-                    </span>
-                  </div>
-                  <Icon name={isOpen ? "ChevronUp" : "ChevronDown"} size={18} style={{ flexShrink: 0 }} />
-                </div>
-              )}
-              items={userMenuItems}
-            />
-          ) : (
-            <Button
-              variant="tertiary"
-              rightIcon='LogIn'
-              onClick={() => navigate('/login')}
+    <>
+      <header style={styles.header}>
+        <nav style={styles.nav}>
+          {/* Hamburguesa — solo visible en móvil */}
+          {isMobile && (
+            <button
+              style={styles.hamburger}
+              onClick={() => setIsMobileMenuOpen(prev => !prev)}
+              aria-label="Abrir menú"
             >
-              {t('common.navbar.login')}
-            </Button>
+              <Icon name={isMobileMenuOpen ? 'X' : 'Menu'} size={22} />
+            </button>
           )}
+
+          <Link to="/" style={styles.logo}>
+            A-Darts
+          </Link>
+
+          {/* Tabs — ocultos en móvil, visibles en escritorio */}
+          {!isMobile && (
+            <div style={styles.tabs}>
+              {tabs.map(tab => (
+                <Link key={tab.path} to={tab.path} style={styles.tabLink}>
+                  {tab.label}
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* Auth */}
+          <div style={styles.auth}>
+            {user ? (
+              <Dropdown
+                trigger={(isOpen) => (
+                  <div style={styles.userProfile}>
+                    <div style={styles.avatar}>
+                      {user.alias.charAt(0).toUpperCase()}
+                    </div>
+                    {/* Alias solo visible cuando hay espacio */}
+                    {!isCompact && (
+                      <div style={styles.userInfo}>
+                        <span style={styles.userAlias}>
+                          {user.alias.length > 16 ? `${user.alias.substring(0, 16)}...` : user.alias}
+                        </span>
+                      </div>
+                    )}
+                    <Icon name={isOpen ? 'ChevronUp' : 'ChevronDown'} size={18} style={{ flexShrink: 0 }} />
+                  </div>
+                )}
+                items={userMenuItems}
+              />
+            ) : (
+              <Button
+                variant="tertiary"
+                rightIcon="LogIn"
+                onClick={() => navigate('/login')}
+              >
+                {!isCompact ? t('common.navbar.login') : ''}
+              </Button>
+            )}
+          </div>
+        </nav>
+      </header>
+
+      {/* Menú móvil desplegable */}
+      {isMobile && isMobileMenuOpen && (
+        <div style={styles.mobileMenu}>
+          {tabs.map(tab => (
+            <button
+              key={tab.path}
+              style={styles.mobileMenuItem}
+              onClick={() => handleNavigation(tab.path)}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
-      </nav>
-    </header>
+      )}
+    </>
   );
 };
 
@@ -104,6 +162,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: '1rem',
   },
   logo: {
     fontFamily: 'var(--font-title)',
@@ -111,43 +170,55 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: '700',
     letterSpacing: '-0.5px',
     color: 'var(--text-color)',
+    flexShrink: 0,
+  },
+  hamburger: {
+    background: 'none',
+    border: 'none',
+    color: 'var(--text-color)',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '4px',
+    flexShrink: 0,
   },
   tabs: {
     display: 'flex',
     gap: '2rem',
+    flex: 1,
+    justifyContent: 'center',
   },
   tabLink: {
     fontSize: '0.875rem',
     fontWeight: '500',
     color: 'var(--text-color)',
+    whiteSpace: 'nowrap',
   },
   auth: {
     display: 'flex',
     alignItems: 'center',
+    flexShrink: 0,
   },
   userProfile: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem',
+    gap: '0.75rem',
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    padding: '0.25rem 1rem 0.25rem 0.25rem',
+    padding: '0.25rem 0.75rem 0.25rem 0.25rem',
     borderRadius: '100px',
     border: '1px solid rgba(255, 255, 255, 0.05)',
+    cursor: 'pointer',
   },
   userInfo: {
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
   },
   userAlias: {
     fontSize: '0.875rem',
     fontWeight: '600',
     color: 'var(--text-color)',
-    lineHeight: '1.2',
-  },
-  userEmail: {
-    fontSize: '0.75rem',
-    color: 'var(--text-secondary-color)',
     lineHeight: '1.2',
   },
   avatar: {
@@ -161,7 +232,28 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'center',
     fontSize: '0.875rem',
     fontWeight: '700',
-    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.1)',
+    flexShrink: 0,
+  },
+  mobileMenu: {
+    position: 'sticky',
+    top: '64px',
+    zIndex: 999,
+    backgroundColor: 'var(--header-bg)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  mobileMenuItem: {
+    background: 'none',
+    border: 'none',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+    color: 'var(--text-color)',
+    fontSize: '0.9375rem',
+    fontWeight: '500',
+    padding: '1rem 2rem',
+    textAlign: 'left',
+    cursor: 'pointer',
+    width: '100%',
   },
 };
 

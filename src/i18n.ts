@@ -96,6 +96,7 @@ const resources = {
         },
         navbar: {
           tournaments: 'Torneos',
+          admin_panel: 'Panel de administración',
           login: 'Iniciar sesión',
         },
       },
@@ -216,6 +217,7 @@ const resources = {
         },
         navbar: {
           tournaments: 'Tournaments',
+          admin_panel: 'Admin panel',
           login: 'Login',
         },
       },
