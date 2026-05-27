@@ -11,6 +11,7 @@ interface MatchCardProps {
   onResumeMatch?: (matchId: string) => void;
   onAssignBoard?: (matchId: string) => void;
   onAddResult?: (matchId: string) => void;
+  onViewMatchLive?: (matchId: string, boardShortId: string) => void;
   style?: React.CSSProperties;
 }
 
@@ -21,6 +22,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
   onResumeMatch,
   onAssignBoard,
   onAddResult,
+  onViewMatchLive,
   style
 }) => {
   const isFinished = match.status === 'FINISHED';
@@ -123,9 +125,17 @@ const MatchCard: React.FC<MatchCardProps> = ({
               >
                 Suspender
               </Button>
+              <Button
+                variant="primary"
+                size="small"
+                leftIcon="Play"
+                onClick={() => onViewMatchLive && onViewMatchLive(match.id, match?.boardShortId || '')}
+              >
+                Ver
+              </Button>
             </>
           )}
-          {(match.status === MatchStatus.PENDING || match.status === MatchStatus.READY || match.status === MatchStatus.IN_PROGRESS) && (
+          {(match.status === MatchStatus.PENDING || match.status === MatchStatus.READY /*|| match.status === MatchStatus.IN_PROGRESS*/) && (
             <Button
               variant="secondary"
               size="small"
@@ -143,6 +153,20 @@ const MatchCard: React.FC<MatchCardProps> = ({
               onClick={() => onResumeMatch && onResumeMatch(match.id)}
             >
               Reanudar
+            </Button>
+          )}
+        </div>
+      )}
+      {!isAdmin && (
+        <div style={styles.actionButtonsContainer}>
+          {match.status === 'IN_PROGRESS' && (
+            <Button
+              variant="primary"
+              size="small"
+              leftIcon="Play"
+              onClick={() => onViewMatchLive && onViewMatchLive(match.id, match?.boardShortId || '')}
+            >
+              Ver
             </Button>
           )}
         </div>

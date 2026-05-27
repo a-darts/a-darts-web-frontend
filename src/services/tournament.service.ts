@@ -180,6 +180,8 @@ export interface Match {
   round: number;
   matchIndex: number;
   boardNumber: number | null;
+  boardId: string | null;
+  boardShortId: string | null;
   startedAt: string | null;
   finishedAt: string | null;
   status: string;

@@ -9,6 +9,7 @@ import { useToast } from '../../../context/ToastContext';
 import MatchActionModals from '../../../components/MatchActionModals';
 import EmptyState from '../../../components/EmptyState';
 import { useMatchActions } from '../../../hooks/useMatchActions';
+import { useNavigate } from 'react-router-dom';
 
 interface TournamentMatchesTabProps {
   tournamentId: string;
@@ -16,6 +17,8 @@ interface TournamentMatchesTabProps {
 }
 
 const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentId, isAdmin }) => {
+  const navigate = useNavigate();
+  
   const { showToast } = useToast();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +48,10 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
 
     return () => clearInterval(intervalId);
   }, [tournamentId]);
+
+  const handleViewMatchLive = (matchId: string, boardShortId: string) => {
+    navigate(`/torneos/partido/${matchId}/diana/${boardShortId}/ver`);
+  };
 
   const matchActions = useMatchActions({ matches, onSuccess: fetchMatches });
 
@@ -130,6 +137,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
                 onResumeMatch={matchActions.handleResumeMatch}
                 onAssignBoard={matchActions.handleAssignBoard}
                 onAddResult={matchActions.handleAddResult}
+                onViewMatchLive={handleViewMatchLive}
               />
             ))}
           </div>
