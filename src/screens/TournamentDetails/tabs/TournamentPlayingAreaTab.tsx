@@ -151,6 +151,28 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     }
   };
 
+  const handleDisableBoard = async (boardNumber: number) => {
+    if (!playingArea) return;
+    try {
+      await tournamentService.disableBoard(playingArea.id, boardNumber);
+      showToast('Diana inutilizada correctamente', 'success');
+      await fetchData();
+    } catch (err: any) {
+      showToast(err.message || 'Error al inutilizar la diana', 'error');
+    }
+  };
+
+  const handleEnableBoard = async (boardNumber: number) => {
+    if (!playingArea) return;
+    try {
+      await tournamentService.enableBoard(playingArea.id, boardNumber);
+      showToast('Diana habilitada correctamente', 'success');
+      await fetchData();
+    } catch (err: any) {
+      showToast(err.message || 'Error al habilitar la diana', 'error');
+    }
+  };
+
   const handleViewMatchLive = (matchId: string, boardShortId: string) => {
     navigate(`/torneos/partido/${matchId}/diana/${boardShortId}/ver`);
   };
@@ -271,12 +293,12 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
         <StatCard
           title="Dianas ocupadas"
           value={occupiedBoards}
-          color="#f87171"
+          color="#fbbf24"
         />
         <StatCard
           title="Dianas inutilizables"
           value={disabledBoards}
-          color="#fbbf24"
+          color="#f87171"
         />
       </div>
 
@@ -295,6 +317,8 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
               onResumeMatch={matchActions.handleResumeMatch}
               onAddResult={matchActions.handleAddResult}
               onViewMatchLive={handleViewMatchLive}
+              onDisableBoard={handleDisableBoard}
+              onEnableBoard={handleEnableBoard}
             />
           );
         })}

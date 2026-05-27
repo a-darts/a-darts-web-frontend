@@ -3,6 +3,7 @@ import { Board, Match, MatchStatus } from '../services/tournament.service';
 import i18n from '../i18n';
 import Button from './Button';
 import TournamentMatchStatusTag from './TournamentMatchStatusTag';
+import BoardCardStatusTag from './BoardStatusTag';
 
 interface BoardCardProps {
   board: Board;
@@ -14,6 +15,8 @@ interface BoardCardProps {
   onResumeMatch?: (matchId: string) => void;
   onAddResult?: (matchId: string) => void;
   onViewMatchLive?: (matchId: string, boardShortId: string) => void;
+  onDisableBoard?: (boardNumber: number) => void;
+  onEnableBoard?: (boardNumber: number) => void;
 }
 
 const BoardCard: React.FC<BoardCardProps> = ({
@@ -26,6 +29,8 @@ const BoardCard: React.FC<BoardCardProps> = ({
   onResumeMatch,
   onAddResult,
   onViewMatchLive,
+  onDisableBoard,
+  onEnableBoard,
 }) => {
   const isPending = match?.status === MatchStatus.PENDING;
   const isReady = match?.status === MatchStatus.READY;
@@ -42,13 +47,11 @@ const BoardCard: React.FC<BoardCardProps> = ({
             <span style={styles.boardTitleShortId}>({board.shortId})</span>
           </div>
         </div>
-        <span style={{
-          ...styles.statusBadge,
-          backgroundColor: board.status === 'AVAILABLE' ? 'rgba(34, 197, 94, 0.2)' : (board.status === 'OCCUPIED' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.1)'),
-          color: board.status === 'AVAILABLE' ? '#4ade80' : (board.status === 'OCCUPIED' ? '#f87171' : '#fbbf24'),
-        }}>
-          {i18n.t(`playingArea.${board.status}`)}
-        </span>
+        <BoardCardStatusTag
+          status={board.status}
+          size="small"
+          showIcon={false}
+        />
       </div>
       {match && (
         <div style={{
@@ -125,7 +128,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
                 <>
                   {onAddResult && (
                     <Button
-                      variant="primary"
+                      variant="secondary"
                       size="small"
                       leftIcon="Plus"
                       onClick={() => onAddResult(match.id)}
@@ -175,18 +178,45 @@ const BoardCard: React.FC<BoardCardProps> = ({
           Partida en curso
         </div>
       )}
-      {board.status === 'AVAILABLE' && onAssignMatch && (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'auto' }}>
+      {board.status === 'AVAILABLE' && (
+        <div style={styles.actionFooterRow}>
+          {onAssignMatch && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'auto' }}>
+              <Button
+                variant="primary"
+                size="small"
+                leftIcon='Plus'
+                onClick={() => onAssignMatch(board.number)}
+              >
+                Asignar partida
+              </Button>
+            </div>
+          )}
+          {onDisableBoard && (
+            <Button
+              variant="danger"
+              size="small"
+              leftIcon="Lock"
+              onClick={() => onDisableBoard(board.number)}
+            >
+              Deshabilitar diana
+            </Button>
+          )}
+        </div>
+      )}
+      {board.status === 'DISABLED' && onEnableBoard && (
+        <div style={styles.actionFooterRow}>
           <Button
             variant="secondary"
             size="small"
-            leftIcon='Plus'
-            onClick={() => onAssignMatch(board.number)}
+            leftIcon="Unlock"
+            onClick={() => onEnableBoard(board.number)}
           >
-            Asignar partida
+            Habilitar diana
           </Button>
         </div>
       )}
+      
     </div>
   );
 };
@@ -222,12 +252,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: 'rgba(255, 255, 255, 0.6)',
     fontWeight: '400',
     fontSize: '0.7rem',
-  },
-  statusBadge: {
-    padding: '0.25rem 0.75rem',
-    borderRadius: '9999px',
-    fontSize: '0.75rem',
-    fontWeight: '600',
   },
   matchInfo: {
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
@@ -304,6 +328,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexWrap: 'wrap',
     gap: '0.5rem',
     justifyContent: 'center',
+  },
+  actionFooterRow: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    marginTop: 'auto',
+    flexWrap: 'wrap',
   },
 };
 
