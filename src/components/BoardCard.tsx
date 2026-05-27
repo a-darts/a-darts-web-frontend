@@ -114,15 +114,29 @@ const BoardCard: React.FC<BoardCardProps> = ({
                   )}
                 </>
               )}
-              {isSuspended && onResumeMatch && (
-                <Button
-                  variant="primary"
-                  size="small"
-                  leftIcon="Play"
-                  onClick={() => onResumeMatch(match.id)}
-                >
-                  Reanudar
-                </Button>
+              {isSuspended && (
+                <>
+                  {onResumeMatch && (
+                    <Button
+                      variant="primary"
+                      size="small"
+                      leftIcon="Play"
+                      onClick={() => onResumeMatch(match.id)}
+                    >
+                      Reanudar
+                    </Button>
+                  )}
+                  {onViewMatchLive && (
+                    <Button
+                      variant="primary"
+                      size="small"
+                      leftIcon="Play"
+                      onClick={() => onViewMatchLive(match.id, board.shortId)}
+                    >
+                      Ver
+                    </Button>
+                  )}
+                </>
               )}
               {isInProgress && (
                 <>

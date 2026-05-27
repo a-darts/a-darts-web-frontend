@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Match, tournamentService } from '../services/tournament.service';
+import { Match, MatchStatus, tournamentService } from '../services/tournament.service';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLiveMatchSocket, LiveMatchStatus, LiveMatch } from '../hooks/useLiveMatchSocket';
 
@@ -33,10 +33,13 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
 
     const tableContainerRef = useRef<HTMLDivElement>(null);
 
+    const [isMatchSuspended, setIsMatchSuspended] = useState(false);
+
     const { liveData, historyThrows, isLiveConnected } = useLiveMatchSocket({
         boardShortId,
         matchId,
-        initialData: defaultInitialData
+        initialData: defaultInitialData,
+        onSuspendedChange: setIsMatchSuspended,
     });
 
     // Auto-scroll al último tiro dentro del feed inferior si es necesario
@@ -63,6 +66,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                 setIsLoading(true);
                 const data = await tournamentService.getMatchById(matchId);
                 setMatch(data);
+                setIsMatchSuspended(data.status === MatchStatus.SUSPENDED);
 
                 setDefaultInitialData({
                     score: 0,
@@ -278,12 +282,26 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                     ))}
                 </div>
             </div>
+
+            {isMatchSuspended && (
+                <div style={styles.suspensionOverlay}>
+                    <div style={styles.suspensionCard}>
+                        <span style={styles.suspensionIcon}>⏸</span>
+                        <span style={styles.suspensionTitle}>Partida suspendida</span>
+                        <span style={styles.suspensionSubtitle}>
+                            El administrador ha pausado este partido.<br />
+                            Contacta con él si necesitas ayuda.
+                        </span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
     container: {
+        position: 'relative',
         padding: '24px',
         backgroundColor: '#0E0E0E',
         color: '#FFFFFF',
@@ -585,6 +603,49 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontWeight: 700,
         width: '72px',
         textAlign: 'center' as const,
+    },
+
+    // Suspension Overlay
+    suspensionOverlay: {
+        position: 'absolute',
+        inset: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        zIndex: 1000,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '30px',
+    } as React.CSSProperties,
+    suspensionCard: {
+        backgroundColor: '#1A1A1A',
+        borderRadius: '16px',
+        border: '2px solid #FF4C4C',
+        padding: '48px 40px',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        alignItems: 'center',
+        gap: '16px',
+        maxWidth: '420px',
+        width: '100%',
+        boxShadow: '0 0 40px #FF4C4C',
+    },
+    suspensionIcon: {
+        fontSize: '56px',
+        lineHeight: '1',
+    },
+    suspensionTitle: {
+        fontFamily: '"Space Grotesk", sans-serif',
+        fontWeight: 700,
+        fontSize: '22px',
+        color: '#FFFFFF',
+        textAlign: 'center' as const,
+    },
+    suspensionSubtitle: {
+        fontFamily: '"Manrope", sans-serif',
+        fontSize: '14px',
+        color: '#B3B3B3',
+        textAlign: 'center' as const,
+        lineHeight: '1.6',
     },
 };
 

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'; // <-- Importamos useRef
 import { io, Socket } from 'socket.io-client';
 import { SOCKET_URL } from '../services/api';
+import { MatchStatus } from '../services/tournament.service';
 
 export enum LiveMatchStatus {
     PLAYING,
@@ -34,14 +35,20 @@ interface UseLiveMatchSocketProps {
     boardShortId: string;
     matchId: string;
     initialData: LiveMatch | null;
+    onSuspendedChange?: (suspended: boolean) => void;
 }
 
-export const useLiveMatchSocket = ({ boardShortId, matchId, initialData }: UseLiveMatchSocketProps) => {
+export const useLiveMatchSocket = ({
+    boardShortId,
+    matchId,
+    initialData,
+    onSuspendedChange,
+}: UseLiveMatchSocketProps) => {
     const [liveData, setLiveData] = useState<LiveMatch | null>(null);
     const [historyThrows, setHistoryThrows] = useState<any[]>([]);
     const [isLiveConnected, setIsLiveConnected] = useState<boolean>(false);
 
-    // NUEVO: Este Ref guardará de forma síncrona los legs totales para que el socket los lea sin reiniciarse
+    // Este Ref guardará de forma síncrona los legs totales para que el socket los lea sin reiniciarse
     const totalLegsRef = useRef<number>(0);
 
     // Sincronizar el liveData cuando los detalles iniciales de la API REST terminen de cargar
@@ -216,6 +223,20 @@ export const useLiveMatchSocket = ({ boardShortId, matchId, initialData }: UseLi
             }
         });
 
+        socket.on('match_suspended', (data: { matchId: string }) => {
+            console.log('[LiveMonitor Hook] Partido suspendido:', data);
+            if (data.matchId === matchId) {
+                onSuspendedChange?.(true);
+            }
+        });
+
+        socket.on('match_resumed', (data: { matchId: string }) => {
+            console.log('[LiveMonitor Hook] Partido reanudado:', data);
+            if (data.matchId === matchId) {
+                onSuspendedChange?.(false);
+            }
+        });
+
         socket.on('connect_error', (err) => {
             console.error('[LiveMonitor Hook] Error de conexión:', err.message);
         });
@@ -230,6 +251,8 @@ export const useLiveMatchSocket = ({ boardShortId, matchId, initialData }: UseLi
             socket.off('connect');
             socket.off('match_restored');
             socket.off('score_update_confirmed');
+            socket.off('match_suspended');
+            socket.off('match_resumed');
             socket.off('disconnect');
             socket.off('connect_error');
             socket.disconnect();
