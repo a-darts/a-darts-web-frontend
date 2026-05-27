@@ -126,12 +126,22 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
             {/* Header superior */}
             <div style={styles.header}>
                 <button onClick={handleBackClick} style={styles.backButton}>← Volver</button>
+                <div style={styles.matchInfoContainer}>
+                    <div style={styles.roundBadge}>
+                        <span style={styles.badgeLabel}>RONDA</span>
+                        <span style={styles.badgeValue}>{match.round}</span>
+                    </div>
+                    <div style={styles.boardBadge}>
+                        <span style={styles.badgeLabel}>DIANA</span>
+                        <span style={styles.badgeValue}>{match.boardNumber}</span>
+                    </div>
+                </div>
                 <div style={styles.liveIndicator}>
                     <div style={{
                         ...styles.dot,
                         backgroundColor: isLiveConnected ? '#BFE55F' : '#FF4C4C',
                     }} />
-                    <span>{isLiveConnected ? 'TRANSMISIÓN EN VIVO' : 'DESCONECTADO'}</span>
+                    <span>{isLiveConnected ? 'EN DIRECTO' : 'DESCONECTADO'}</span>
                 </div>
             </div>
 
@@ -278,6 +288,42 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontSize: '16px',
         fontFamily: '"Space Grotesk", sans-serif',
         fontWeight: 500
+    },
+    matchInfoContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        backgroundColor: '#161616',
+        padding: '6px 12px',
+        borderRadius: '12px',
+        border: '1px solid #2A2A2A',
+    },
+    roundBadge: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        borderRight: '1px solid #2a2a2a',
+        paddingRight: '18px',
+    },
+    boardBadge: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        paddingLeft: '4px',
+    },
+    badgeLabel: {
+        fontFamily: '"Space Grotesk", sans-serif',
+        fontSize: '12px',
+        fontWeight: 700,
+        color: '#b0b0b0',
+        letterSpacing: '1px',
+    },
+    badgeValue: {
+        fontFamily: '"Space Grotesk", sans-serif',
+        fontSize: '12px',
+        fontWeight: 700,
+        color: '#b0b0b0',
+        textAlign: 'center',
     },
     liveIndicator: {
         display: 'flex',
