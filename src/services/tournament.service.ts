@@ -39,6 +39,7 @@ export enum GameModes {
   MEN_SINGLES = 'Individual Masculino',
   MIXED_SINGLES = 'Individual Mixto',
   YOUTH_SINGLES = 'Individual Juvenil',
+  OTHER = 'Otros',
 }
 
 export enum GameTypes {
