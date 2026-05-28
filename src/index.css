@@ -317,3 +317,27 @@ a:hover {
     justify-content: flex-start;
   }
 }
+
+/* --- LiveMatchMonitorScreen responsive font sizes --- */
+@media (max-width: 480px) {
+  .responsive-player-card {
+    padding: 16px 8px !important;
+  }
+
+  .responsive-player-name {
+    font-size: 14px !important;
+  }
+
+  .responsive-score-left {
+    font-size: 32px !important;
+    /* Aquí baja la puntuación (501) de 50px a 32px */
+  }
+
+  .responsive-match-score-text {
+    font-size: 16px !important;
+  }
+
+  .responsive-styles-label {
+    font-size: 10px !important;
+  }
+}

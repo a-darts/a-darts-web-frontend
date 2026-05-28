@@ -185,15 +185,21 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                     {/* Fila superior: Tarjetas de puntuación restante y Marcador Central */}
                     <div style={styles.headerRow}>
                         {/* Jugador 1 Card */}
-                        <div style={{
-                            ...styles.playerCard,
-                            ...(liveData.activePlayerIndex === 0 ? styles.playerCardActive : {})
-                        }}>
-                            <span style={styles.playerName}>{p1Name}</span>
-                            <span style={{
-                                ...styles.scoreLeftText,
-                                ...(liveData.activePlayerIndex === 0 ? styles.scoreActiveText : {})
-                            }}>
+                        <div 
+                            className="responsive-player-card"
+                            style={{
+                                ...styles.playerCard,
+                                ...(liveData.activePlayerIndex === 0 ? styles.playerCardActive : {})
+                            }}
+                        >
+                            <span className="responsive-player-name" style={styles.playerName}>{p1Name}</span>
+                            <span
+                                className="responsive-score-left"
+                                style={{
+                                    ...styles.scoreLeftText,
+                                    ...(liveData.activePlayerIndex === 0 ? styles.scoreActiveText : {})
+                                }}
+                            >
                                 {liveData.participant1.remainingScore}
                             </span>
                         </div>
@@ -201,30 +207,36 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                         {/* Marcador Central de Stats (LEGS - SETS) */}
                         <div style={styles.matchScoreCard}>
                             <div style={styles.matchScoreSection}>
-                                <span style={styles.matchScoreRowText}>
+                                <span className="responsive-match-score-text" style={styles.matchScoreRowText}>
                                     {liveData.participant1.legsWon} - {liveData.participant2.legsWon}
                                 </span>
-                                <span style={styles.stylesLabel}>LEGS</span>
+                                <span className="responsive-styles-label" style={styles.stylesLabel}>LEGS</span>
                             </div>
 
                             <div style={{ ...styles.matchScoreSection, marginTop: '24px' }}>
-                                <span style={styles.matchScoreRowText}>
+                                <span className="responsive-match-score-text" style={styles.matchScoreRowText}>
                                     {liveData.participant1.setsWon} - {liveData.participant2.setsWon}
                                 </span>
-                                <span style={styles.stylesLabel}>SETS</span>
+                                <span className="responsive-styles-label" style={styles.stylesLabel}>SETS</span>
                             </div>
                         </div>
 
                         {/* Jugador 2 Card */}
-                        <div style={{
-                            ...styles.playerCard,
-                            ...(liveData.activePlayerIndex === 1 ? styles.playerCardActive : {})
-                        }}>
-                            <span style={styles.playerName}>{p2Name}</span>
-                            <span style={{
-                                ...styles.scoreLeftText,
-                                ...(liveData.activePlayerIndex === 1 ? styles.scoreActiveText : {})
-                            }}>
+                        <div
+                            className="responsive-player-card"
+                            style={{
+                                ...styles.playerCard,
+                                ...(liveData.activePlayerIndex === 1 ? styles.playerCardActive : {})
+                            }}
+                        >
+                            <span className="responsive-player-name" style={styles.playerName}>{p2Name}</span>
+                            <span
+                                className="responsive-score-left"
+                                style={{
+                                    ...styles.scoreLeftText,
+                                    ...(liveData.activePlayerIndex === 1 ? styles.scoreActiveText : {})
+                                }}
+                            >
                                 {liveData.participant2.remainingScore}
                             </span>
                         </div>
