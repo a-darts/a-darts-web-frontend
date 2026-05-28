@@ -26,12 +26,6 @@ const HomeScreen: React.FC = () => {
           >
             Explorar Torneos
           </Button>
-          <Button
-            variant="secondary"
-            rightIcon="ArrowRight"
-          >
-            Saber más
-          </Button>
         </div>
       </section>
     </main>
