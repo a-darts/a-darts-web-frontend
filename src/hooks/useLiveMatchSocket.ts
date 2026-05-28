@@ -61,8 +61,13 @@ export const useLiveMatchSocket = ({
     }, [initialData]);
 
     useEffect(() => {
-        if (!boardShortId || !matchId) return;
-
+        if (!boardShortId || !matchId) {
+            setLiveData(null);
+            setHistoryThrows([]);
+            setIsLiveConnected(false);
+            return;
+        }
+        
         console.log(`[LiveMonitor Hook] Inicializando conexión única para diana: ${boardShortId}`);
         const socketUrl = new URL(SOCKET_URL).origin;
 

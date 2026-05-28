@@ -37,8 +37,8 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     const [isMatchSuspended, setIsMatchSuspended] = useState(false);
 
     const { liveData, historyThrows, isLiveConnected } = useLiveMatchSocket({
-        boardShortId,
-        matchId,
+        boardShortId: error ? '' : boardShortId,
+        matchId: error ? '' : matchId,
         initialData: defaultInitialData,
         onSuspendedChange: setIsMatchSuspended,
     });
@@ -66,6 +66,11 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
             try {
                 setIsLoading(true);
                 const data = await tournamentService.getMatchById(matchId);
+
+                if (data.boardShortId && data.boardShortId !== boardShortId) {
+                    throw new Error(`Este partido está asignado a la diana ${data.boardNumber || ''}, no corresponde a la URL actual.`);
+                }
+
                 setMatch(data);
                 setIsMatchSuspended(data.status === MatchStatus.SUSPENDED);
 
@@ -159,7 +164,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                         <span style={styles.badgeLabel}>RONDA</span>
                         <span style={styles.badgeValue}>{match.round}</span>
                     </div>
-                    <div style={styles.boardBadge} className="responsive-board-badge">
+                    <div className="responsive-board-badge" style={styles.boardBadge}>
                         <span style={styles.badgeLabel}>DIANA</span>
                         <span style={styles.badgeValue}>{match.boardNumber}</span>
                     </div>
@@ -194,16 +199,16 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                         </div>
 
                         {/* Marcador Central de Stats (LEGS - SETS) */}
-                        <div style={styles.statsCard}>
-                            <div style={styles.statsSection}>
-                                <span style={styles.statsRowText}>
+                        <div style={styles.matchScoreCard}>
+                            <div style={styles.matchScoreSection}>
+                                <span style={styles.matchScoreRowText}>
                                     {liveData.participant1.legsWon} - {liveData.participant2.legsWon}
                                 </span>
                                 <span style={styles.stylesLabel}>LEGS</span>
                             </div>
 
-                            <div style={{ ...styles.statsSection, marginTop: '24px' }}>
-                                <span style={styles.statsRowText}>
+                            <div style={{ ...styles.matchScoreSection, marginTop: '24px' }}>
+                                <span style={styles.matchScoreRowText}>
                                     {liveData.participant1.setsWon} - {liveData.participant2.setsWon}
                                 </span>
                                 <span style={styles.stylesLabel}>SETS</span>
@@ -343,7 +348,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         color: '#FFFFFF',
         backgroundColor: '#0E0E0E',
         fontFamily: '"Manrope", sans-serif',
-        fontSize: '16px'
+        fontSize: '16px',
     },
     notFoundCard: {
         backgroundColor: '#161616',
@@ -473,7 +478,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     // Left side
     scoreboardSide: {
         flex: '1 1 500px',
-        maxWidth: '1000px',
+        maxWidth: '600px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
@@ -489,7 +494,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         alignItems: 'stretch'
     },
     playerCard: {
-        flex: '1 1 150px',
+        flex: '1 1 80px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -524,19 +529,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     scoreActiveText: {
         color: '#BFE55F',
     },
-    statsCard: {
+    matchScoreCard: {
         flex: 2,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
+        minWidth: '50px',
     },
-    statsSection: {
+    matchScoreSection: {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center'
     },
-    statsRowText: {
+    matchScoreRowText: {
         fontFamily: '"Space Grotesk", sans-serif',
         fontWeight: 700,
         fontSize: '22px',
@@ -619,7 +625,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     statsColumnTitle: {
         fontSize: '11px',
         letterSpacing: '1.5px',
-        color: '#606060',
+        color: '#BFE55F',
         fontWeight: 700,
         textTransform: 'uppercase' as const,
         textAlign: 'center' as const,
