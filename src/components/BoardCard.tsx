@@ -161,7 +161,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
                     </Button>
                   )}
                   {/* Cannot reasing board while match is in progress */}
-                  {/* {onAssignBoard && (
+                  {onAssignBoard && (
                     <Button
                       variant="secondary"
                       size="small"
@@ -170,7 +170,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
                     >
                       Reasignar diana
                     </Button>
-                  )} */}
+                  )}
                   {onViewMatchLive && (
                     <Button
                       variant="primary"

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Match, MatchStatus, tournamentService } from '../services/tournament.service';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLiveMatchSocket, LiveMatchStatus, LiveMatch } from '../hooks/useLiveMatchSocket';
+import Button from '../components/Button';
 
 // Inyección de fuentes
 const fontLink = document.createElement('link');
@@ -99,8 +100,29 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     }, [matchId]);
 
     if (isLoading) return <div style={styles.centerContainer}>Cargando estado del partido...</div>;
-    if (error) return <div style={styles.centerContainer}>Error: {error}</div>;
-    if (!match || !liveData) return <div style={styles.centerContainer}>No se encontró el partido.</div>;
+    if (error || !match || !liveData) {
+        return (
+            <div style={styles.centerContainer}>
+                <div style={styles.notFoundCard}>
+                    <h2 style={styles.notFoundTitle}>Partido no disponible</h2>
+                    <p style={styles.notFoundSubtitle}>
+                        El partido que buscas no se ha encontrado o es posible que el administrador lo haya 
+                        <strong style={{ color: '#BFE55F' }}> reasignado a otra diana</strong>.
+                    </p>
+                    <Button
+                        variant="secondary"
+                        leftIcon="ArrowLeft"
+                        onClick={handleBackClick}
+                    >
+                        Volver
+                    </Button>
+                    {/* <button onClick={handleBackClick} style={styles.notFoundButton}>
+                        Volver al Panel
+                    </button> */}
+                </div>
+            </div>
+        );
+    }
 
     const p1Name = match.participant1?.alias || 'Jugador 1';
     const p2Name = match.participant2?.alias || 'Jugador 2';
@@ -311,6 +333,8 @@ const styles: { [key: string]: React.CSSProperties } = {
         flexDirection: 'column',
         boxSizing: 'border-box'
     },
+
+    // Not found / error section
     centerContainer: {
         display: 'flex',
         justifyContent: 'center',
@@ -320,6 +344,45 @@ const styles: { [key: string]: React.CSSProperties } = {
         backgroundColor: '#0E0E0E',
         fontFamily: '"Manrope", sans-serif',
         fontSize: '16px'
+    },
+    notFoundCard: {
+        backgroundColor: '#161616',
+        border: '1px solid #2A2A2A',
+        borderRadius: '20px',
+        padding: '40px 32px',
+        maxWidth: '460px',
+        width: '100%',
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        boxShadow: '0px 10px 30px rgba(0, 0, 0, 0.5)',
+    },
+    notFoundTitle: {
+        fontFamily: '"Space Grotesk", sans-serif',
+        fontSize: '24px',
+        fontWeight: 700,
+        color: '#FFFFFF',
+        margin: '0 0 12px 0',
+    },
+    notFoundSubtitle: {
+        fontSize: '15px',
+        color: '#A0A0A0',
+        lineHeight: '1.6',
+        margin: '0 0 28px 0',
+    },
+    notFoundButton: {
+        fontFamily: '"Space Grotesk", sans-serif',
+        backgroundColor: 'transparent',
+        border: '1px solid #4C4C4C',
+        color: '#FFFFFF',
+        padding: '12px 24px',
+        borderRadius: '10px',
+        fontSize: '14px',
+        fontWeight: 600,
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        outline: 'none',
     },
 
     // Header

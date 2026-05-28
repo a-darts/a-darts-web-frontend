@@ -237,6 +237,31 @@ export const useLiveMatchSocket = ({
             }
         });
 
+        socket.on('match_assigned', (data: { matchId: string; status: string }) => {
+            console.log('[LiveMonitor Hook] Partida asignada a esta diana:', data);
+            if (data.matchId === matchId) {
+                const defaultState: LiveMatch = {
+                    score: 0,
+                    activePlayerIndex: 0,
+                    throwerPlayerIndex: 0,
+                    status: LiveMatchStatus.PLAYING,
+                    participant1: { remainingScore: 501, stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 }, setsWon: 0, legsWon: 0 },
+                    participant2: { remainingScore: 501, stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 }, setsWon: 0, legsWon: 0 }
+                };
+                setLiveData(defaultState);
+                setHistoryThrows([]);
+                totalLegsRef.current = 0;
+            }
+        });
+
+        socket.on('match_unassigned', (data: { matchId?: string }) => {
+            console.log('[LiveMonitor Hook] Partida desasignada de esta diana.');
+            // Limpiamos los estados por completo para que la diana vuelva a la pantalla de espera
+            setLiveData(null);
+            setHistoryThrows([]);
+            totalLegsRef.current = 0;
+        });
+
         socket.on('connect_error', (err) => {
             console.error('[LiveMonitor Hook] Error de conexión:', err.message);
         });
@@ -253,6 +278,8 @@ export const useLiveMatchSocket = ({
             socket.off('score_update_confirmed');
             socket.off('match_suspended');
             socket.off('match_resumed');
+            socket.off('match_assigned');
+            socket.off('match_unassigned');
             socket.off('disconnect');
             socket.off('connect_error');
             socket.disconnect();
