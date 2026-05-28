@@ -14,7 +14,7 @@ const TournamentsScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilters, setActiveFilters] = useState<FilterType[]>(['upcoming']);
+  const [activeFilters, setActiveFilters] = useState<FilterType[]>(['upcoming', 'ongoing']);
 
   useEffect(() => {
     const fetchTournaments = async () => {
@@ -53,23 +53,29 @@ const TournamentsScreen: React.FC = () => {
     });
   };
 
-  const filteredTournaments = tournaments.filter((t) => {
-    const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase());
-    if (!matchesSearch) return false;
+  const filteredTournaments = tournaments
+    .filter((t) => {
+      const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase());
+      if (!matchesSearch) return false;
 
-    const date = new Date(t.info.dateTime);
-    const now = new Date();
-    date.setHours(0, 0, 0, 0);
-    now.setHours(0, 0, 0, 0);
+      const date = new Date(t.info.dateTime);
+      const now = new Date();
+      date.setHours(0, 0, 0, 0);
+      now.setHours(0, 0, 0, 0);
 
-    return activeFilters.some(filter => {
-      if (filter === 'all') return true;
-      if (filter === 'ongoing') return t.status === 'IN_PROGRESS';
-      if (filter === 'finished') return t.status === 'FINISHED';
-      if (filter === 'upcoming') return date >= now && t.status !== 'IN_PROGRESS' && t.status !== 'FINISHED';
-      return false;
+      return activeFilters.some(filter => {
+        if (filter === 'all') return true;
+        if (filter === 'ongoing') return t.status === 'IN_PROGRESS';
+        if (filter === 'finished') return t.status === 'FINISHED';
+        if (filter === 'upcoming') return date >= now && t.status !== 'IN_PROGRESS' && t.status !== 'FINISHED';
+        return false;
+      });
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.info.dateTime).getTime();
+      const dateB = new Date(b.info.dateTime).getTime();
+      return dateA - dateB; // Ordenar por fecha ascendente
     });
-  });
 
   const breadcrumbItems = [
     { label: 'Inicio', path: '/' },
@@ -98,20 +104,20 @@ const TournamentsScreen: React.FC = () => {
               Todos
             </Button>
             <Button
-              variant={activeFilters.includes('upcoming') ? 'primary' : 'secondary'}
-              leftIcon={activeFilters.includes('upcoming') ? 'Check' : undefined}
-              onClick={() => toggleFilter('upcoming')}
-              size="small"
-            >
-              Próximos
-            </Button>
-            <Button
               variant={activeFilters.includes('ongoing') ? 'primary' : 'secondary'}
               leftIcon={activeFilters.includes('ongoing') ? 'Check' : undefined}
               onClick={() => toggleFilter('ongoing')}
               size="small"
             >
               En curso
+            </Button>
+            <Button
+              variant={activeFilters.includes('upcoming') ? 'primary' : 'secondary'}
+              leftIcon={activeFilters.includes('upcoming') ? 'Check' : undefined}
+              onClick={() => toggleFilter('upcoming')}
+              size="small"
+            >
+              Próximos
             </Button>
             <Button
               variant={activeFilters.includes('finished') ? 'primary' : 'secondary'}
