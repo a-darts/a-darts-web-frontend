@@ -110,12 +110,23 @@ button.secondary:hover {
   transform: translateY(-1px);
 }
 
-button.danger {
+button.danger-primary {
   background-color: #FD605D;
   color: #000000;
 }
 
-button.danger:hover {
+button.danger-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+button.danger-secondary {
+  background-color: var(--btn-secondary-bg);
+  border: 1px solid #FD605D;
+  color: #FD605D;
+}
+
+button.danger-secondary:hover {
   filter: brightness(1.1);
   transform: translateY(-1px);
 }

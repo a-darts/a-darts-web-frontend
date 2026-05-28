@@ -237,7 +237,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
       header: 'Acciones',
       render: (item: Participant) => (
         <Button
-          variant="danger"
+          variant="danger-primary"
           onClick={() => handleOpenDeleteModal(item)}
           leftIcon="X"
           style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', height: '32px' }}

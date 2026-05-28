@@ -82,7 +82,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
             <div style={styles.releaseActionsRow}>
               {isFinished && onReleaseBoard && (
                 <Button
-                  variant="danger"
+                  variant="danger-primary"
                   size="small"
                   leftIcon="X"
                   onClick={() => onReleaseBoard(board.number)}
@@ -208,7 +208,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
           )}
           {onDisableBoard && (
             <Button
-              variant="danger"
+              variant="danger-secondary"
               size="small"
               leftIcon="Lock"
               onClick={() => onDisableBoard(board.number)}

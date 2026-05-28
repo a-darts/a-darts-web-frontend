@@ -293,7 +293,7 @@ const TournamentDetailsScreen: React.FC = () => {
           {!isAdmin && status === TournamentStatus.PUBLISHED && registration.status === RegistrationStatus.OPEN && (
             userParticipant ? (
               <Button
-                variant="danger"
+                variant="danger-primary"
                 leftIcon="X"
                 onClick={handleUnregisterClick}
               >

@@ -349,7 +349,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
               Editar cuadrante
             </Button>
             <Button
-              variant="danger"
+              variant="danger-primary"
               leftIcon="Trash2"
               onClick={() => setIsDeleteModalOpen(true)}
               loading={isDeleting}
