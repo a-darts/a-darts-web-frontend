@@ -39,12 +39,6 @@ export enum GameModes {
   MEN_SINGLES = 'Individual Masculino',
   MIXED_SINGLES = 'Individual Mixto',
   YOUTH_SINGLES = 'Individual Juvenil',
-  PAIRS = 'Parejas',
-  WOMEN_PAIRS = 'Parejas Femeninas',
-  MEN_PAIRS = 'Parejas Masculinas',
-  MIXED_PAIRS = 'Parejas Mixtas',
-  YOUTH_PAIRS = 'Parejas Juveniles',
-  TEAMS = 'Equipos',
 }
 
 export enum GameTypes {
