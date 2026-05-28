@@ -236,18 +236,25 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
     // Sort matches by matchIndex to maintain bracket order
     roundMatches.sort((a, b) => a.matchIndex - b.matchIndex);
 
-    const formattedMatches: { player1: BracketParticipant; player2: BracketParticipant; status: string; boardNumber: number | null }[] = roundMatches.map(m => ({
+    const formattedMatches: {
+      player1: BracketParticipant;
+      player2: BracketParticipant;
+      status: string;
+      boardNumber: number | null;
+    }[] = roundMatches.map(m => ({
       player1: {
         position: 0,
         alias: m.participant1.alias,
         federation: m.participant1.federation,
-        score: m.matchScore.participant1.legsWon
+        legsWon: m.matchScore.participant1.legsWon,
+        setsWon: m.matchScore.participant1.setsWon,
       },
       player2: {
         position: 0,
         alias: m.participant2.alias,
         federation: m.participant2.federation,
-        score: m.matchScore.participant2.legsWon
+        legsWon: m.matchScore.participant2.legsWon,
+        setsWon: m.matchScore.participant2.setsWon,
       },
       status: m.status,
       boardNumber: m.boardNumber,
@@ -257,8 +264,8 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
     const expectedMatches = totalPositions / Math.pow(2, round);
     while (formattedMatches.length < expectedMatches) {
       formattedMatches.push({
-        player1: { position: 0, alias: null, federation: null, score: undefined },
-        player2: { position: 0, alias: null, federation: null, score: undefined },
+        player1: { position: 0, alias: null, federation: null, legsWon: undefined, setsWon: undefined },
+        player2: { position: 0, alias: null, federation: null, legsWon: undefined, setsWon: undefined },
         status: 'PENDING',
         boardNumber: null,
       });

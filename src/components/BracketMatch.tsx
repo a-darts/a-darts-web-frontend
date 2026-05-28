@@ -1,14 +1,16 @@
 import React from 'react';
 import { getFederationLabel, getFederationFlag } from '../utils/tournament.utils';
+import { MatchStatus } from '../services/tournament.service';
 
 export interface BracketParticipant {
   position: number;
   alias: string | null;
   federation: string | null;
-  score?: number;
+  legsWon?: number;
+  setsWon?: number;
 }
 
-interface BracketMatchProps {
+export interface BracketMatchProps {
   player1: BracketParticipant;
   player2: BracketParticipant;
   showPositions?: boolean;
@@ -27,6 +29,38 @@ const BracketMatch: React.FC<BracketMatchProps> = ({
   };
 
   const isByeMatch = player1.alias === 'Bye' || player2.alias === 'Bye';
+  const isFinished = status === MatchStatus.FINISHED;
+  const isInProgress = status === MatchStatus.IN_PROGRESS;
+
+  let winnerAlias: string | null = null;
+  if (isFinished) {
+    const p1Sets = player1.setsWon || 0;
+    const p2Sets = player2.setsWon || 0;
+    const p1Legs = player1.legsWon || 0;
+    const p2Legs = player2.legsWon || 0;
+
+    if (p1Sets > p2Sets) {
+      winnerAlias = player1.alias;
+    } else if (p2Sets > p1Sets) {
+      winnerAlias = player2.alias;
+    } else if (p1Legs > p2Legs) {
+      winnerAlias = player1.alias;
+    } else if (p2Legs > p1Legs) {
+      winnerAlias = player2.alias;
+    }
+  }
+
+  const getScoreColor = (participant: BracketParticipant, isLegsBox: boolean) => {
+    if (isInProgress) {
+      return '#FFFFFF';
+    }
+    if (isFinished) {
+      return participant.alias === winnerAlias 
+        ? '#BFE55F' 
+        : 'rgba(255, 255, 255, 0.3)';
+    }
+    return 'rgba(255, 255, 255, 0.3)';
+  };
 
   const renderParticipant = (pos: BracketParticipant, isFirst: boolean) => (
     <div style={{
@@ -53,13 +87,24 @@ const BracketMatch: React.FC<BracketMatchProps> = ({
           </span>
         </div>
       </div>
-      {!isByeMatch && (
-        <div style={{
-          ...styles.scoreBox,
-          backgroundColor: pos.score !== undefined && pos.score > 0 ? 'rgba(196, 232, 102, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-          color: pos.score !== undefined && pos.score > 0 ? 'var(--btn-primary-bg)' : 'rgba(255, 255, 255, 0.3)',
-        }}>
-          {status === 'PENDING' || status === 'READY' ? '-' : (pos.score !== undefined ? pos.score : '')}
+      {!isByeMatch && (status !== 'PENDING' && status !== 'READY') && (
+        <div style={{ display: 'flex', gap: '0.25rem' }}>
+          {/* Caja de Sets */}
+          <div style={{
+            ...styles.scoreBox,
+            color: getScoreColor(pos, false),
+            fontWeight: isFinished && pos.alias === winnerAlias ? '800' : '700'
+          }}>
+            {pos.setsWon !== undefined ? pos.setsWon : ''}
+          </div>
+          {/* Caja de Legs */}
+          <div style={{
+            ...styles.scoreBox,
+            color: getScoreColor(pos, true),
+            fontWeight: isFinished && pos.alias === winnerAlias ? '800' : '700'
+          }}>
+            {pos.legsWon !== undefined ? pos.legsWon : ''}
+          </div>
         </div>
       )}
     </div>
@@ -137,8 +182,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'center',
     borderRadius: '4px',
     fontSize: '0.9rem',
-    fontWeight: '700',
     border: '1px solid rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
 };
 
