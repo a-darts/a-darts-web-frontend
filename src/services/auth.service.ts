@@ -49,6 +49,7 @@ export const authService = {
     }
   },
 
+  // USER
   registerByAdmin: async (email: string, alias: string, role: string) => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('No hay token de sesión');
@@ -160,68 +161,7 @@ export const authService = {
     return user ? JSON.parse(user) : null;
   },
 
-  updateEmail: async (newEmail: string) => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/email`, {
-        method: 'PUT',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ newEmail }),
-      });
-
-      return handleResponse(response);
-    } catch (error: any) {
-      throw handleFetchError(error);
-    }
-  },
-
-  updateAlias: async (newAlias: string) => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/alias`, {
-        method: 'PUT',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ newAlias }),
-      });
-
-      return handleResponse(response);
-    } catch (error: any) {
-      throw handleFetchError(error);
-    }
-  },
-
-  updatePassword: async (oldPassword: string, newPassword: string) => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/password`, {
-        method: 'PUT',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ oldPassword, newPassword }),
-      });
-
-      return handleResponse(response);
-    } catch (error: any) {
-      throw handleFetchError(error);
-    }
-  },
-
+  // USER
   getUsers: async (page?: number, limit?: number) => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('No hay token de sesión');
@@ -249,6 +189,7 @@ export const authService = {
     }
   },
 
+  // USER
   getUserById: async (userId: string) => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('No hay token de sesión');
@@ -269,7 +210,8 @@ export const authService = {
     }
   },
 
-  updateUserEmailByAdmin: async (userId: string, newEmail: string) => {
+  // USER
+  updateEmail: async (userId: string, newEmail: string) => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('No hay token de sesión');
 
@@ -290,7 +232,8 @@ export const authService = {
     }
   },
 
-  updateUserAliasByAdmin: async (userId: string, newAlias: string) => {
+  // USER
+  updateAlias: async (userId: string, newAlias: string) => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('No hay token de sesión');
 
@@ -303,6 +246,28 @@ export const authService = {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ newAlias }),
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  // USER
+  updatePassword: async (userId: string, oldPassword: string, newPassword: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/password`, {
+        method: 'PUT',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ oldPassword, newPassword }),
       });
 
       return handleResponse(response);

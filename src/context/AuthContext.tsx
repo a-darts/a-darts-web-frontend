@@ -29,9 +29,9 @@ interface AuthContextType {
   register: (email: string, password: string, alias: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
-  updateEmail: (newEmail: string) => Promise<void>;
-  updateAlias: (newAlias: string) => Promise<void>;
-  updatePassword: (oldPassword: string, newPassword: string) => Promise<void>;
+  updateEmail: (userId: string, newEmail: string) => Promise<void>;
+  updateAlias: (userId: string, newAlias: string) => Promise<void>;
+  updatePassword: (userId: string, oldPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -79,18 +79,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     navigate('/');
   };
 
-  const updateEmail = async (newEmail: string) => {
-    await authService.updateEmail(newEmail);
+  const updateEmail = async (userId: string, newEmail: string) => {
+    await authService.updateEmail(userId, newEmail);
     await refreshUser();
   };
 
-  const updateAlias = async (newAlias: string) => {
-    await authService.updateAlias(newAlias);
+  const updateAlias = async (userId: string, newAlias: string) => {
+    await authService.updateAlias(userId, newAlias);
     await refreshUser();
   };
 
-  const updatePassword = async (oldPassword: string, newPassword: string) => {
-    await authService.updatePassword(oldPassword, newPassword);
+  const updatePassword = async (userId: string, oldPassword: string, newPassword: string) => {
+    await authService.updatePassword(userId, oldPassword, newPassword);
   };
 
   return (

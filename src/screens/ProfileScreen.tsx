@@ -62,7 +62,7 @@ const ProfileScreen: React.FC = () => {
     setSuccess(false);
 
     try {
-      await updateEmail(email);
+      await updateEmail(user.id, email);
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || 'Error al actualizar el correo');
@@ -79,7 +79,7 @@ const ProfileScreen: React.FC = () => {
     setAliasSuccess(false);
 
     try {
-      await updateAlias(alias);
+      await updateAlias(user.id, alias);
       setAliasSuccess(true);
     } catch (err: any) {
       setAliasError(err.message || 'Error al actualizar el alias');
@@ -99,7 +99,7 @@ const ProfileScreen: React.FC = () => {
     setPassSuccess(false);
 
     try {
-      await updatePassword(oldPassword, newPassword);
+      await updatePassword(user.id, oldPassword, newPassword);
       setPassSuccess(true);
       setOldPassword('');
       setNewPassword('');

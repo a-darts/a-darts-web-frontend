@@ -105,10 +105,10 @@ const AdminEditUserScreen: React.FC = () => {
 
     try {
       if (emailChanged && id) {
-        await authService.updateUserEmailByAdmin(id, email.trim());
+        await authService.updateEmail(id, email.trim());
       }
       if (aliasChanged && id) {
-        await authService.updateUserAliasByAdmin(id, alias.trim());
+        await authService.updateAlias(id, alias.trim());
       }
 
       showToast('¡Usuario actualizado con éxito!', 'success');
