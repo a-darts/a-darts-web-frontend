@@ -296,7 +296,7 @@ export const tournamentService = {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`${API_BASE_URL}/tournaments/${id}/unregisteredPlayers`, {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${id}/unregistered-players`, {
         method: 'GET',
         headers,
       });
@@ -592,7 +592,7 @@ export const tournamentService = {
     if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
 
     try {
-      const response = await fetch(`${API_BASE_URL}/brackets/${bracketId}/setupPositions`, {
+      const response = await fetch(`${API_BASE_URL}/brackets/${bracketId}/setup-positions`, {
         method: 'PUT',
         headers: {
           'accept': 'application/json',
@@ -742,7 +742,7 @@ export const tournamentService = {
     if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
 
     try {
-      const response = await fetch(`${API_BASE_URL}/matches/${matchId}/boardNumber`, {
+      const response = await fetch(`${API_BASE_URL}/matches/${matchId}/board-number`, {
         method: 'PUT',
         headers: {
           'accept': 'application/json',

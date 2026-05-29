@@ -19,7 +19,7 @@ export const playerService = {
     if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
 
     try {
-      const response = await fetch(`${API_BASE_URL}/players/user/${userId}/season/${seasonYear}`, {
+      const response = await fetch(`${API_BASE_URL}/players/users/${userId}/seasons/${seasonYear}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
