@@ -841,12 +841,12 @@ export const tournamentService = {
     }
   },
 
-  releasePlayingAreaBoard: async (playingAreaId: string, boardNumber: number): Promise<void> => {
+  releasePlayingAreaBoard: async (playingAreaId: string, boardId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
 
     try {
-      const response = await fetch(`${API_BASE_URL}/playing-areas/${playingAreaId}/boards/${boardNumber}/release`, {
+      const response = await fetch(`${API_BASE_URL}/playing-areas/${playingAreaId}/boards/${boardId}/release`, {
         method: 'POST',
         headers: {
           'accept': 'application/json',

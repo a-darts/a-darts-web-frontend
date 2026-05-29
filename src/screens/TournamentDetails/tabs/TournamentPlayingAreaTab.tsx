@@ -105,11 +105,11 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     }
   };
 
-  const handleReleaseBoard = async (boardNumber: number) => {
+  const handleReleaseBoard = async (boardId: string) => {
     if (!playingArea) return;
     try {
       setLoading(true);
-      await tournamentService.releasePlayingAreaBoard(playingArea.id, boardNumber);
+      await tournamentService.releasePlayingAreaBoard(playingArea.id, boardId);
       showToast('Diana liberada correctamente', 'success');
       await fetchData();
     } catch (err: any) {

@@ -10,7 +10,7 @@ interface BoardCardProps {
   match?: Match;
   onAssignMatch?: (boardNumber: number) => void;
   onAssignBoard?: (matchId: string) => void;
-  onReleaseBoard?: (boardNumber: number) => void;
+  onReleaseBoard?: (boardId: string) => void;
   onSuspendMatch?: (matchId: string) => void;
   onResumeMatch?: (matchId: string) => void;
   onAddResult?: (matchId: string) => void;
@@ -85,7 +85,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
                   variant="danger-primary"
                   size="small"
                   leftIcon="X"
-                  onClick={() => onReleaseBoard(board.number)}
+                  onClick={() => onReleaseBoard(board.id)}
                 >
                   Liberar diana
                 </Button>
