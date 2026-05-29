@@ -162,10 +162,10 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     }
   };
 
-  const handleEnableBoard = async (boardNumber: number) => {
+  const handleEnableBoard = async (boardId: string) => {
     if (!playingArea) return;
     try {
-      await tournamentService.enableBoard(playingArea.id, boardNumber);
+      await tournamentService.enableBoard(playingArea.id, boardId);
       showToast('Diana habilitada correctamente', 'success');
       await fetchData();
     } catch (err: any) {
