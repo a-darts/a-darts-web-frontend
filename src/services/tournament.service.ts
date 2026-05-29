@@ -895,12 +895,12 @@ export const tournamentService = {
     }
   },
 
-  disableBoard: async (playingAreaId: string, boardNumber: number): Promise<void> => {
+  disableBoard: async (playingAreaId: string, boardId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
 
     try {
-      const response = await fetch(`${API_BASE_URL}/playing-areas/${playingAreaId}/boards/${boardNumber}/disable`, {
+      const response = await fetch(`${API_BASE_URL}/playing-areas/${playingAreaId}/boards/${boardId}/disable`, {
         method: 'POST',
         headers: {
           'accept': 'application/json',

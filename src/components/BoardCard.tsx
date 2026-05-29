@@ -15,7 +15,7 @@ interface BoardCardProps {
   onResumeMatch?: (matchId: string) => void;
   onAddResult?: (matchId: string) => void;
   onViewMatchLive?: (matchId: string, boardShortId: string) => void;
-  onDisableBoard?: (boardNumber: number) => void;
+  onDisableBoard?: (boardId: string) => void;
   onEnableBoard?: (boardNumber: number) => void;
 }
 
@@ -211,7 +211,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
               variant="danger-secondary"
               size="small"
               leftIcon="Lock"
-              onClick={() => onDisableBoard(board.number)}
+              onClick={() => onDisableBoard(board.id)}
             >
               Deshabilitar diana
             </Button>

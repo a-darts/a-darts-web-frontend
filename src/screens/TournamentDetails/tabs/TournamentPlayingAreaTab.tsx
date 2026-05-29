@@ -151,10 +151,10 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     }
   };
 
-  const handleDisableBoard = async (boardNumber: number) => {
+  const handleDisableBoard = async (boardId: string) => {
     if (!playingArea) return;
     try {
-      await tournamentService.disableBoard(playingArea.id, boardNumber);
+      await tournamentService.disableBoard(playingArea.id, boardId);
       showToast('Diana inutilizada correctamente', 'success');
       await fetchData();
     } catch (err: any) {
