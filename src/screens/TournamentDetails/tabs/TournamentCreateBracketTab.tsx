@@ -235,20 +235,22 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
   const roundsData = [];
   for (let round = 1; round <= numRounds; round++) {
     const roundMatches = matches.filter((m) => m.round === round);
-    roundMatches.sort((a, b) => a.id.localeCompare(b.id));
+    roundMatches.sort((a, b) => a.matchIndex - b.matchIndex);
 
     const formattedMatches: { player1: BracketParticipant; player2: BracketParticipant; status: string }[] = roundMatches.map((m) => ({
       player1: {
         position: 0,
         alias: m.participant1.alias,
         federation: m.participant1.federation,
-        score: m.matchScore.participant1.legsWon,
+        legsWon: m.matchScore.participant1.legsWon,
+        setsWon: m.matchScore.participant1.setsWon,
       },
       player2: {
         position: 0,
         alias: m.participant2.alias,
         federation: m.participant2.federation,
-        score: m.matchScore.participant2.legsWon,
+        legsWon: m.matchScore.participant2.legsWon,
+        setsWon: m.matchScore.participant2.setsWon,
       },
       status: m.status,
     }));
@@ -256,8 +258,8 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
     const expectedMatches = totalPositions / Math.pow(2, round);
     while (formattedMatches.length < expectedMatches) {
       formattedMatches.push({
-        player1: { position: 0, alias: null, federation: null, score: undefined },
-        player2: { position: 0, alias: null, federation: null, score: undefined },
+        player1: { position: 0, alias: null, federation: null, legsWon: 0, setsWon: 0 },
+        player2: { position: 0, alias: null, federation: null, legsWon: 0, setsWon: 0 },
         status: 'PENDING',
       });
     }
@@ -276,13 +278,11 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
           position: i * 2 + 1,
           alias: pos1 ? pos1.participantAlias : null,
           federation: pos1 ? pos1.participantFederation : null,
-          score: m.player1.score,
         },
         player2: {
           position: i * 2 + 2,
           alias: pos2 ? pos2.participantAlias : null,
           federation: pos2 ? pos2.participantFederation : null,
-          score: m.player2.score,
         },
       };
     });
