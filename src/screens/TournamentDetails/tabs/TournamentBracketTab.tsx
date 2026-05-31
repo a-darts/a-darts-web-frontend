@@ -340,7 +340,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       )}
 
       {
-        isAdmin && onStartEditing && (
+        isAdmin && (tournament.status === TournamentStatus.DRAFT || tournament.status === TournamentStatus.PUBLISHED) && onStartEditing && (
           <div style={styles.editButtonContainer}>
             <div style={styles.progressContainer}>
               <div style={styles.progressMeta}>

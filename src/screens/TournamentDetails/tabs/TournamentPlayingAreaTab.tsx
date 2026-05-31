@@ -225,6 +225,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
           <div style={styles.actions}>
             <Button
               variant="secondary"
+              leftIcon='X'
               onClick={() => setIsConfiguring(false)}
               disabled={isCreating}
             >
@@ -232,6 +233,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
             </Button>
             <Button
               variant="primary"
+              leftIcon='Save'
               onClick={handleCreatePlayingArea}
               loading={isCreating}
             >
@@ -371,7 +373,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '4rem',
   },
   formContainer: {
-    maxWidth: '400px',
+    maxWidth: '420px',
     backgroundColor: 'rgba(255, 255, 255, 0.03)',
     padding: '2rem',
     borderRadius: '1rem',
@@ -394,6 +396,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontSize: '1rem',
   },
   inputGroup: {
+    marginTop: '1.5rem',
     marginBottom: '1.5rem',
   },
   actions: {
