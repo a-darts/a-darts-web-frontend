@@ -102,7 +102,6 @@ export interface Tournament {
       startsAt: string | null;
       endsAt: string | null;
     };
-    registeredParticipantsIds: string[];
   };
 }
 

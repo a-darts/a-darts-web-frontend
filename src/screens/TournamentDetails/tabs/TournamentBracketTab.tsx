@@ -149,16 +149,20 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
   };
 
 
+  const [participantsCount, setParticipantsCount] = useState(0);
+
   useEffect(() => {
     const fetchData = async (isInitial = false) => {
       try {
         if (isInitial) setLoading(true);
-        const [bracketData, matchesData] = await Promise.all([
+        const [bracketData, matchesData, participantsData] = await Promise.all([
           tournamentService.getTournamentBracket(tournament.id),
-          tournamentService.getTournamentMatches(tournament.id)
+          tournamentService.getTournamentMatches(tournament.id),
+          tournamentService.getParticipantsByTournamentId(tournament.id).catch(() => [])
         ]);
         setBracket(bracketData);
         setMatches(matchesData);
+        setParticipantsCount(participantsData.length);
       } catch (err: any) {
         console.error('Error fetching bracket data:', err);
         if (err.message && err.message.toLowerCase().includes('not found')) {
@@ -221,7 +225,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
   const assignedCount = bracket.positions.filter(
     (p) => p.participantId && p.participantAlias && p.participantAlias !== 'Por determinar' && p.participantAlias !== 'Bye'
   ).length;
-  const totalToAssign = tournament.registration.registeredParticipantsIds.length;
+  const totalToAssign = participantsCount;
   const progressPercent = totalToAssign > 0 ? Math.round((assignedCount / totalToAssign) * 100) : 0;
 
   const totalPositions = bracket.totalPositions;
@@ -334,7 +338,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       )}
 
       {
-        isAdmin && tournament.status === TournamentStatus.PUBLISHED && onStartEditing && (
+        isAdmin && onStartEditing && (
           <div style={styles.editButtonContainer}>
             <div style={styles.progressContainer}>
               <div style={styles.progressMeta}>
