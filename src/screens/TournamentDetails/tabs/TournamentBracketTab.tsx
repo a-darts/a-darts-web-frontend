@@ -309,14 +309,16 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
             status={bracket.status}
             size="medium"
           />
-          <Button
-            variant="secondary"
-            leftIcon="Megaphone"
-            onClick={handlePublishBracket}
-            loading={isPublishing}
-          >
-            Publicar cuadrante
-          </Button>
+          {tournament.status === TournamentStatus.PUBLISHED && (
+            <Button
+              variant="secondary"
+              leftIcon="Megaphone"
+              onClick={handlePublishBracket}
+              loading={isPublishing}
+            >
+              Publicar cuadrante
+            </Button>
+          )}
         </div>
       )}
 
