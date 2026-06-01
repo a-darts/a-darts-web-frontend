@@ -1,5 +1,6 @@
 import React from 'react';
-import { Board, Match, MatchStatus } from '../services/tournament.service';
+import { Match, MatchStatus } from '../services/match.service';
+import { Board } from '../services/playingArea.service';
 import i18n from '../i18n';
 import Button from './Button';
 import TournamentMatchStatusTag from './TournamentMatchStatusTag';
@@ -230,7 +231,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
           </Button>
         </div>
       )}
-      
+
     </div>
   );
 };

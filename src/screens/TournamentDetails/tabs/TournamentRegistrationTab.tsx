@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Tournament, Participant, tournamentService, UnregisteredPlayer, TournamentStatus } from '../../../services/tournament.service';
+import { tournamentService, Tournament, TournamentStatus, UnregisteredPlayer } from '../../../services/tournament.service';
+import { registeredParticipantService, Participant } from '../../../services/registeredParticipant.service';
 import Table, { Column } from '../../../components/Table';
 import { getFederationLabel, getFederationFlag, getRegistrationStatusLabel, formatTournamentDateTime } from '../../../utils/tournament.utils';
 import { useAuth, UserRoles } from '../../../context/AuthContext';
@@ -158,7 +159,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
     if (!selectedPlayerId) return;
     try {
       setIsRegisteringPlayer(true);
-      await tournamentService.registerParticipant(tournament.id, selectedPlayerId);
+      await registeredParticipantService.registerParticipant(tournament.id, selectedPlayerId);
       showToast('Participante inscrito correctamente.', 'success');
       setIsRegisterPlayerModalOpen(false);
       if (onRefresh) onRefresh();
@@ -183,7 +184,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
     if (!playerToDelete) return;
     try {
       setIsDeletingPlayer(true);
-      await tournamentService.unregisterParticipant(tournament.id, playerToDelete.id);
+      await registeredParticipantService.unregisterParticipant(tournament.id, playerToDelete.id);
       showToast('Participante desinscrito correctamente.', 'success');
       setIsDeleteModalOpen(false);
       if (onRefresh) onRefresh();

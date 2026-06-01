@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { tournamentService, Match } from '../services/tournament.service'; // Ajusta la ruta si es necesario
+import { matchService, Match } from '../services/match.service';
 import { useToast } from '../context/ToastContext';
 
 interface UseMatchActionsProps {
@@ -27,7 +27,7 @@ export const useMatchActions = ({ matches, onSuccess }: UseMatchActionsProps) =>
 
     const handleSuspendMatch = async (matchId: string) => {
         try {
-            await tournamentService.suspendMatch(matchId);
+            await matchService.suspendMatch(matchId);
             showToast('Partida suspendida con éxito.', 'success');
             await onSuccess();
         } catch (err: any) {
@@ -38,7 +38,7 @@ export const useMatchActions = ({ matches, onSuccess }: UseMatchActionsProps) =>
 
     const handleResumeMatch = async (matchId: string) => {
         try {
-            await tournamentService.resumeMatch(matchId);
+            await matchService.resumeMatch(matchId);
             showToast('Partida reanudada con éxito.', 'success');
             await onSuccess();
         } catch (err: any) {
@@ -67,7 +67,7 @@ export const useMatchActions = ({ matches, onSuccess }: UseMatchActionsProps) =>
 
         try {
             setAssigningBoardLoading(true);
-            await tournamentService.assignMatchBoard(assigningMatchId, boardNum);
+            await matchService.assignMatchBoard(assigningMatchId, boardNum);
             showToast(`Diana ${boardNum} asignada con éxito.`, 'success');
             setIsAssignBoardModalOpen(false);
             await onSuccess();
@@ -93,7 +93,7 @@ export const useMatchActions = ({ matches, onSuccess }: UseMatchActionsProps) =>
 
         try {
             setAddingResultLoading(true);
-            await tournamentService.addMatchResult(addingResultMatchId, {
+            await matchService.addMatchResult(addingResultMatchId, {
                 p1Sets,
                 p1Legs,
                 p2Sets,

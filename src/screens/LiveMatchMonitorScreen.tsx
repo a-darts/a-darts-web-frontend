@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Match, MatchStatus, tournamentService } from '../services/tournament.service';
+import { Match, MatchStatus, matchService } from '../services/match.service';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLiveMatchSocket, LiveMatchStatus, LiveMatch } from '../hooks/useLiveMatchSocket';
 import Button from '../components/Button';
@@ -65,7 +65,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
         const fetchMatchDetails = async () => {
             try {
                 setIsLoading(true);
-                const data = await tournamentService.getMatchById(matchId);
+                const data = await matchService.getMatchById(matchId);
 
                 if (data.boardShortId && data.boardShortId !== boardShortId) {
                     throw new Error(`Este partido está asignado a la diana ${data.boardNumber || ''}, no corresponde a la URL actual.`);

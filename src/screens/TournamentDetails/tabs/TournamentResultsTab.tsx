@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { tournamentService, TournamentResult, ParticipantResult } from '../../../services/tournament.service';
+import { tournamentResultsService, TournamentResult, ParticipantResult } from '../../../services/tournamentResults.service';
 import ErrorMessage from '../../../components/ErrorMessage';
 import Icon from '../../../components/Icon';
 import EmptyState from '../../../components/EmptyState';
@@ -99,7 +99,7 @@ const TournamentResultsTab: React.FC<TournamentResultsTabProps> = ({ tournamentI
     const fetchResults = async () => {
       try {
         setLoading(true);
-        const data = await tournamentService.getTournamentResults(tournamentId);
+        const data = await tournamentResultsService.getTournamentResults(tournamentId);
         setResults(data);
       } catch (err: any) {
         console.error('Error fetching results:', err);

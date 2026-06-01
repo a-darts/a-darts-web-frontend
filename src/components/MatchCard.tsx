@@ -1,5 +1,5 @@
 import React from 'react';
-import { Match, MatchStatus } from '../services/tournament.service';
+import { Match, MatchStatus } from '../services/match.service';
 import { getFederationFlag } from '../utils/tournament.utils';
 import TournamentMatchStatusTag from './TournamentMatchStatusTag';
 import Button from './Button';

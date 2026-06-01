@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Tournament, Bracket, tournamentService, Match, Participant, BracketPosition } from '../../../services/tournament.service';
+import { Tournament } from '../../../services/tournament.service';
+import { bracketService, Bracket, BracketPosition } from '../../../services/bracket.service';
+import { matchService, Match } from '../../../services/match.service';
+import { Participant } from '../../../services/registeredParticipant.service';
 import { getFederationFlag, getFederationLabel } from '../../../utils/tournament.utils';
 import ErrorMessage from '../../../components/ErrorMessage';
 import BracketMatch, { BracketParticipant } from '../../../components/BracketMatch';
@@ -38,8 +41,8 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
       try {
         setLoading(true);
         const [bracketData, matchesData] = await Promise.all([
-          tournamentService.getTournamentBracket(tournament.id),
-          tournamentService.getTournamentMatches(tournament.id),
+          bracketService.getTournamentBracket(tournament.id),
+          matchService.getTournamentMatches(tournament.id),
         ]);
         setBracket(bracketData);
         setMatches(matchesData);
@@ -191,7 +194,7 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
   const handleSave = async () => {
     try {
       setIsSaving(true);
-      await tournamentService.saveBracketPositions(bracket.id, temporaryPositions);
+      await bracketService.saveBracketPositions(bracket.id, temporaryPositions);
       showToast('¡Posiciones del cuadrante guardadas correctamente!', 'success');
       onSave();
     } catch (err: any) {

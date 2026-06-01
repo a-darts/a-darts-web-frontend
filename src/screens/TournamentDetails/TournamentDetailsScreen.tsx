@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { tournamentService, Tournament, TournamentStatus, RegistrationStatus, Participant } from '../../services/tournament.service';
+import { tournamentService, Tournament, TournamentStatus, RegistrationStatus } from '../../services/tournament.service';
+import { registeredParticipantService, Participant } from '../../services/registeredParticipant.service';
 import { formatTournamentDate, formatTournamentTime, getSeasonEndYear, getFederationFlag, getFederationLabel } from '../../utils/tournament.utils';
 import Button from '../../components/Button';
 import ErrorMessage from '../../components/ErrorMessage';
@@ -73,7 +74,7 @@ const TournamentDetailsScreen: React.FC = () => {
         setLoading(true);
         const [tournamentData, participantsData] = await Promise.all([
           tournamentService.getTournamentById(id),
-          tournamentService.getParticipantsByTournamentId(id)
+          registeredParticipantService.getParticipantsByTournamentId(id)
         ]);
         setTournament(tournamentData);
         setParticipants(participantsData);
@@ -142,7 +143,7 @@ const TournamentDetailsScreen: React.FC = () => {
     try {
       const [tournamentData, participantsData] = await Promise.all([
         tournamentService.getTournamentById(id),
-        tournamentService.getParticipantsByTournamentId(id)
+        registeredParticipantService.getParticipantsByTournamentId(id)
       ]);
       setTournament(tournamentData);
       setParticipants(participantsData);
@@ -162,12 +163,12 @@ const TournamentDetailsScreen: React.FC = () => {
           throw new Error('No se ha encontrado tu perfil de jugador para esta temporada. Asegúrate de estar federado.');
         }
 
-        await tournamentService.registerParticipant(tournament.id, currentPlayerId);
+        await registeredParticipantService.registerParticipant(tournament.id, currentPlayerId);
         showToast('¡Inscripción realizada con éxito!', 'success');
       } else if (modalMode === 'unregister') {
         // Unregister
         if (userParticipant) {
-          await tournamentService.unregisterParticipant(tournament.id, userParticipant.id);
+          await registeredParticipantService.unregisterParticipant(tournament.id, userParticipant.id);
           showToast('Te has desinscrito del torneo correctamente.', 'success');
         }
       }

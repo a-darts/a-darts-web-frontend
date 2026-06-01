@@ -1,6 +1,6 @@
 import React from 'react';
 import { getFederationLabel, getFederationFlag } from '../utils/tournament.utils';
-import { MatchStatus } from '../services/tournament.service';
+import { MatchStatus } from '../services/match.service';
 
 export interface BracketParticipant {
   position: number;
@@ -55,8 +55,8 @@ const BracketMatch: React.FC<BracketMatchProps> = ({
       return '#FFFFFF';
     }
     if (isFinished) {
-      return participant.alias === winnerAlias 
-        ? '#BFE55F' 
+      return participant.alias === winnerAlias
+        ? '#BFE55F'
         : 'rgba(255, 255, 255, 0.3)';
     }
     return 'rgba(255, 255, 255, 0.3)';

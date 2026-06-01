@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { tournamentService, PlayingArea } from '../../../services/tournament.service';
+import { playingAreaService, PlayingArea } from '../../../services/playingArea.service';
+import { matchService, Match } from '../../../services/match.service';
 import Button from '../../../components/Button';
 import ErrorMessage from '../../../components/ErrorMessage';
 import { useToast } from '../../../context/ToastContext';
@@ -9,7 +10,6 @@ import StatCard from '../../../components/StatCard';
 import Modal from '../../../components/Modal';
 import MatchActionModals from '../../../components/MatchActionModals';
 import Select from '../../../components/Select';
-import { Match } from '../../../services/tournament.service';
 import EmptyState from '../../../components/EmptyState';
 import { useMatchActions } from '../../../hooks/useMatchActions';
 import { useNavigate } from 'react-router-dom';
@@ -42,8 +42,8 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     try {
       if (showLoading) setLoading(true);
       const [area, fetchedMatches] = await Promise.all([
-        tournamentService.getPlayingArea(tournamentId),
-        tournamentService.getTournamentMatches(tournamentId)
+        playingAreaService.getPlayingArea(tournamentId),
+        matchService.getTournamentMatches(tournamentId)
       ]);
       setPlayingArea(area);
       setMatches(fetchedMatches);
@@ -71,7 +71,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
   const handleCreatePlayingArea = async () => {
     try {
       setIsCreating(true);
-      const area = await tournamentService.createPlayingArea(tournamentId, numBoards);
+      const area = await playingAreaService.createPlayingArea(tournamentId, numBoards);
       setPlayingArea(area);
       setIsConfiguring(false);
       showToast('Salón de juego configurado correctamente', 'success');
@@ -93,7 +93,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     if (!playingArea || !selectedBoard || !selectedMatchId) return;
     try {
       setIsAssigning(true);
-      await tournamentService.assignMatchBoard(selectedMatchId, selectedBoard);
+      await matchService.assignMatchBoard(selectedMatchId, selectedBoard);
       showToast('Partida asignada correctamente', 'success');
       setIsAssignModalOpen(false);
       await fetchData();
@@ -109,7 +109,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     if (!playingArea) return;
     try {
       setLoading(true);
-      await tournamentService.releasePlayingAreaBoard(playingArea.id, boardId);
+      await playingAreaService.releasePlayingAreaBoard(playingArea.id, boardId);
       showToast('Diana liberada correctamente', 'success');
       await fetchData();
     } catch (err: any) {
@@ -124,7 +124,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     if (!playingArea) return;
     try {
       setIsModifyingBoards(true);
-      await tournamentService.addBoardToPlayingArea(playingArea.id);
+      await playingAreaService.addBoardToPlayingArea(playingArea.id);
       showToast('Nueva diana añadida correctamente', 'success');
       await fetchData();
     } catch (err: any) {
@@ -140,7 +140,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
     if (playingArea.boards.length === 0) return;
     try {
       setIsModifyingBoards(true);
-      await tournamentService.removeLastBoardFromPlayingArea(playingArea.id);
+      await playingAreaService.removeLastBoardFromPlayingArea(playingArea.id);
       showToast('Última diana eliminada correctamente', 'success');
       await fetchData();
     } catch (err: any) {
@@ -154,7 +154,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
   const handleDisableBoard = async (boardId: string) => {
     if (!playingArea) return;
     try {
-      await tournamentService.disableBoard(playingArea.id, boardId);
+      await playingAreaService.disableBoard(playingArea.id, boardId);
       showToast('Diana inutilizada correctamente', 'success');
       await fetchData();
     } catch (err: any) {
@@ -165,7 +165,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
   const handleEnableBoard = async (boardId: string) => {
     if (!playingArea) return;
     try {
-      await tournamentService.enableBoard(playingArea.id, boardId);
+      await playingAreaService.enableBoard(playingArea.id, boardId);
       showToast('Diana habilitada correctamente', 'success');
       await fetchData();
     } catch (err: any) {

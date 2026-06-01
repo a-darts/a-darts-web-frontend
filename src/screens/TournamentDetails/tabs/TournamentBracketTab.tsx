@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Tournament, Bracket, tournamentService, Match, TournamentStatus, BracketStatus, MatchStatus } from '../../../services/tournament.service';
+import { Tournament, TournamentStatus } from '../../../services/tournament.service';
+import { bracketService, Bracket, BracketStatus } from '../../../services/bracket.service';
+import { matchService, Match, MatchStatus } from '../../../services/match.service';
+import { registeredParticipantService } from '../../../services/registeredParticipant.service';
 import ErrorMessage from '../../../components/ErrorMessage';
 import BracketMatch, { BracketParticipant } from '../../../components/BracketMatch';
 import TournamentMatchStatusTag from '../../../components/TournamentMatchStatusTag';
@@ -34,7 +37,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
   const handleGenerateBracketAutomatically = async () => {
     try {
       setIsGenerating(true);
-      await tournamentService.generateBracketAutomatically(tournament.id);
+      await bracketService.generateBracketAutomatically(tournament.id);
       showToast('¡Cuadrante generado correctamente!', 'success');
 
       if (onBracketGenerated) {
@@ -42,8 +45,8 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       } else {
         // Re-fetch data if parent callback is not provided
         const [bracketData, matchesData] = await Promise.all([
-          tournamentService.getTournamentBracket(tournament.id),
-          tournamentService.getTournamentMatches(tournament.id)
+          bracketService.getTournamentBracket(tournament.id),
+          matchService.getTournamentMatches(tournament.id)
         ]);
         setBracket(bracketData);
         setMatches(matchesData);
@@ -61,7 +64,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
   const handleGenerateBracketManually = async () => {
     try {
       setIsGenerating(true);
-      await tournamentService.generateBracketManually(tournament.id);
+      await bracketService.generateBracketManually(tournament.id);
       showToast('¡Cuadrante generado correctamente!', 'success');
 
       if (onBracketGenerated) {
@@ -69,8 +72,8 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       } else {
         // Re-fetch data if parent callback is not provided
         const [bracketData, matchesData] = await Promise.all([
-          tournamentService.getTournamentBracket(tournament.id),
-          tournamentService.getTournamentMatches(tournament.id)
+          bracketService.getTournamentBracket(tournament.id),
+          matchService.getTournamentMatches(tournament.id)
         ]);
         setBracket(bracketData);
         setMatches(matchesData);
@@ -90,11 +93,11 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
     if (!bracket) return;
     try {
       setIsPublishing(true);
-      await tournamentService.publishBracket(bracket.id);
+      await bracketService.publishBracket(bracket.id);
       showToast('¡Cuadrante publicado correctamente!', 'success');
 
       // Re-fetch bracket data to reflect the new status
-      const bracketData = await tournamentService.getTournamentBracket(tournament.id);
+      const bracketData = await bracketService.getTournamentBracket(tournament.id);
       setBracket(bracketData);
     } catch (err: any) {
       console.error('Error publishing bracket:', err);
@@ -108,13 +111,13 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
     if (!bracket) return;
     try {
       setIsPublishing(true);
-      await tournamentService.unpublishBracket(bracket.id);
+      await bracketService.unpublishBracket(bracket.id);
       showToast('¡Cuadrante ocultado correctamente!', 'success');
 
       // Re-fetch bracket data to reflect the new status
       const [bracketData, matchesData] = await Promise.all([
-        tournamentService.getTournamentBracket(tournament.id),
-        tournamentService.getTournamentMatches(tournament.id)
+        bracketService.getTournamentBracket(tournament.id),
+        matchService.getTournamentMatches(tournament.id)
       ]);
       setBracket(bracketData);
       setMatches(matchesData);
@@ -133,7 +136,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
     if (!bracket) return;
     try {
       setIsDeleting(true);
-      await tournamentService.deleteBracket(bracket.id);
+      await bracketService.deleteBracket(bracket.id);
       showToast('¡Cuadrante eliminado correctamente!', 'success');
 
       setBracket(null);
@@ -156,9 +159,9 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       try {
         if (isInitial) setLoading(true);
         const [bracketData, matchesData, participantsData] = await Promise.all([
-          tournamentService.getTournamentBracket(tournament.id),
-          tournamentService.getTournamentMatches(tournament.id),
-          tournamentService.getParticipantsByTournamentId(tournament.id).catch(() => [])
+          bracketService.getTournamentBracket(tournament.id),
+          matchService.getTournamentMatches(tournament.id),
+          registeredParticipantService.getParticipantsByTournamentId(tournament.id).catch(() => [])
         ]);
         setBracket(bracketData);
         setMatches(matchesData);

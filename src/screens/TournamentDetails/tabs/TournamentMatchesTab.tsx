@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { tournamentService, Match } from '../../../services/tournament.service';
+import { matchService, Match } from '../../../services/match.service';
 import ErrorMessage from '../../../components/ErrorMessage';
 import Icon from '../../../components/Icon';
 import Select from '../../../components/Select';
@@ -18,7 +18,7 @@ interface TournamentMatchesTabProps {
 
 const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentId, isAdmin }) => {
   const navigate = useNavigate();
-  
+
   const { showToast } = useToast();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
   const fetchMatches = async (showLoading = false) => {
     try {
       if (showLoading) setLoading(true);
-      const data = await tournamentService.getTournamentMatches(tournamentId);
+      const data = await matchService.getTournamentMatches(tournamentId);
       setMatches(data);
     } catch (err: any) {
       console.error('Error fetching matches:', err);
