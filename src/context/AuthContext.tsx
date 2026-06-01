@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService } from '../services/auth.service';
+import { userService } from '../services/user.service';
 import { useNavigate } from 'react-router-dom';
 
 export enum UserRoles {
@@ -80,17 +81,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const updateEmail = async (userId: string, newEmail: string) => {
-    await authService.updateEmail(userId, newEmail);
+    await userService.updateEmail(userId, newEmail);
     await refreshUser();
   };
 
   const updateAlias = async (userId: string, newAlias: string) => {
-    await authService.updateAlias(userId, newAlias);
+    await userService.updateAlias(userId, newAlias);
     await refreshUser();
   };
 
   const updatePassword = async (userId: string, oldPassword: string, newPassword: string) => {
-    await authService.updatePassword(userId, oldPassword, newPassword);
+    await userService.updatePassword(userId, oldPassword, newPassword);
   };
 
   return (

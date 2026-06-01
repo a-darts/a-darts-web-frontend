@@ -6,7 +6,7 @@ import TextInput from '../../components/TextInput';
 import Select from '../../components/Select';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
-import { authService } from '../../services/auth.service';
+import { userService } from '../../services/user.service';
 
 const AdminCreateUserScreen: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
@@ -55,7 +55,7 @@ const AdminCreateUserScreen: React.FC = () => {
     setSubmitting(true);
 
     try {
-      await authService.registerByAdmin(email, alias, role);
+      await userService.registerByAdmin(email, alias, role);
       showToast('¡Usuario creado con éxito!', 'success');
       navigate('/admin');
     } catch (err: any) {

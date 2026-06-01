@@ -6,7 +6,7 @@ import Button from '../../components/Button';
 import Icon from '../../components/Icon';
 import Select from '../../components/Select';
 import TextInput from '../../components/TextInput';
-import { authService } from '../../services/auth.service';
+import { userService } from '../../services/user.service';
 import { playerService } from '../../services/player.service';
 import { Federations } from '../../services/tournament.service';
 import { getSeasonEndYear } from '../../utils/tournament.utils';
@@ -50,7 +50,7 @@ const AdminCreatePlayerScreen: React.FC = () => {
       try {
         setFetchingUsers(true);
         // Fetch up to 1000 users to populate the select dropdown in back-office
-        const res = await authService.getUsers(1, 1000);
+        const res = await userService.getUsers(1, 1000);
         if (res && res.data) {
           let userList: UserItem[] = [];
           if (Array.isArray(res.data)) {

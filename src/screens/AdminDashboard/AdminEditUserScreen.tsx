@@ -5,7 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import TextInput from '../../components/TextInput';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
-import { authService } from '../../services/auth.service';
+import { userService } from '../../services/user.service';
 
 const AdminEditUserScreen: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
@@ -38,7 +38,7 @@ const AdminEditUserScreen: React.FC = () => {
       if (!id) return;
       try {
         setFetchingUser(true);
-        const userData = await authService.getUserById(id);
+        const userData = await userService.getUserById(id);
         if (userData) {
           setInitialAlias(userData.alias || '');
           setInitialEmail(userData.email || '');
@@ -105,10 +105,10 @@ const AdminEditUserScreen: React.FC = () => {
 
     try {
       if (emailChanged && id) {
-        await authService.updateEmail(id, email.trim());
+        await userService.updateEmail(id, email.trim());
       }
       if (aliasChanged && id) {
-        await authService.updateAlias(id, alias.trim());
+        await userService.updateAlias(id, alias.trim());
       }
 
       showToast('¡Usuario actualizado con éxito!', 'success');

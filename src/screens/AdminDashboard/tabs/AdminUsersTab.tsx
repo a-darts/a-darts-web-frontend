@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../../services/auth.service';
+import { userService } from '../../../services/user.service';
 import SearchInput from '../../../components/SearchInput';
 import Icon from '../../../components/Icon';
 import IconButton from '../../../components/IconButton';
@@ -66,7 +66,7 @@ const AdminUsersTab: React.FC = () => {
     try {
       setUsersLoading(true);
       setUsersError(null);
-      const res = await authService.getUsers(page, limit);
+      const res = await userService.getUsers(page, limit);
       if (res && res.data) {
         if (Array.isArray(res.data)) {
           setUsers(res.data);
@@ -104,7 +104,7 @@ const AdminUsersTab: React.FC = () => {
       'danger',
       async () => {
         try {
-          await authService.blockUser(user.id);
+          await userService.blockUser(user.id);
           showToast('¡Usuario bloqueado con éxito!', 'success');
           fetchUsers(currentPage);
         } catch (err: any) {
@@ -123,7 +123,7 @@ const AdminUsersTab: React.FC = () => {
       'primary',
       async () => {
         try {
-          await authService.unblockUser(user.id);
+          await userService.unblockUser(user.id);
           showToast('¡Usuario desbloqueado con éxito!', 'success');
           fetchUsers(currentPage);
         } catch (err: any) {
@@ -142,7 +142,7 @@ const AdminUsersTab: React.FC = () => {
       'danger',
       async () => {
         try {
-          await authService.deleteUser(user.id);
+          await userService.deleteUser(user.id);
           showToast('¡Usuario eliminado con éxito!', 'success');
           fetchUsers(currentPage);
         } catch (err: any) {
@@ -349,7 +349,7 @@ const AdminUsersTab: React.FC = () => {
 
           setModalLoading(true);
           try {
-            await authService.restoreUser(restoreUserObj.id, trimmedEmail);
+            await userService.restoreUser(restoreUserObj.id, trimmedEmail);
             showToast('¡Usuario restaurado con éxito!', 'success');
             setRestoreUserObj(null);
             setRestoreEmail('');
