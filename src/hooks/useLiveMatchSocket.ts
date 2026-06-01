@@ -1,7 +1,5 @@
-import { useEffect, useState, useRef } from 'react'; // <-- Importamos useRef
-import { io, Socket } from 'socket.io-client';
-import { SOCKET_URL } from '../services/api';
-import { MatchStatus } from '../services/tournament.service';
+import { useEffect, useState, useRef } from 'react';
+import { socketClientService } from '../services/socket.service';
 
 export enum LiveMatchStatus {
     PLAYING,
@@ -65,26 +63,13 @@ export const useLiveMatchSocket = ({
             setLiveData(null);
             setHistoryThrows([]);
             setIsLiveConnected(false);
+            socketClientService.disconnect();
             return;
         }
-        
-        console.log(`[LiveMonitor Hook] Inicializando conexión única para diana: ${boardShortId}`);
-        const socketUrl = new URL(SOCKET_URL).origin;
 
-        const socket: Socket = io(socketUrl, {
-            path: '/socket.io/',
-            transports: ['websocket', 'polling'],
-            autoConnect: true,
-            forceNew: true
-        });
+        console.log(`[LiveMonitor Hook] Inicializando conexión para diana: ${boardShortId}`);
 
-        socket.on('connect', () => {
-            console.log(`[LiveMonitor Hook] ¡Conectado con éxito! ID: ${socket.id}`);
-            setIsLiveConnected(true);
-            socket.emit('join_board', boardShortId);
-        });
-
-        // Modificado: Ahora actualiza de forma segura el estado de React y el Ref al mismo tiempo
+        // Función auxiliar para actualizar el estado
         const updateLiveDataFromThrow = (throwData: any) => {
             if (!throwData) return null;
 
@@ -110,7 +95,6 @@ export const useLiveMatchSocket = ({
                     }
                 };
 
-                // Guardamos los legs calculados en el Ref inmediatamente (operación síncrona y segura)
                 totalLegsRef.current = updatedState.participant1.legsWon + updatedState.participant2.legsWon;
 
                 return updatedState;
@@ -119,73 +103,111 @@ export const useLiveMatchSocket = ({
             return updatedState;
         };
 
-        socket.on('match_restored', (data: { matchId: string; historyThrows?: any[] }) => {
-            console.log('[LiveMonitor Hook] Recibido restaurar partida', data);
+        socketClientService.connect(boardShortId, {
+            onConnect: () => {
+                setIsLiveConnected(true);
+            },
+            onMatchRestored: (data) => {
+                console.log('[LiveMonitor Hook] Recibido restaurar partida', data);
+                if (data.matchId === matchId && data.historyThrows) {
+                    let currentLegsSum = 0;
+                    const processedThrows = data.historyThrows.map((t: any) => {
+                        const legIndex = currentLegsSum;
+                        if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
+                            currentLegsSum = (t.participant1?.legsWon || 0) + (t.participant2?.legsWon || 0);
+                        }
+                        return { ...t, legIndex };
+                    });
 
-            if (data.matchId === matchId && data.historyThrows) {
-                let currentLegsSum = 0;
-                const processedThrows = data.historyThrows.map((t: any) => {
-                    const legIndex = currentLegsSum;
-                    if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
-                        currentLegsSum = (t.participant1?.legsWon || 0) + (t.participant2?.legsWon || 0);
+                    setHistoryThrows(processedThrows);
+
+                    if (processedThrows.length > 0) {
+                        const latestThrow = processedThrows[processedThrows.length - 1];
+                        updateLiveDataFromThrow(latestThrow);
                     }
-                    return { ...t, legIndex };
-                });
-
-                setHistoryThrows(processedThrows);
-
-                if (processedThrows.length > 0) {
-                    const latestThrow = processedThrows[processedThrows.length - 1];
-                    updateLiveDataFromThrow(latestThrow);
                 }
-            }
-        });
+            },
+            onScoreUpdateConfirmed: (data) => {
+                console.log('[LiveMonitor Hook] Recibido score_update_confirmed', data);
+                if (data.matchId === matchId) {
+                    const currentLegIndex = totalLegsRef.current;
+                    setHistoryThrows(prevThrows => {
+                        const newThrowWithLeg = {
+                            ...data.throwData,
+                            legIndex: currentLegIndex
+                        };
+                        return [...prevThrows, newThrowWithLeg];
+                    });
+                    updateLiveDataFromThrow(data.throwData);
+                }
+            },
+            onScoreUndoConfirmed: (data) => {
+                console.log('[LiveMonitor Hook] Undo confirmado desde el servidor', data);
+                if (data.matchId === matchId) {
+                    let currentLegsSum = 0;
+                    const processedThrows = data.historyThrows.map((t: any) => {
+                        const legIndex = currentLegsSum;
+                        if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
+                            currentLegsSum = (t.participant1?.legsWon || 0) + (t.participant2?.legsWon || 0);
+                        }
+                        return { ...t, legIndex };
+                    });
 
-        socket.on('score_update_confirmed', (data: { matchId: string; throwData: any; }) => {
-            console.log('[LiveMonitor Hook] Recibido score_update_confirmed', data);
+                    setHistoryThrows(processedThrows);
 
-            if (data.matchId === matchId) {
-                // 1. Leemos el índice del leg directamente desde el Ref (evita depender de liveData)
-                const currentLegIndex = totalLegsRef.current;
-
-                setHistoryThrows(prevThrows => {
-                    const newThrowWithLeg = {
-                        ...data.throwData,
-                        legIndex: currentLegIndex
-                    };
-                    return [...prevThrows, newThrowWithLeg];
-                });
-
-                // 2. Transicionamos el marcador e internamente se actualizará el Ref para la siguiente tirada
-                updateLiveDataFromThrow(data.throwData);
-            }
-        });
-
-        socket.on('score_undo_confirmed', (data: { matchId: string; historyThrows: any[] }) => {
-            console.log('[LiveMonitor Hook] Undo confirmado desde el servidor', data);
-
-            if (data.matchId === matchId) {
-                let currentLegsSum = 0;
-
-                // Procesamos el nuevo historial limpio de Redis
-                const processedThrows = data.historyThrows.map((t: any) => {
-                    const legIndex = currentLegsSum;
-                    if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
-                        currentLegsSum = (t.participant1?.legsWon || 0) + (t.participant2?.legsWon || 0);
+                    if (processedThrows.length > 0) {
+                        const latestThrow = processedThrows[processedThrows.length - 1];
+                        updateLiveDataFromThrow(latestThrow);
+                    } else {
+                        const resetState = {
+                            score: 0,
+                            activePlayerIndex: 0,
+                            throwerPlayerIndex: 0,
+                            status: LiveMatchStatus.PLAYING,
+                            participant1: { remainingScore: 501, stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 }, setsWon: 0, legsWon: 0 },
+                            participant2: { remainingScore: 501, stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 }, setsWon: 0, legsWon: 0 }
+                        };
+                        setLiveData(resetState);
+                        totalLegsRef.current = 0;
                     }
-                    return { ...t, legIndex };
-                });
+                }
+            },
+            onScoreEditConfirmed: (data) => {
+                console.log(`[LiveMonitor] Edición detectada remota para match: ${data.matchId}. Actualizando interfaz.`);
+                if (data.matchId === matchId && data.historyThrows) {
+                    let currentLegsSum = 0;
+                    const processedThrows = data.historyThrows.map((t: any) => {
+                        const legIndex = currentLegsSum;
+                        if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
+                            currentLegsSum = (t.participant1?.legsWon || 0) + (t.participant2?.legsWon || 0);
+                        }
+                        return { ...t, legIndex };
+                    });
 
-                // Actualizamos el array visual de tiradas
-                setHistoryThrows(processedThrows);
+                    setHistoryThrows(processedThrows);
+                    updateLiveDataFromThrow(data.throwData);
 
-                if (processedThrows.length > 0) {
-                    // Si quedan tiradas en el Leg, el estado actual vuelve a ser el de la última tirada viva
-                    const latestThrow = processedThrows[processedThrows.length - 1];
-                    updateLiveDataFromThrow(latestThrow);
-                } else {
-                    // Si borramos la única tirada que había, restauramos al valor por defecto (501 inicial)
-                    const resetState = {
+                    if (data.throwData.participant1 && data.throwData.participant2) {
+                        totalLegsRef.current = data.throwData.participant1.legsWon + data.throwData.participant2.legsWon;
+                    }
+                }
+            },
+            onMatchSuspended: (data) => {
+                console.log('[LiveMonitor Hook] Partido suspendido:', data);
+                if (data.matchId === matchId) {
+                    onSuspendedChange?.(true);
+                }
+            },
+            onMatchResumed: (data) => {
+                console.log('[LiveMonitor Hook] Partido reanudado:', data);
+                if (data.matchId === matchId) {
+                    onSuspendedChange?.(false);
+                }
+            },
+            onMatchAssigned: (data) => {
+                console.log('[LiveMonitor Hook] Partida asignada a esta diana:', data);
+                if (data.matchId === matchId) {
+                    const defaultState: LiveMatch = {
                         score: 0,
                         activePlayerIndex: 0,
                         throwerPlayerIndex: 0,
@@ -193,101 +215,29 @@ export const useLiveMatchSocket = ({
                         participant1: { remainingScore: 501, stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 }, setsWon: 0, legsWon: 0 },
                         participant2: { remainingScore: 501, stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 }, setsWon: 0, legsWon: 0 }
                     };
-                    setLiveData(resetState);
+                    setLiveData(defaultState);
+                    setHistoryThrows([]);
                     totalLegsRef.current = 0;
                 }
-            }
-        });
-
-        socket.on('score_edit_confirmed', (data: { matchId: string, throwData: any, historyThrows: any[] }) => {
-            console.log(`[LiveMonitor] Edición detectada remota para match: ${data.matchId}. Actualizando interfaz.`);
-
-            if (data.matchId === matchId && data.historyThrows) {
-                let currentLegsSum = 0;
-
-                // 1. Procesamos el nuevo historial reconstruido inyectándole el legIndex correspondiente
-                const processedThrows = data.historyThrows.map((t: any) => {
-                    const legIndex = currentLegsSum;
-                    // Si detectamos que es un reinicio de pierna (ambos en 501), avanzamos el índice de legs
-                    if (t.participant1?.remainingScore === 501 && t.participant2?.remainingScore === 501) {
-                        currentLegsSum = (t.participant1?.legsWon || 0) + (t.participant2?.legsWon || 0);
-                    }
-                    return { ...t, legIndex };
-                });
-
-                // 2. Seteamos el historial mapeado con sus respectivos legIndex correctos
-                setHistoryThrows(processedThrows);
-
-                // 3. Forzamos la actualización de los datos en vivo principales con la última tirada recalculada
-                updateLiveDataFromThrow(data.throwData);
-
-                // 4. Sincronizamos el contador de legs del ref por seguridad
-                if (data.throwData.participant1 && data.throwData.participant2) {
-                    totalLegsRef.current = data.throwData.participant1.legsWon + data.throwData.participant2.legsWon;
-                }
-            }
-        });
-
-        socket.on('match_suspended', (data: { matchId: string }) => {
-            console.log('[LiveMonitor Hook] Partido suspendido:', data);
-            if (data.matchId === matchId) {
-                onSuspendedChange?.(true);
-            }
-        });
-
-        socket.on('match_resumed', (data: { matchId: string }) => {
-            console.log('[LiveMonitor Hook] Partido reanudado:', data);
-            if (data.matchId === matchId) {
-                onSuspendedChange?.(false);
-            }
-        });
-
-        socket.on('match_assigned', (data: { matchId: string; status: string }) => {
-            console.log('[LiveMonitor Hook] Partida asignada a esta diana:', data);
-            if (data.matchId === matchId) {
-                const defaultState: LiveMatch = {
-                    score: 0,
-                    activePlayerIndex: 0,
-                    throwerPlayerIndex: 0,
-                    status: LiveMatchStatus.PLAYING,
-                    participant1: { remainingScore: 501, stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 }, setsWon: 0, legsWon: 0 },
-                    participant2: { remainingScore: 501, stats: { average: 0, oneEighties: 0, hundredFortyPlus: 0, hundredPlus: 0 }, setsWon: 0, legsWon: 0 }
-                };
-                setLiveData(defaultState);
+            },
+            onMatchUnassigned: () => {
+                console.log('[LiveMonitor Hook] Partida desasignada de esta diana.');
+                setLiveData(null);
                 setHistoryThrows([]);
                 totalLegsRef.current = 0;
+            },
+            onDisconnect: (reason) => {
+                console.warn('[LiveMonitor Hook] Socket desconectado:', reason);
+                setIsLiveConnected(false);
+            },
+            onConnectError: (err) => {
+                console.error('[LiveMonitor Hook] Error de conexión:', err.message);
             }
-        });
-
-        socket.on('match_unassigned', (data: { matchId?: string }) => {
-            console.log('[LiveMonitor Hook] Partida desasignada de esta diana.');
-            // Limpiamos los estados por completo para que la diana vuelva a la pantalla de espera
-            setLiveData(null);
-            setHistoryThrows([]);
-            totalLegsRef.current = 0;
-        });
-
-        socket.on('connect_error', (err) => {
-            console.error('[LiveMonitor Hook] Error de conexión:', err.message);
-        });
-
-        socket.on('disconnect', (reason) => {
-            console.warn('[LiveMonitor Hook] Socket desconectado:', reason);
-            setIsLiveConnected(false);
         });
 
         return () => {
             console.log('[LiveMonitor Hook] Limpiando escuchas y cerrando socket...');
-            socket.off('connect');
-            socket.off('match_restored');
-            socket.off('score_update_confirmed');
-            socket.off('match_suspended');
-            socket.off('match_resumed');
-            socket.off('match_assigned');
-            socket.off('match_unassigned');
-            socket.off('disconnect');
-            socket.off('connect_error');
-            socket.disconnect();
+            socketClientService.disconnect();
         };
     }, [boardShortId, matchId]);
 

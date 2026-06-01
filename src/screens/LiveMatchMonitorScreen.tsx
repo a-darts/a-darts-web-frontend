@@ -111,7 +111,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                 <div style={styles.notFoundCard}>
                     <h2 style={styles.notFoundTitle}>Partido no disponible</h2>
                     <p style={styles.notFoundSubtitle}>
-                        El partido que buscas no se ha encontrado o es posible que el administrador lo haya 
+                        El partido que buscas no se ha encontrado o es posible que el administrador lo haya
                         <strong style={{ color: '#BFE55F' }}> reasignado a otra diana</strong>.
                     </p>
                     <Button
@@ -185,7 +185,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                     {/* Fila superior: Tarjetas de puntuación restante y Marcador Central */}
                     <div style={styles.headerRow}>
                         {/* Jugador 1 Card */}
-                        <div 
+                        <div
                             className="responsive-player-card"
                             style={{
                                 ...styles.playerCard,
@@ -303,9 +303,9 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
 
                     {[
                         { label: 'Media', p1: liveData.participant1.stats?.average?.toFixed(1) ?? '—', p2: liveData.participant2.stats?.average?.toFixed(1) ?? '—', big: true },
-                        { label: '180s',  p1: liveData.participant1.stats?.oneEighties  ?? 0, p2: liveData.participant2.stats?.oneEighties  ?? 0 },
-                        { label: '+140',  p1: liveData.participant1.stats?.hundredFortyPlus ?? 0, p2: liveData.participant2.stats?.hundredFortyPlus ?? 0 },
-                        { label: '+100',  p1: liveData.participant1.stats?.hundredPlus ?? 0, p2: liveData.participant2.stats?.hundredPlus ?? 0 },
+                        { label: '180s', p1: liveData.participant1.stats?.oneEighties ?? 0, p2: liveData.participant2.stats?.oneEighties ?? 0 },
+                        { label: '+140', p1: liveData.participant1.stats?.hundredFortyPlus ?? 0, p2: liveData.participant2.stats?.hundredFortyPlus ?? 0 },
+                        { label: '+100', p1: liveData.participant1.stats?.hundredPlus ?? 0, p2: liveData.participant2.stats?.hundredPlus ?? 0 },
                     ].map((row, i, arr) => (
                         <div key={row.label} style={i < arr.length - 1 ? styles.statsRow : styles.statsRowLast}>
                             <span style={styles.statsRowLabel}>{row.label}</span>
@@ -443,7 +443,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         width: '1px',
         height: '16px',
         backgroundColor: '#2A2A2A',
-        display: 'block', 
+        display: 'block',
     },
     badgeLabel: {
         fontFamily: '"Space Grotesk", sans-serif',
