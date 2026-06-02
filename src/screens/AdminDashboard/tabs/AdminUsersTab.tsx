@@ -272,7 +272,7 @@ const AdminUsersTab: React.FC = () => {
           <span>Cargando usuarios...</span>
         </div>
       ) : usersError ? (
-        <div style={{ ...styles.loadingContainer, color: '#FD605D' }}>
+        <div style={{ ...styles.loadingContainer, color: '#FF7070' }}>
           <Icon name="AlertCircle" size={24} style={{ marginBottom: '1rem' }} />
           <span>{usersError}</span>
         </div>

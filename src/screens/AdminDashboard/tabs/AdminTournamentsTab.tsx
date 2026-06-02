@@ -102,7 +102,7 @@ const AdminTournamentsTab: React.FC = () => {
           <span>Cargando torneos...</span>
         </div>
       ) : error ? (
-        <div style={{ ...styles.loadingContainer, color: '#FD605D' }}>
+        <div style={{ ...styles.loadingContainer, color: '#FF7070' }}>
           <Icon name="AlertCircle" size={24} style={{ marginBottom: '1rem' }} />
           <span>{error}</span>
         </div>

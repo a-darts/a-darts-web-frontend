@@ -111,7 +111,7 @@ button.secondary:hover {
 }
 
 button.danger-primary {
-  background-color: #FD605D;
+  background-color: #FF7070;
   color: #000000;
 }
 
@@ -122,8 +122,8 @@ button.danger-primary:hover {
 
 button.danger-secondary {
   background-color: var(--btn-secondary-bg);
-  border: 1px solid #FD605D;
-  color: #FD605D;
+  border: 1px solid #FF7070;
+  color: #FF7070;
 }
 
 button.danger-secondary:hover {
@@ -295,6 +295,26 @@ a:hover {
 .icon-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.icon-checkin {
+  color: #C4E866 !important;
+}
+
+.icon-uncheckin {
+  color: #FF7070 !important;
+}
+
+.icon-btn-checkin:hover:not(:disabled) {
+  background-color: rgba(196, 232, 102, 0.08) !important;
+  border-color: rgba(196, 232, 102, 0.2) !important;
+}
+
+/* Hover rojo para deshacer check-in */
+.icon-btn-uncheckin:hover:not(:disabled) {
+  color: #FF7070 !important;
+  background-color: rgba(253, 96, 93, 0.08) !important;
+  border-color: rgba(253, 96, 93, 0.2) !important;
 }
 
 /* --- Estilos para el visor de partidas (Ronda y Diana) --- */

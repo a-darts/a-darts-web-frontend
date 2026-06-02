@@ -12,6 +12,8 @@ import DatePicker from '../../../components/DatePicker';
 import TimePicker from '../../../components/TimePicker';
 import Select from '../../../components/Select';
 import ErrorMessage from '../../../components/ErrorMessage';
+import IconButton from '../../../components/IconButton';
+import Icon from '../../../components/Icon';
 
 const toLocalDateParts = (isoString: any) => {
   if (!isoString) return { date: '', time: '12:00' };
@@ -54,6 +56,8 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
   const { showToast } = useToast();
   const [isToggling, setIsToggling] = useState(false);
   const [isTogglingCheckIn, setIsTogglingCheckIn] = useState(false);
+
+  const [processingParticipantId, setProcessingParticipantId] = useState<string | null>(null);
 
   React.useEffect(() => {
     const intervalId = setInterval(() => {
@@ -103,8 +107,35 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
     }
   };
 
+  const handleParticipantCheckInToggle = async (participant: Participant) => {
+    if (!isAdmin || processingParticipantId) return;
+
+    try {
+      setProcessingParticipantId(participant.id);
+
+      // Si ya tiene fecha en 'checkedInAt', significa que está confirmado y queremos deshacerlo (DELETE)
+      if (participant.checkedInAt) {
+        await registeredParticipantService.undoCheckInParticipant(tournament.id, participant.id);
+        showToast(`Check-in cancelado para ${participant.alias || 'el participante'}.`, 'success');
+      } else {
+        // Si no tiene fecha, realizamos el check-in (POST)
+        await registeredParticipantService.doCheckInParticipant(tournament.id, participant.id);
+        showToast(`Check-in confirmado para ${participant.alias || 'el participante'}.`, 'success');
+      }
+
+      if (onRefresh) onRefresh();
+    } catch (err: any) {
+      console.error('Error al cambiar el check-in del participante:', err);
+      showToast(err.message || 'Error al procesar el check-in.', 'error');
+    } finally {
+      setProcessingParticipantId(null);
+    }
+  };
+
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isStartProgrammed, setIsStartProgrammed] = useState<'SI' | 'NO'>('NO');
+
+
   const [startDate, setStartDate] = useState('');
   const [startTime, setStartTime] = useState('12:00');
   const [isEndProgrammed, setIsEndProgrammed] = useState<'SI' | 'NO'>('NO');
@@ -254,20 +285,43 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
         </div>
       )
     },
+    ...(isAdmin && registration.hasCheckIn ? [{
+      key: 'checkedInAt',
+      header: 'Check-in',
+      render: (item: any) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Icon
+            name={item.checkedInAt ? 'Check' : 'X'}
+            size={16}
+            className={item.checkedInAt ? 'icon-checkin' : 'icon-uncheckin'}
+          />
+        </div>
+      )
+    }] : []),
     ...(isAdmin && (tournament.status === TournamentStatus.DRAFT || tournament.status === TournamentStatus.PUBLISHED) ? [{
       key: 'actions',
       header: 'Acciones',
       render: (item: Participant) => (
-        <Button
-          variant="danger-primary"
-          onClick={() => handleOpenDeleteModal(item)}
-          leftIcon="X"
-          style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', height: '32px' }}
-        >
-          Desinscribir
-        </Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          {registration.hasCheckIn && (
+            <IconButton
+              name={item.checkedInAt ? 'ClockAlert' : 'ClockCheck'}
+              size={16}
+              onClick={() => handleParticipantCheckInToggle(item)}
+              className={item.checkedInAt ? 'icon-btn-uncheckin' : 'icon-btn-checkin'}
+            />
+          )}
+          <Button
+            variant="danger-primary"
+            onClick={() => handleOpenDeleteModal(item)}
+            leftIcon="X"
+            style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', height: '32px' }}
+          >
+            Desinscribir
+          </Button>
+        </div>
       )
-    }] : [])
+    }] : []),
   ];
 
   return (

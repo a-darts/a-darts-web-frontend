@@ -6,6 +6,8 @@ export interface Participant {
   playerId: string;
   alias: string;
   federation: string;
+  registeredAt: Date;
+  checkedInAt: Date | null;
 }
 
 
@@ -52,6 +54,42 @@ export const registeredParticipantService = {
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/participants/${participantId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'accept': 'application/json',
+        },
+      });
+      await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  doCheckInParticipant: async (tournamentId: string, participantId: string): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/participants/${participantId}/check-in`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'accept': 'application/json',
+        },
+      });
+      await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  undoCheckInParticipant: async (tournamentId: string, participantId: string): Promise<void> => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/participants/${participantId}/check-in`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
