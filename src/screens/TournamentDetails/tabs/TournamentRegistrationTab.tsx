@@ -53,6 +53,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
   const isAdmin = user?.role === UserRoles.ADMIN;
   const { showToast } = useToast();
   const [isToggling, setIsToggling] = useState(false);
+  const [isTogglingCheckIn, setIsTogglingCheckIn] = useState(false);
 
   React.useEffect(() => {
     const intervalId = setInterval(() => {
@@ -79,6 +80,26 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
       showToast(err.message || 'Error al cambiar el estado de las inscripciones.', 'error');
     } finally {
       setIsToggling(false);
+    }
+  };
+
+  const handleToggleCheckIn = async () => {
+    if (isTogglingCheckIn) return;
+    try {
+      setIsTogglingCheckIn(true);
+      if (registration.hasCheckIn) {
+        await tournamentService.disableCheckIn(tournament.id);
+        showToast('Check-in deshabilitado correctamente.', 'success');
+      } else {
+        await tournamentService.enableCheckIn(tournament.id);
+        showToast('Check-in habilitado correctamente.', 'success');
+      }
+      if (onRefresh) onRefresh();
+    } catch (err: any) {
+      console.error('Error toggling check-in status:', err);
+      showToast(err.message || 'Error al cambiar el estado del check-in.', 'error');
+    } finally {
+      setIsTogglingCheckIn(false);
     }
   };
 
@@ -288,6 +309,26 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
               </Button>
             </div>
           </div>
+
+          <div style={styles.infoGrid}>
+            <InfoCard
+              title="Estado Check-In"
+              content={registration.hasCheckIn ? 'Activado' : 'Desactivado'}
+              icon="ClipboardCheck"
+            />
+
+            <div style={styles.registrationButtonsContainer}>
+              <Button
+                variant='secondary'
+                leftIcon={registration.hasCheckIn ? 'X' : 'Check'}
+                onClick={handleToggleCheckIn}
+                loading={isTogglingCheckIn}
+              >
+                {registration.hasCheckIn ? 'Deshabilitar Check-In' : 'Habilitar Check-In'}
+              </Button>
+            </div>
+          </div>
+
           <div style={{ alignItems: 'flex-start' }}>
             <Button
               variant="primary"
