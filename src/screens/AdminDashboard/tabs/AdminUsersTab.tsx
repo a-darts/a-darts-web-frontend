@@ -99,7 +99,12 @@ const AdminUsersTab: React.FC = () => {
   const handleBlockConfirm = (user: MockUser) => {
     openConfirmModal(
       'Bloquear usuario',
-      `¿Estás seguro de que deseas bloquear al usuario ${user.alias || 'este usuario'}?\nEl usuario perderá el acceso a la plataforma de inmediato.`,
+      <>
+        ¿Estás seguro de que deseas bloquear al usuario <strong>{user.alias || ''}</strong>?
+        <br />
+        <br />
+        El usuario perderá el acceso a la plataforma de inmediato.
+      </>,
       'Bloquear',
       'danger',
       async () => {
@@ -118,7 +123,12 @@ const AdminUsersTab: React.FC = () => {
   const handleUnblockConfirm = (user: MockUser) => {
     openConfirmModal(
       'Desbloquear usuario',
-      `¿Estás seguro de que deseas desbloquear al usuario ${user.alias || 'este usuario'}?\nEl usuario recuperará el acceso a la plataforma de inmediato.`,
+      <>
+        ¿Estás seguro de que deseas desbloquear al usuario <strong>{user.alias || ''}</strong>?
+        <br />
+        <br />
+        El usuario recuperará el acceso a la plataforma de inmediato.
+      </>,
       'Desbloquear',
       'primary',
       async () => {
@@ -137,7 +147,9 @@ const AdminUsersTab: React.FC = () => {
   const handleDeleteConfirm = (user: MockUser) => {
     openConfirmModal(
       'Eliminar usuario',
-      `¿Estás seguro de que deseas eliminar permanentemente al usuario ${user.alias || 'este usuario'}?`,
+      <>
+        ¿Estás seguro de que deseas eliminar permanentemente al usuario <strong>{user.alias || ''}</strong>?
+      </>,
       'Eliminar',
       'danger',
       async () => {
