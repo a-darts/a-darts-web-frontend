@@ -165,4 +165,23 @@ export const playerService = {
       throw handleFetchError(error);
     }
   },
+
+  restorePlayer: async (playerId: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/players/${playerId}/restore`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      return handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
 };

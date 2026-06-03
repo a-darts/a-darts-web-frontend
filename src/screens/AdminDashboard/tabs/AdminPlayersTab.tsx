@@ -107,6 +107,17 @@ const AdminPlayersTab: React.FC = () => {
     );
   };
 
+  const handleRestore = async (player: Player) => {
+    try {
+      await playerService.restorePlayer(player.id);
+      showToast('Jugador restaurado con éxito!', 'success');
+      fetchPlayers(currentPage);
+    } catch (err: any) {
+      console.error('Error restoring player:', err);
+      showToast(err.message || 'Error al restaurar el jugador.', 'error');
+    }
+  };
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     fetchPlayers(page);
@@ -158,6 +169,14 @@ const AdminPlayersTab: React.FC = () => {
               onClick={() => handleDeleteConfirm(p)}
               title="Eliminar jugador"
               className='icon-btn-danger'
+            />
+          )}
+          {p.status === PlayerStatus.DELETED && (
+            <IconButton
+              name="RefreshCcw"
+              onClick={() => handleRestore(p)}
+              title="Restaurar jugador"
+              className='icon-btn'
             />
           )}
         </div>
