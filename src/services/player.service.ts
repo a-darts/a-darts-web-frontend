@@ -1,12 +1,18 @@
 import i18n from '../i18n';
 import { API_BASE_URL, handleFetchError, handleResponse } from './api';
 
+export enum PlayerStatus {
+  ACTIVE = 'ACTIVE',
+  DELETED = 'DELETED',
+}
+
 export interface Player {
   id: string;
   userId: string;
   registrationNumber: string;
   federation: string;
   seasonStartYear: number;
+  status: PlayerStatus;
   userAlias?: string;
 }
 
@@ -135,6 +141,25 @@ export const playerService = {
       });
 
       return await handleResponse(response);
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
+  },
+
+  deletePlayer: async (playerId: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/players/${playerId}`, {
+        method: 'DELETE',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      return handleResponse(response);
     } catch (error: any) {
       throw handleFetchError(error);
     }

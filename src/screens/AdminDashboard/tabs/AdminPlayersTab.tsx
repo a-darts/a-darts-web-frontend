@@ -6,14 +6,16 @@ import IconButton from '../../../components/IconButton';
 import { useToast } from '../../../context/ToastContext';
 import { getFederationFlag, getSeasonEndYear } from '../../../utils/tournament.utils';
 import Table, { Column } from '../../../components/Table';
-import { playerService, Player } from '../../../services/player.service';
+import { playerService, Player, PlayerStatus } from '../../../services/player.service';
 import i18n from '../../../i18n';
 import { useNavigate } from 'react-router-dom';
 import Select from '../../../components/Select';
 import { Federations } from '../../../services/tournament.service';
+import Modal from '../../../components/Modal';
 
 const AdminPlayersTab: React.FC = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [playerQuery, setPlayerQuery] = useState('');
 
   const [players, setPlayers] = useState<Player[]>([]);
@@ -25,6 +27,15 @@ const AdminPlayersTab: React.FC = () => {
   const limit = 16;
 
   const [federationFilter, setFederationFilter] = useState('');
+
+  // Confirmation Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalDescription, setModalDescription] = useState<React.ReactNode>('');
+  const [modalConfirmLabel, setModalConfirmLabel] = useState('Confirmar');
+  const [modalVariant, setModalVariant] = useState<'primary' | 'danger'>('primary');
+  const [modalOnConfirm, setModalOnConfirm] = useState<(() => Promise<void>) | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
 
   const fetchPlayers = async (page: number = currentPage) => {
@@ -55,6 +66,45 @@ const AdminPlayersTab: React.FC = () => {
   useEffect(() => {
     fetchPlayers(1);
   }, []);
+
+  const openConfirmModal = (
+    title: string,
+    description: React.ReactNode,
+    confirmLabel: string,
+    variant: 'primary' | 'danger',
+    onConfirm: () => Promise<void>
+  ) => {
+    setModalTitle(title);
+    setModalDescription(description);
+    setModalConfirmLabel(confirmLabel);
+    setModalVariant(variant);
+    setModalOnConfirm(() => onConfirm);
+    setModalOpen(true);
+  };
+
+  const handleDeleteConfirm = (player: Player) => {
+    openConfirmModal(
+      'Eliminar jugador',
+      <>
+        ¿Estás seguro de que deseas eliminar permanentemente al jugador <strong>{player.userAlias || ''}</strong>?
+        <br />
+        <br />
+        Si el jugador no ha participado en ningún torneo, se eliminará permanentemente. En caso contrario, se mantendrá su registro en el sistema.
+      </>,
+      'Eliminar',
+      'danger',
+      async () => {
+        try {
+          await playerService.deletePlayer(player.id);
+          showToast('Jugador eliminado con éxito!', 'success');
+          fetchPlayers(currentPage);
+        } catch (err: any) {
+          console.error('Error deleting player:', err);
+          showToast(err.message || 'Error al eliminar el jugador.', 'error');
+        }
+      }
+    );
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -101,6 +151,14 @@ const AdminPlayersTab: React.FC = () => {
             onClick={() => navigate(`/admin/jugadores/editar/${p.id}`)}
             title="Editar jugador"
           />
+          {p.status !== PlayerStatus.DELETED && (
+            <IconButton
+              name="Trash"
+              onClick={() => handleDeleteConfirm(p)}
+              title="Eliminar jugador"
+              className='icon-btn-danger'
+            />
+          )}
         </div>
       ),
     },
@@ -171,6 +229,27 @@ const AdminPlayersTab: React.FC = () => {
           }}
         />
       )}
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        description={modalDescription}
+        confirmLabel={modalConfirmLabel}
+        onConfirm={async () => {
+          if (modalOnConfirm) {
+            setModalLoading(true);
+            try {
+              await modalOnConfirm();
+              setModalOpen(false);
+            } finally {
+              setModalLoading(false);
+            }
+          }
+        }}
+        variant={modalVariant}
+        loading={modalLoading}
+      />
     </div>
   );
 };

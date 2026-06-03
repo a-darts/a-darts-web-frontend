@@ -305,6 +305,10 @@ a:hover {
   color: #FF7070 !important;
 }
 
+.icon-btn-danger:hover {
+  color: #FF7070 !important;
+}
+
 .icon-btn-checkin:hover:not(:disabled) {
   background-color: rgba(196, 232, 102, 0.08) !important;
   border-color: rgba(196, 232, 102, 0.2) !important;
