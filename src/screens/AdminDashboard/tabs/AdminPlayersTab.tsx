@@ -27,6 +27,7 @@ const AdminPlayersTab: React.FC = () => {
   const limit = 16;
 
   const [federationFilter, setFederationFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState<PlayerStatus>(PlayerStatus.ACTIVE);
 
   // Confirmation Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -42,7 +43,7 @@ const AdminPlayersTab: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await playerService.getPlayers(page, limit);
+      const res = await playerService.getPlayers(page, limit, statusFilter);
       if (res && res.data) {
         if (Array.isArray(res.data)) {
           setPlayers(res.data);
@@ -65,7 +66,7 @@ const AdminPlayersTab: React.FC = () => {
 
   useEffect(() => {
     fetchPlayers(1);
-  }, []);
+  }, [statusFilter]);
 
   const openConfirmModal = (
     title: string,
@@ -191,6 +192,18 @@ const AdminPlayersTab: React.FC = () => {
             <SearchInput value={playerQuery} onChange={setPlayerQuery} placeholder="Buscar por alias..." />
           </div>
           <div style={styles.filtersWrapper}>
+            <div style={styles.filterItem}>
+              <Select
+                label='Estado'
+                value={statusFilter}
+                onChange={(val) => setStatusFilter(val as PlayerStatus)}
+                options={[
+                  { value: PlayerStatus.ACTIVE, label: 'Activos' },
+                  { value: PlayerStatus.DELETED, label: 'Eliminados' },
+                ]}
+                icon="UserCheck"
+              />
+            </div>
             <div style={styles.filterItem}>
               <Select
                 label='Federación'

@@ -41,7 +41,7 @@ export const playerService = {
   /**
    * Fetches all players, with optional pagination.
    */
-  async getPlayers(page?: number, limit?: number) {
+  async getPlayers(page?: number, limit?: number, status: PlayerStatus = PlayerStatus.ACTIVE) {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
 
@@ -49,6 +49,7 @@ export const playerService = {
       const queryParams = new URLSearchParams();
       if (page !== undefined) queryParams.append('page', page.toString());
       if (limit !== undefined) queryParams.append('limit', limit.toString());
+      if (status !== undefined) queryParams.append('status', status);
 
       const url = queryParams.toString()
         ? `${API_BASE_URL}/players?${queryParams.toString()}`
