@@ -267,7 +267,7 @@ const TournamentDetailsScreen: React.FC = () => {
     { id: 'registration', label: 'Inscripciones' },
     { id: 'bracket', label: 'Cuadrante' },
     ...(isAdmin && isEditingBracket ? [{ id: 'create-bracket', label: 'Configurar cuadrante' }] : []),
-    ...(isAdmin && status !== TournamentStatus.FINISHED ? [{ id: 'playing-area', label: 'Salón de juego' }] : []),
+    ...(isAdmin && (status !== TournamentStatus.FINISHED && status !== TournamentStatus.CANCELLED) ? [{ id: 'playing-area', label: 'Salón de juego' }] : []),
     { id: 'matches', label: 'Partidas' },
     ...(status === TournamentStatus.FINISHED ? [{ id: 'results', label: 'Resultados' }] : []),
   ];
@@ -350,7 +350,6 @@ const TournamentDetailsScreen: React.FC = () => {
                 </Button>
               )}
               {status === TournamentStatus.PUBLISHED && (
-                // <div style={{ display: 'flex', gap: '1rem' }}>
                 <>
                   <Button
                     variant="secondary"
@@ -368,21 +367,9 @@ const TournamentDetailsScreen: React.FC = () => {
                     INICIAR TORNEO
                   </Button>
                 </>
-                // {/* </div> */}
               )}
             </div>
           )}
-
-          {/* {isAdmin && (status !== TournamentStatus.FINISHED && status !== TournamentStatus.CANCELLED) && (
-            <Button
-              variant="secondary"
-              leftIcon="Ban"
-              onClick={handleCancelTournament}
-              loading={isCancelling}
-            >
-              CANCELAR TORNEO
-            </Button>
-          )} */}
         </div>
       </header>
 
