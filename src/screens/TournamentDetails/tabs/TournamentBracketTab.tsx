@@ -399,7 +399,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
                           {match.status && (
                             <div style={styles.statusTagContainer}>
                               <TournamentMatchStatusTag status={match.status} size="small" />
-                              {match.status !== MatchStatus.FINISHED && (
+                              {match.status !== MatchStatus.FINISHED && match.status !== MatchStatus.CANCELLED && (
                                 <>
                                   {!isByeMatch && (match.boardNumber ? (
                                     <span style={styles.boardNumberText}>Diana {match.boardNumber}</span>

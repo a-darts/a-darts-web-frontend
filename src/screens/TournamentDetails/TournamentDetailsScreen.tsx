@@ -44,6 +44,7 @@ const TournamentDetailsScreen: React.FC = () => {
   const [isEditingBracket, setIsEditingBracket] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const handleBracketGenerated = () => {
     setIsEditingBracket(true);
@@ -237,6 +238,21 @@ const TournamentDetailsScreen: React.FC = () => {
     }
   };
 
+  const handleCancelTournament = async () => {
+    if (!tournament) return;
+    try {
+      setIsUnpublishing(true);
+      await tournamentService.cancelTournament(tournament.id);
+      showToast('¡Torneo cancelado correctamente!', 'success');
+      await refreshData();
+    } catch (err: any) {
+      console.error('Error cancelling tournament:', err);
+      showToast(err.message || 'Error al cancelar el torneo.', 'error');
+    } finally {
+      setIsUnpublishing(false);
+    }
+  };
+
   const formattedDate = formatTournamentDate(info.dateTime);
   const formattedTime = formatTournamentTime(info.dateTime);
 
@@ -311,36 +327,62 @@ const TournamentDetailsScreen: React.FC = () => {
             )
           )}
 
-          {isAdmin && status === TournamentStatus.DRAFT && (
-            <Button
-              variant="secondary"
-              leftIcon="Megaphone"
-              onClick={handlePublishTournament}
-              loading={isPublishing}
-            >
-              PUBLICAR TORNEO
-            </Button>
-          )}
-
-          {isAdmin && status === TournamentStatus.PUBLISHED && (
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <Button
-                variant="secondary"
-                leftIcon="EyeOff"
-                onClick={handleUnpublishTournament}
-                loading={isUnpublishing}
-              >
-                OCULTAR TORNEO
-              </Button>
-              <Button
-                variant="primary"
-                leftIcon="Play"
-                onClick={handleInitTournament}
-              >
-                INICIAR TORNEO
-              </Button>
+          {isAdmin && (
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              {status !== TournamentStatus.FINISHED && status !== TournamentStatus.CANCELLED && (
+                <Button
+                  variant="secondary"
+                  leftIcon="Ban"
+                  onClick={handleCancelTournament}
+                  loading={isCancelling}
+                >
+                  CANCELAR TORNEO
+                </Button>
+              )}
+              {status === TournamentStatus.DRAFT && (
+                <Button
+                  variant="primary"
+                  leftIcon="Megaphone"
+                  onClick={handlePublishTournament}
+                  loading={isPublishing}
+                >
+                  PUBLICAR TORNEO
+                </Button>
+              )}
+              {status === TournamentStatus.PUBLISHED && (
+                // <div style={{ display: 'flex', gap: '1rem' }}>
+                <>
+                  <Button
+                    variant="secondary"
+                    leftIcon="EyeOff"
+                    onClick={handleUnpublishTournament}
+                    loading={isUnpublishing}
+                  >
+                    OCULTAR TORNEO
+                  </Button>
+                  <Button
+                    variant="primary"
+                    leftIcon="Play"
+                    onClick={handleInitTournament}
+                  >
+                    INICIAR TORNEO
+                  </Button>
+                </>
+                // {/* </div> */}
+              )}
             </div>
           )}
+
+          {/* {isAdmin && (status !== TournamentStatus.FINISHED && status !== TournamentStatus.CANCELLED) && (
+            <Button
+              variant="secondary"
+              leftIcon="Ban"
+              onClick={handleCancelTournament}
+              loading={isCancelling}
+            >
+              CANCELAR TORNEO
+            </Button>
+          )} */}
         </div>
       </header>
 
