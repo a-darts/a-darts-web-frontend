@@ -8,6 +8,7 @@ export interface SocketMatchEvents {
     onScoreEditConfirmed?: (data: { matchId: string, throwData: any, historyThrows: any[] }) => void;
     onMatchSuspended?: (data: { matchId: string }) => void;
     onMatchResumed?: (data: { matchId: string }) => void;
+    onMatchCancelled?: (data: { matchId: string }) => void;
     onMatchAssigned?: (data: { matchId: string; status: string }) => void;
     onMatchUnassigned?: (data: { matchId?: string }) => void;
     onConnect?: () => void;
@@ -44,6 +45,7 @@ class SocketClientService {
         this.socket.on('score_edit_confirmed', (data) => events.onScoreEditConfirmed?.(data));
         this.socket.on('match_suspended', (data) => events.onMatchSuspended?.(data));
         this.socket.on('match_resumed', (data) => events.onMatchResumed?.(data));
+        this.socket.on('match_cancelled', (data) => events.onMatchCancelled?.(data));
         this.socket.on('match_assigned', (data) => events.onMatchAssigned?.(data));
         this.socket.on('match_unassigned', (data) => events.onMatchUnassigned?.(data));
 
@@ -60,6 +62,7 @@ class SocketClientService {
             this.socket.off('score_edit_confirmed');
             this.socket.off('match_suspended');
             this.socket.off('match_resumed');
+            this.socket.off('match_cancelled');
             this.socket.off('match_assigned');
             this.socket.off('match_unassigned');
             this.socket.off('connect_error');

@@ -34,6 +34,7 @@ interface UseLiveMatchSocketProps {
     matchId: string;
     initialData: LiveMatch | null;
     onSuspendedChange?: (suspended: boolean) => void;
+    onCancelledChange?: (cancelled: boolean) => void;
 }
 
 export const useLiveMatchSocket = ({
@@ -41,6 +42,7 @@ export const useLiveMatchSocket = ({
     matchId,
     initialData,
     onSuspendedChange,
+    onCancelledChange,
 }: UseLiveMatchSocketProps) => {
     const [liveData, setLiveData] = useState<LiveMatch | null>(null);
     const [historyThrows, setHistoryThrows] = useState<any[]>([]);
@@ -202,6 +204,12 @@ export const useLiveMatchSocket = ({
                 console.log('[LiveMonitor Hook] Partido reanudado:', data);
                 if (data.matchId === matchId) {
                     onSuspendedChange?.(false);
+                }
+            },
+            onMatchCancelled: (data) => {
+                console.log('[LiveMonitor Hook] Partido cancelado:', data);
+                if (data.matchId === matchId) {
+                    onCancelledChange?.(true);
                 }
             },
             onMatchAssigned: (data) => {

@@ -35,12 +35,14 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
     const tableContainerRef = useRef<HTMLDivElement>(null);
 
     const [isMatchSuspended, setIsMatchSuspended] = useState(false);
+    const [isMatchCancelled, setIsMatchCancelled] = useState(false);
 
     const { liveData, historyThrows, isLiveConnected } = useLiveMatchSocket({
         boardShortId: error ? '' : boardShortId,
         matchId: error ? '' : matchId,
         initialData: defaultInitialData,
         onSuspendedChange: setIsMatchSuspended,
+        onCancelledChange: setIsMatchCancelled,
     });
 
     // Auto-scroll al último tiro dentro del feed inferior si es necesario
@@ -73,6 +75,7 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
 
                 setMatch(data);
                 setIsMatchSuspended(data.status === MatchStatus.SUSPENDED);
+                setIsMatchCancelled(data.status === MatchStatus.CANCELLED);
 
                 setDefaultInitialData({
                     score: 0,
@@ -121,9 +124,6 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                     >
                         Volver
                     </Button>
-                    {/* <button onClick={handleBackClick} style={styles.notFoundButton}>
-                        Volver al Panel
-                    </button> */}
                 </div>
             </div>
         );
@@ -328,7 +328,20 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
                         <span style={styles.suspensionIcon}>⏸</span>
                         <span style={styles.suspensionTitle}>Partida suspendida</span>
                         <span style={styles.suspensionSubtitle}>
-                            El administrador ha pausado este partido.<br />
+                            El administrador ha pausado esta partida.<br />
+                            Contacta con él si necesitas ayuda.
+                        </span>
+                    </div>
+                </div>
+            )}
+
+            {isMatchCancelled && (
+                <div style={styles.suspensionOverlay}>
+                    <div style={styles.suspensionCard}>
+                        <span style={styles.suspensionIcon}>🗙</span>
+                        <span style={styles.suspensionTitle}>Partida cancelada</span>
+                        <span style={styles.suspensionSubtitle}>
+                            El administrador ha cancelado esta partida.<br />
                             Contacta con él si necesitas ayuda.
                         </span>
                     </div>
