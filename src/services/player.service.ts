@@ -22,7 +22,7 @@ export const playerService = {
    */
   async getPlayerByUserAndSeason(userId: string, seasonYear: number): Promise<Player> {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/players/users/${userId}/seasons/${seasonYear}`, {
@@ -43,7 +43,7 @@ export const playerService = {
    */
   async getPlayers(page?: number, limit?: number, status: PlayerStatus = PlayerStatus.ACTIVE) {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const queryParams = new URLSearchParams();
@@ -74,7 +74,7 @@ export const playerService = {
    */
   async getPlayerById(id: string): Promise<Player> {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/players/${id}`, {
@@ -97,7 +97,7 @@ export const playerService = {
    */
   async updatePlayerFederation(id: string, federation: string): Promise<any> {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/players/${id}/federation`, {
@@ -121,7 +121,7 @@ export const playerService = {
    */
   async createPlayer(data: { userId: string; registrationNumber: string; federation: string; startYear: number }): Promise<any> {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/players`, {

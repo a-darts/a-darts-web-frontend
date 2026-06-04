@@ -22,7 +22,7 @@ export const playingAreaService = {
 
   getPlayingArea: async (tournamentId: string): Promise<PlayingArea | null> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/playing-areas`, {
@@ -44,7 +44,7 @@ export const playingAreaService = {
 
   createPlayingArea: async (tournamentId: string, numBoards: number): Promise<PlayingArea> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${tournamentId}/playing-areas`, {
@@ -65,7 +65,7 @@ export const playingAreaService = {
 
   releasePlayingAreaBoard: async (playingAreaId: string, boardId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/playing-areas/${playingAreaId}/boards/${boardId}/release`, {
@@ -83,7 +83,7 @@ export const playingAreaService = {
 
   addBoardToPlayingArea: async (playingAreaId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/playing-areas/${playingAreaId}/boards`, {
@@ -101,7 +101,7 @@ export const playingAreaService = {
 
   removeLastBoardFromPlayingArea: async (playingAreaId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/playing-areas/${playingAreaId}/boards/last`, {
@@ -119,7 +119,7 @@ export const playingAreaService = {
 
   disableBoard: async (playingAreaId: string, boardId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/playing-areas/${playingAreaId}/boards/${boardId}/disable`, {
@@ -137,7 +137,7 @@ export const playingAreaService = {
 
   enableBoard: async (playingAreaId: string, boardId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/playing-areas/${playingAreaId}/boards/${boardId}/enable`, {

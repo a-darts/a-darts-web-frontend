@@ -53,7 +53,7 @@ export const bracketService = {
 
   generateBracketAutomatically: async (id: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/bracket/automatic`, {
@@ -71,7 +71,7 @@ export const bracketService = {
 
   generateBracketManually: async (id: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/bracket/manual`, {
@@ -89,7 +89,7 @@ export const bracketService = {
 
   saveBracketPositions: async (bracketId: string, positions: BracketPosition[]): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/brackets/${bracketId}/setup-positions`, {
@@ -119,7 +119,7 @@ export const bracketService = {
 
   publishBracket: async (bracketId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/brackets/${bracketId}/publish`, {
@@ -137,7 +137,7 @@ export const bracketService = {
 
   unpublishBracket: async (bracketId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/brackets/${bracketId}/unpublish`, {
@@ -155,7 +155,7 @@ export const bracketService = {
 
   deleteBracket: async (bracketId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/brackets/${bracketId}`, {
@@ -173,7 +173,7 @@ export const bracketService = {
 
   reshuffleBracket: async (bracketId: string): Promise<Bracket> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/brackets/${bracketId}/reshuffle`, {

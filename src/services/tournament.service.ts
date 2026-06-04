@@ -177,7 +177,7 @@ export const tournamentService = {
 
   updateTournamentInfo: async (id: string, newInfo: any): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/info`, {
@@ -197,7 +197,7 @@ export const tournamentService = {
 
   updateTournamentName: async (id: string, newName: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/name`, {
@@ -217,7 +217,7 @@ export const tournamentService = {
 
   openRegistration: async (id: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/registration/open`, {
@@ -235,7 +235,7 @@ export const tournamentService = {
 
   closeRegistration: async (id: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/registration/close`, {
@@ -253,7 +253,7 @@ export const tournamentService = {
 
   updateRegistrationSchedule: async (id: string, newRegistrationPeriod: { startsAt: string | null; endsAt: string | null }): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/registration/schedule`, {
@@ -273,7 +273,7 @@ export const tournamentService = {
 
   enableCheckIn: async (id: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/registration/check-in/enable`, {
@@ -288,7 +288,7 @@ export const tournamentService = {
 
   disableCheckIn: async (id: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/registration/check-in/disable`, {
@@ -303,7 +303,7 @@ export const tournamentService = {
 
   startTournament: async (id: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/start`, {
@@ -321,7 +321,7 @@ export const tournamentService = {
 
   publishTournament: async (id: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/publish`, {
@@ -339,7 +339,7 @@ export const tournamentService = {
 
   unpublishTournament: async (id: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/unpublish`, {
@@ -357,7 +357,7 @@ export const tournamentService = {
 
   cancelTournament: async (id: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments/${id}/cancel`, {
@@ -375,7 +375,7 @@ export const tournamentService = {
 
   createTournament: async (name: string, seasonStartYear: number, info: any): Promise<Tournament> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/tournaments`, {

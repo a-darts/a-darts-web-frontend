@@ -115,7 +115,7 @@ export const userService = {
 
   updatePassword: async (userId: string, oldPassword: string, newPassword: string) => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}/password`, {

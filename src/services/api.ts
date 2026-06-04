@@ -8,8 +8,7 @@ export const handleResponse = async (response: Response) => {
     const errorData = await response.json().catch(() => ({}));
     const message = errorData.message || 'Default';
 
-    // Try to translate the message using the auth.errors namespace
-    const translatedMessage = i18n.t(`auth.errors.${message}`, { defaultValue: message });
+    const translatedMessage = i18n.t(`exceptions.${message}`, { defaultValue: message });
 
     throw new Error(translatedMessage);
   }
@@ -18,7 +17,7 @@ export const handleResponse = async (response: Response) => {
 
 export const handleFetchError = (error: any): never => {
   if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
-    throw new Error(i18n.t('auth.errors.network_error'));
+    throw new Error(i18n.t('exceptions.network_error'));
   }
   throw error;
 };

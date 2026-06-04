@@ -90,7 +90,7 @@ export const matchService = {
 
   suspendMatch: async (matchId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/matches/${matchId}/suspend`, {
@@ -108,7 +108,7 @@ export const matchService = {
 
   resumeMatch: async (matchId: string): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/matches/${matchId}/resume`, {
@@ -126,7 +126,7 @@ export const matchService = {
 
   assignMatchBoard: async (matchId: string, boardNumber: number): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/matches/${matchId}/board-number`, {
@@ -146,7 +146,7 @@ export const matchService = {
 
   addMatchResult: async (matchId: string, result: { p1Sets: number, p1Legs: number, p2Sets: number, p2Legs: number }): Promise<void> => {
     const token = localStorage.getItem('auth_token');
-    if (!token) throw new Error(i18n.t('auth.errors.User not authenticated'));
+    if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
       const response = await fetch(`${API_BASE_URL}/matches/${matchId}/result`, {
