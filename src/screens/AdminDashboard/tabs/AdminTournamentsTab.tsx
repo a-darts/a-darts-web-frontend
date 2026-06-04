@@ -11,6 +11,7 @@ import Select from '../../../components/Select';
 import i18n from '../../../i18n';
 import { useToast } from '../../../context/ToastContext';
 import Modal from '../../../components/Modal';
+import Switch from '../../../components/Switch';
 
 const AdminTournamentsTab: React.FC = () => {
   const navigate = useNavigate();
@@ -149,14 +150,13 @@ const AdminTournamentsTab: React.FC = () => {
                 icon="Users"
               />
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff' }}>
-              <input
-                type="checkbox"
+            <div style={styles.filterItem}>
+              <Switch
+                label="Ver eliminados"
                 checked={includeDeleted}
-                onChange={(e) => setIncludeDeleted(e.target.checked)}
+                onChange={setIncludeDeleted}
               />
-              Mostrar torneos eliminados
-            </label>
+            </div>
           </div>
         </div>
       </div>
