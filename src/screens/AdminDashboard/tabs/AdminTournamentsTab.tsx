@@ -9,9 +9,12 @@ import { getModeLabel, getScheduleTypeLabel, formatTournamentDate, getSeasonEndY
 import TournamentStatusTag from '../../../components/TournamentStatusTag';
 import Select from '../../../components/Select';
 import i18n from '../../../i18n';
+import { useToast } from '../../../context/ToastContext';
+import Modal from '../../../components/Modal';
 
 const AdminTournamentsTab: React.FC = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [tournamentQuery, setTournamentQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -20,21 +23,31 @@ const AdminTournamentsTab: React.FC = () => {
   const [federationFilter, setFederationFilter] = useState('');
   const [modeFilter, setModeFilter] = useState('');
 
-  useEffect(() => {
-    const fetchTournaments = async () => {
-      try {
-        setLoading(true);
-        const data = await tournamentService.getTournaments();
-        setTournaments(data || []);
-        setError(null);
-      } catch (err: any) {
-        console.error('Error fetching tournaments:', err);
-        setError(err.message || 'Error al cargar la lista de torneos.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Confirmation Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalDescription, setModalDescription] = useState<React.ReactNode>('');
+  const [modalConfirmLabel, setModalConfirmLabel] = useState('Confirmar');
+  const [modalVariant, setModalVariant] = useState<'primary' | 'danger'>('primary');
+  const [modalOnConfirm, setModalOnConfirm] = useState<(() => Promise<void>) | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
+
+  const fetchTournaments = async () => {
+    try {
+      setLoading(true);
+      const data = await tournamentService.getTournaments();
+      setTournaments(data || []);
+      setError(null);
+    } catch (err: any) {
+      console.error('Error fetching tournaments:', err);
+      setError(err.message || 'Error al cargar la lista de torneos.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchTournaments();
   }, []);
 
@@ -47,6 +60,45 @@ const AdminTournamentsTab: React.FC = () => {
 
     return matchesQuery && matchesFed && matchesMode;
   });
+
+  const openConfirmModal = (
+    title: string,
+    description: React.ReactNode,
+    confirmLabel: string,
+    variant: 'primary' | 'danger',
+    onConfirm: () => Promise<void>
+  ) => {
+    setModalTitle(title);
+    setModalDescription(description);
+    setModalConfirmLabel(confirmLabel);
+    setModalVariant(variant);
+    setModalOnConfirm(() => onConfirm);
+    setModalOpen(true);
+  };
+
+  const handleDeleteConfirm = (tournament: Tournament) => {
+    openConfirmModal(
+      'Eliminar torneo',
+      <>
+        ¿Estás seguro de que deseas eliminar permanentemente el torneo <strong>{tournament.name || ''}</strong>?
+        <br />
+        <br />
+        Si el torneo no tiene ningún jugador inscrito ni ningún partido, cuadrante o resultados, se eliminará permanentemente. En caso contrario, se mantendrá su registro en el sistema.
+      </>,
+      'Eliminar',
+      'danger',
+      async () => {
+        try {
+          await tournamentService.deleteTournament(tournament.id);
+          showToast('Torneo eliminado con éxito!', 'success');
+          fetchTournaments();
+        } catch (err: any) {
+          console.error('Error deleting tournament:', err);
+          showToast(err.message || 'Error al eliminar el torneo.', 'error');
+        }
+      }
+    );
+  };
 
   return (
     <div style={styles.contentCard}>
@@ -165,6 +217,14 @@ const AdminTournamentsTab: React.FC = () => {
                           title="Editar torneo"
                         />
                       )}
+                      {(t.status === TournamentStatus.DRAFT || t.status === TournamentStatus.PUBLISHED) && (
+                        <IconButton
+                          name="Trash"
+                          onClick={() => handleDeleteConfirm(t)}
+                          title="Eliminar torneo"
+                          className='icon-btn-danger'
+                        />
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -180,6 +240,27 @@ const AdminTournamentsTab: React.FC = () => {
           </table>
         </div>
       )}
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={modalTitle}
+        description={modalDescription}
+        confirmLabel={modalConfirmLabel}
+        onConfirm={async () => {
+          if (modalOnConfirm) {
+            setModalLoading(true);
+            try {
+              await modalOnConfirm();
+              setModalOpen(false);
+            } finally {
+              setModalLoading(false);
+            }
+          }
+        }}
+        variant={modalVariant}
+        loading={modalLoading}
+      />
     </div>
   );
 };
