@@ -17,6 +17,7 @@ const AdminTournamentsTab: React.FC = () => {
   const { showToast } = useToast();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [tournamentQuery, setTournamentQuery] = useState('');
+  const [includeDeleted, setIncludeDeleted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,10 +34,10 @@ const AdminTournamentsTab: React.FC = () => {
   const [modalLoading, setModalLoading] = useState(false);
 
 
-  const fetchTournaments = async () => {
+  const fetchTournaments = async (includeDeleted: boolean) => {
     try {
       setLoading(true);
-      const data = await tournamentService.getTournaments();
+      const data = await tournamentService.getTournaments(includeDeleted);
       setTournaments(data || []);
       setError(null);
     } catch (err: any) {
@@ -48,8 +49,12 @@ const AdminTournamentsTab: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchTournaments();
+    fetchTournaments(includeDeleted);
   }, []);
+
+  useEffect(() => {
+    fetchTournaments(includeDeleted);
+  }, [includeDeleted]);
 
   const filtered = tournaments.filter(t => {
     const matchesQuery = t.name.toLowerCase().includes(tournamentQuery.toLowerCase()) ||
@@ -91,7 +96,7 @@ const AdminTournamentsTab: React.FC = () => {
         try {
           await tournamentService.deleteTournament(tournament.id);
           showToast('Torneo eliminado con éxito!', 'success');
-          fetchTournaments();
+          fetchTournaments(includeDeleted);
         } catch (err: any) {
           console.error('Error deleting tournament:', err);
           showToast(err.message || 'Error al eliminar el torneo.', 'error');
@@ -144,6 +149,14 @@ const AdminTournamentsTab: React.FC = () => {
                 icon="Users"
               />
             </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#fff' }}>
+              <input
+                type="checkbox"
+                checked={includeDeleted}
+                onChange={(e) => setIncludeDeleted(e.target.checked)}
+              />
+              Mostrar torneos eliminados
+            </label>
           </div>
         </div>
       </div>
@@ -208,7 +221,7 @@ const AdminTournamentsTab: React.FC = () => {
                       <IconButton
                         name="Info"
                         onClick={() => navigate(`/torneos/${t.id}`)}
-                        title="Administrar torneo"
+                        title="Ver más información"
                       />
                       {t.status !== TournamentStatus.FINISHED && t.status !== TournamentStatus.CANCELLED && (
                         <IconButton

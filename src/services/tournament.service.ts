@@ -99,7 +99,7 @@ export interface UnregisteredPlayer {
 
 
 export const tournamentService = {
-  getTournaments: async (): Promise<Tournament[]> => {
+  getTournaments: async (includeDeleted: boolean = false): Promise<Tournament[]> => {
     try {
       const token = localStorage.getItem('auth_token');
       const headers: Record<string, string> = {
@@ -110,7 +110,14 @@ export const tournamentService = {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`${API_BASE_URL}/tournaments`, {
+      const queryParams = new URLSearchParams();
+      if (includeDeleted) queryParams.append('includeDeleted', 'true');
+
+      const url = queryParams.toString()
+        ? `${API_BASE_URL}/tournaments?${queryParams.toString()}`
+        : `${API_BASE_URL}/tournaments`;
+
+      const response = await fetch(url, {
         method: 'GET',
         headers,
       });
