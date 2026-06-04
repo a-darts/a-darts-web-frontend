@@ -177,8 +177,8 @@ export const userService = {
     if (!token) throw new Error('No hay token de sesión');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/users/${userId}/delete`, {
-        method: 'POST',
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+        method: 'DELETE',
         headers: {
           'accept': 'application/json',
           'Authorization': `Bearer ${token}`,
