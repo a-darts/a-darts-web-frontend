@@ -106,6 +106,32 @@ const AdminTournamentsTab: React.FC = () => {
     );
   };
 
+
+  const handleRestoreConfirm = (tournament: Tournament) => {
+    openConfirmModal(
+      'Restaurar torneo',
+      <>
+        ¿Estás seguro de que deseas restaurar el torneo <strong>{tournament.name || ''}</strong>?
+        <br />
+        <br />
+        El torneo se restaurará con estado BORRADOR y podrás editarlo nuevamente.
+      </>,
+      'Restaurar',
+      'primary',
+      async () => {
+        try {
+          await tournamentService.restoreTournament(tournament.id);
+          showToast('Torneo restaurado con éxito!', 'success');
+          fetchTournaments(includeDeleted);
+        } catch (err: any) {
+          console.error('Error restoring tournament:', err);
+          showToast(err.message || 'Error al restaurar el torneo.', 'error');
+        }
+      }
+    );
+  };
+
+
   return (
     <div style={styles.contentCard}>
       <div style={styles.viewHeader}>
@@ -236,6 +262,14 @@ const AdminTournamentsTab: React.FC = () => {
                           onClick={() => handleDeleteConfirm(t)}
                           title="Eliminar torneo"
                           className='icon-btn-danger'
+                        />
+                      )}
+                      {t.status === TournamentStatus.DELETED && (
+                        <IconButton
+                          name="RefreshCw"
+                          onClick={() => handleRestoreConfirm(t)}
+                          title="Restaurar torneo"
+                          className='icon-btn'
                         />
                       )}
                     </div>
