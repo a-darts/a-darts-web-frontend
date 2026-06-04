@@ -329,7 +329,7 @@ const TournamentDetailsScreen: React.FC = () => {
 
           {isAdmin && (
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              {status !== TournamentStatus.FINISHED && status !== TournamentStatus.CANCELLED && (
+              {status !== TournamentStatus.FINISHED && status !== TournamentStatus.CANCELLED && status !== TournamentStatus.DELETED && (
                 <Button
                   variant="secondary"
                   leftIcon="Ban"

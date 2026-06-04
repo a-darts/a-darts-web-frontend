@@ -7,6 +7,7 @@ export enum TournamentStatus {
   IN_PROGRESS = 'IN_PROGRESS',
   CANCELLED = 'CANCELLED',
   FINISHED = 'FINISHED',
+  DELETED = 'DELETED',
 }
 
 export enum Federations {

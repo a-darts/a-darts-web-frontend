@@ -10,6 +10,7 @@ export const getStatusLabel = (status: string): string => {
     'IN_PROGRESS': 'En curso',
     'FINISHED': 'Finalizado',
     'CANCELLED': 'Cancelado',
+    'DELETED': 'Eliminado',
     // Extra
     'DELAYED': 'Con retraso',
   };

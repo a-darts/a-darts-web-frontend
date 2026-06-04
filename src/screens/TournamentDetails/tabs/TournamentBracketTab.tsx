@@ -187,43 +187,63 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
     return () => clearInterval(intervalId);
   }, [tournament.id, tournament.status]);
 
-  if (loading) return <div style={styles.message}>Cargando cuadrante...</div>;
-  if (isNotPublished) return (
-    <EmptyState
-      title="Cuadrante no disponible"
-      description={
-        <span>
-          {isAdmin
-            ? 'El cuadrante aún no ha sido generado para este torneo. Como administrador, puedes generarlo automáticamente con los participantes inscritos.'
-            : 'Aún no se ha publicado el cuadrante para este torneo. Por favor, vuelve a consultar más tarde.'}
-        </span>
-      }
-    >
-      {isAdmin && (
-        <>
-          <Button
-            variant="primary"
-            leftIcon="Network"
-            onClick={handleGenerateBracketAutomatically}
-            loading={isGenerating}
-          >
-            Generar cuadrante automáticamente
-          </Button>
+  if (loading) {
+    return <div style={styles.message}>Cargando cuadrante...</div>;
+  }
 
-          <Button
-            variant="primary"
-            leftIcon="Settings"
-            onClick={handleGenerateBracketManually}
-            loading={isGenerating}
-          >
-            Configurar cuadrante manualmente
-          </Button>
-        </>
-      )}
-    </EmptyState>
-  );
-  if (error) return <ErrorMessage message={error} />;
-  if (!bracket || !bracket.positions) return <div style={styles.message}>No hay datos del cuadrante</div>;
+  if (tournament.status === TournamentStatus.DELETED) {
+    return (
+      <EmptyState
+        title={"Torneo Eliminado"}
+        description={"Este torneo ha sido eliminado. No se pueden generar ni configurar cuadrantes."}
+      />
+    );
+  }
+
+  if (isNotPublished) {
+    return (
+      <EmptyState
+        title="Cuadrante no disponible"
+        description={
+          <span>
+            {isAdmin
+              ? 'El cuadrante aún no ha sido generado para este torneo. Como administrador, puedes generarlo automáticamente con los participantes inscritos.'
+              : 'Aún no se ha publicado el cuadrante para este torneo. Por favor, vuelve a consultar más tarde.'}
+          </span>
+        }
+      >
+        {isAdmin && (
+          <>
+            <Button
+              variant="primary"
+              leftIcon="Network"
+              onClick={handleGenerateBracketAutomatically}
+              loading={isGenerating}
+            >
+              Generar cuadrante automáticamente
+            </Button>
+
+            <Button
+              variant="primary"
+              leftIcon="Settings"
+              onClick={handleGenerateBracketManually}
+              loading={isGenerating}
+            >
+              Configurar cuadrante manualmente
+            </Button>
+          </>
+        )}
+      </EmptyState>
+    );
+  }
+
+  if (error) {
+    return <ErrorMessage message={error} />;
+  }
+
+  if (!bracket || !bracket.positions) {
+    return <div style={styles.message}>No hay datos del cuadrante</div>;
+  }
 
   const assignedCount = bracket.positions.filter(
     (p) => p.participantId && p.participantAlias && p.participantAlias !== 'Por determinar' && p.participantAlias !== 'Bye'
@@ -342,38 +362,37 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
         </div>
       )}
 
-      {
-        isAdmin && (tournament.status === TournamentStatus.DRAFT || tournament.status === TournamentStatus.PUBLISHED) && onStartEditing && (
-          <div style={styles.editButtonContainer}>
-            <div style={styles.progressContainer}>
-              <div style={styles.progressMeta}>
-                <span style={styles.progressText}>
-                  Asignados: <strong>{assignedCount}</strong> de <strong>{totalToAssign}</strong>
-                </span>
-                <span style={styles.progressPercent}>{progressPercent}%</span>
-              </div>
-              <div style={styles.progressBarBg}>
-                <div style={{ ...styles.progressBarFill, width: `${progressPercent}%` }} />
-              </div>
+      {isAdmin && (tournament.status === TournamentStatus.DRAFT || tournament.status === TournamentStatus.PUBLISHED) && onStartEditing && (
+        <div style={styles.editButtonContainer}>
+          <div style={styles.progressContainer}>
+            <div style={styles.progressMeta}>
+              <span style={styles.progressText}>
+                Asignados: <strong>{assignedCount}</strong> de <strong>{totalToAssign}</strong>
+              </span>
+              <span style={styles.progressPercent}>{progressPercent}%</span>
             </div>
-
-            <Button
-              variant="primary"
-              leftIcon="Edit3"
-              onClick={onStartEditing}
-            >
-              Editar cuadrante
-            </Button>
-            <Button
-              variant="danger-primary"
-              leftIcon="Trash2"
-              onClick={() => setIsDeleteModalOpen(true)}
-              loading={isDeleting}
-            >
-              Eliminar cuadrante
-            </Button>
+            <div style={styles.progressBarBg}>
+              <div style={{ ...styles.progressBarFill, width: `${progressPercent}%` }} />
+            </div>
           </div>
-        )
+
+          <Button
+            variant="primary"
+            leftIcon="Edit3"
+            onClick={onStartEditing}
+          >
+            Editar cuadrante
+          </Button>
+          <Button
+            variant="danger-primary"
+            leftIcon="Trash2"
+            onClick={() => setIsDeleteModalOpen(true)}
+            loading={isDeleting}
+          >
+            Eliminar cuadrante
+          </Button>
+        </div>
+      )
       }
 
       <div style={styles.bracketWrapper}>
@@ -399,7 +418,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
                           {match.status && (
                             <div style={styles.statusTagContainer}>
                               <TournamentMatchStatusTag status={match.status} size="small" />
-                              {match.status !== MatchStatus.FINISHED && match.status !== MatchStatus.CANCELLED && (
+                              {match.status === MatchStatus.IN_PROGRESS && (
                                 <>
                                   {!isByeMatch && (match.boardNumber ? (
                                     <span style={styles.boardNumberText}>Diana {match.boardNumber}</span>

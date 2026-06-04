@@ -18,6 +18,7 @@ const TournamentStatusTag: React.FC<TournamentStatusTagProps> = ({ status, size 
       case 'IN_PROGRESS': return 'Radio';
       case 'FINISHED': return 'CheckCircle';
       case 'CANCELLED': return 'XCircle';
+      case 'DELETED': return 'Trash';
       // Extra
       case 'DELAYED': return 'AlertTriangle';
       default: return 'Info';
@@ -70,6 +71,11 @@ const styles: { [key: string]: any } = {
         borderColor = 'rgba(239, 68, 68, 0.2)';
         break;
       case 'DELAYED':
+        color = '#f87171';
+        bgColor = 'rgba(239, 68, 68, 0.1)';
+        borderColor = 'rgba(239, 68, 68, 0.2)';
+        break;
+      case 'DELETED':
         color = '#f87171';
         bgColor = 'rgba(239, 68, 68, 0.1)';
         borderColor = 'rgba(239, 68, 68, 0.2)';
