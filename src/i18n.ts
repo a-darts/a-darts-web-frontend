@@ -220,6 +220,7 @@ const resources = {
         'User unblocked successfully': 'Usuario desbloqueado correctamente',
         'User deleted successfully': 'Usuario eliminado correctamente',
         'User restored successfully': 'Usuario restaurado correctamente',
+        'User stats fetched successfully': 'Estadísticas del usuario obtenidas correctamente',
         // 
         // PlayerController
         'Players fetched successfully': 'Jugadores obtenidos correctamente',
@@ -510,6 +511,7 @@ const resources = {
         'User unblocked successfully': 'User unblocked successfully',
         'User deleted successfully': 'User deleted successfully',
         'User restored successfully': 'User restored successfully',
+        'User stats fetched successfully': 'User stats fetched successfully',
         // 
         // PlayerController
         'Players fetched successfully': 'Players fetched successfully',
