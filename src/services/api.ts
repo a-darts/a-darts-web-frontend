@@ -10,7 +10,10 @@ export const handleResponse = async (response: Response) => {
 
     const translatedMessage = i18n.t(`exceptions.${message}`, { defaultValue: message });
 
-    throw new Error(translatedMessage);
+    const error = new Error(translatedMessage);
+    (error as any).status = response.status;
+
+    throw error;
   }
   return response.json();
 };

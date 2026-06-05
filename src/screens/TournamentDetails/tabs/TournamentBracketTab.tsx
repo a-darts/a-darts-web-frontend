@@ -13,6 +13,7 @@ import TournamentBracketStatusTag from '../../../components/TournamentBracketSta
 import EmptyState from '../../../components/EmptyState';
 import Modal from '../../../components/Modal';
 import Icon from '../../../components/Icon';
+import i18n from '../../../i18n';
 
 interface TournamentBracketTabProps {
   tournament: Tournament;
@@ -171,7 +172,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
         setParticipantsCount(participantsData.length);
       } catch (err: any) {
         console.error('Error fetching bracket data:', err);
-        if (err.message && err.message.toLowerCase().includes('not found')) {
+        if (err.status === 404) {
           setIsNotPublished(true);
         } else {
           setError(err.message || 'Error al cargar el cuadrante.');
