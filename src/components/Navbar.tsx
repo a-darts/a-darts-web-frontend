@@ -41,6 +41,11 @@ const Navbar: React.FC = () => {
       icon: 'User',
       onClick: () => navigate('/profile')
     },
+    ...(user?.role === UserRoles.PLAYER ? [{
+      label: 'Estadísticas',
+      icon: 'ChartColumnBig' as any,
+      onClick: () => navigate('/stats')
+    }] : []),
     {
       label: t('common.dropdown.settings'),
       icon: 'Settings',
