@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Button from './Button';
 import { useAuth, UserRoles } from '../context/AuthContext';
@@ -8,6 +8,7 @@ import Dropdown, { DropdownItem } from './Dropdown';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
   const { t } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -86,11 +87,21 @@ const Navbar: React.FC = () => {
           {/* Tabs — ocultos en móvil, visibles en escritorio */}
           {!isMobile && (
             <div style={styles.tabs}>
-              {tabs.map(tab => (
-                <Link key={tab.path} to={tab.path} style={styles.tabLink}>
-                  {tab.label}
-                </Link>
-              ))}
+              {tabs.map(tab => {
+                const isActive = location.pathname.startsWith(tab.path);
+                return (
+                  <Link
+                    key={tab.path}
+                    to={tab.path}
+                    style={{
+                      ...styles.tabLink,
+                      ...(isActive ? styles.activeTabLink : {})
+                    }}
+                  >
+                    {tab.label}
+                  </Link>
+                );
+              })}
             </div>
           )}
 
@@ -132,15 +143,21 @@ const Navbar: React.FC = () => {
       {/* Menú móvil desplegable */}
       {isMobile && isMobileMenuOpen && (
         <div style={styles.mobileMenu}>
-          {tabs.map(tab => (
-            <button
-              key={tab.path}
-              style={styles.mobileMenuItem}
-              onClick={() => handleNavigation(tab.path)}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {tabs.map(tab => {
+            const isActive = location.pathname.startsWith(tab.path);
+            return (
+              <button
+                key={tab.path}
+                style={{
+                  ...styles.mobileMenuItem,
+                  ...(isActive ? styles.activeMobileMenuItem : {})
+                }}
+                onClick={() => handleNavigation(tab.path)}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
       )}
     </>
@@ -199,6 +216,16 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: '500',
     color: 'var(--text-color)',
     whiteSpace: 'nowrap',
+    textDecoration: 'none',
+    padding: '0.5rem 0',
+    borderBottomWidth: '2px',
+    borderBottomStyle: 'solid',
+    borderBottomColor: 'transparent',
+    transition: 'border-color 0.2s ease, color 0.2s ease',
+  },
+  activeTabLink: {
+    color: 'var(--primary-color)',
+    borderBottomColor: 'var(--primary-color)',
   },
   auth: {
     display: 'flex',
@@ -259,6 +286,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: 'left',
     cursor: 'pointer',
     width: '100%',
+    borderLeftWidth: '4px',
+    borderLeftStyle: 'solid',
+    borderLeftColor: 'transparent',
+    transition: 'border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease',
+  },
+  activeMobileMenuItem: {
+    color: 'var(--primary-color)',
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    borderLeftColor: 'var(--primary-color)',
   },
 };
 

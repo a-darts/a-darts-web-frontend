@@ -25,15 +25,17 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
   onStartEditing,
   onBracketGenerated,
 }) => {
+  const { user } = useAuth();
+  const { showToast } = useToast();
+
   const [bracket, setBracket] = useState<Bracket | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNotPublished, setIsNotPublished] = useState(false);
-  const { user } = useAuth();
-  const isAdmin = user?.role === UserRoles.ADMIN;
-  const { showToast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const isAdmin = user?.role === UserRoles.ADMIN;
 
   const handleGenerateBracketAutomatically = async () => {
     try {
