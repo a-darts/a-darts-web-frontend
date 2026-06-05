@@ -621,7 +621,16 @@ const styles: { [key: string]: any } = {
     gridTemplateColumns: '1fr 1fr',
     gap: '0.75rem',
     marginTop: '0.5rem',
-  }
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
+  },
 };
 
 export default TournamentRegistrationTab;

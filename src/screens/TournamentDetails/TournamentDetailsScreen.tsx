@@ -22,6 +22,7 @@ import Modal from '../../components/Modal';
 import { useAuth, UserRoles } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { playerService } from '../../services/player.service';
+import Icon from '../../components/Icon';
 
 
 const TournamentDetailsScreen: React.FC = () => {
@@ -102,7 +103,18 @@ const TournamentDetailsScreen: React.FC = () => {
     fetchTournament();
   }, [id, user]);
 
-  if (loading) return <div style={styles.message}>Cargando detalles...</div>;
+  if (loading) {
+    return (
+      <div style={styles.loadingContainer}>
+        <Icon
+          name="Loader"
+          size={32}
+          className="btn-icon animate-spin"
+        />
+        <div style={styles.loadingText}>Cargando detalles del torneo...</div>
+      </div>
+    );
+  }
 
   if (error) return (
     <div style={styles.container}>
@@ -501,6 +513,15 @@ const styles: { [key: string]: any } = {
   },
   separator: {
     color: 'rgba(255, 255, 255, 0.4)',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
   },
 };
 

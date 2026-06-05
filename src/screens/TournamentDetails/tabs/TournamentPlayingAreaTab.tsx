@@ -13,6 +13,7 @@ import Select from '../../../components/Select';
 import EmptyState from '../../../components/EmptyState';
 import { useMatchActions } from '../../../hooks/useMatchActions';
 import { useNavigate } from 'react-router-dom';
+import Icon from '../../../components/Icon';
 
 
 interface TournamentPlayingAreaTabProps {
@@ -179,8 +180,13 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
 
   if (loading) {
     return (
-      <div style={styles.message}>
-        Cargando salón de juego...
+      <div style={styles.loadingContainer}>
+        <Icon
+          name="Loader"
+          size={32}
+          className="btn-icon animate-spin"
+        />
+        <div style={styles.loadingText}>Cargando salón de juego del torneo...</div>
       </div>
     );
   }
@@ -426,7 +432,16 @@ const styles: { [key: string]: React.CSSProperties } = {
   noMatchesText: {
     margin: 0,
     fontSize: '0.875rem',
-  }
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
+  },
 };
 
 export default TournamentPlayingAreaTab;

@@ -34,8 +34,12 @@ const AdminDashboardScreen: React.FC = () => {
   if (authLoading || !user || user.role !== UserRoles.ADMIN) {
     return (
       <div style={styles.loadingContainer}>
-        <Icon name="Loader" className="animate-spin" size={32} style={{ color: 'var(--btn-primary-bg)', marginBottom: '1rem' }} />
-        <span>Verificando credenciales de administrador...</span>
+        <Icon
+          name="Loader"
+          size={32}
+          className="btn-icon animate-spin"
+        />
+        <div style={styles.loadingText}>Verificando credenciales de administrador...</div>
       </div>
     );
   }
@@ -82,13 +86,13 @@ const styles: { [key: string]: any } = {
     overflowX: 'hidden',
   },
   loadingContainer: {
-    flex: 1,
     display: 'flex',
     flexDirection: 'column',
+    gap: '1rem',
     alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 'calc(100vh - 140px)',
-    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
   },
 };
 

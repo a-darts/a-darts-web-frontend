@@ -12,6 +12,7 @@ import Button from '../../../components/Button';
 import TournamentBracketStatusTag from '../../../components/TournamentBracketStatusTag';
 import EmptyState from '../../../components/EmptyState';
 import Modal from '../../../components/Modal';
+import Icon from '../../../components/Icon';
 
 interface TournamentBracketTabProps {
   tournament: Tournament;
@@ -188,7 +189,16 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
   }, [tournament.id, tournament.status]);
 
   if (loading) {
-    return <div style={styles.message}>Cargando cuadrante...</div>;
+    return (
+      <div style={styles.loadingContainer}>
+        <Icon
+          name="Loader"
+          size={32}
+          className="btn-icon animate-spin"
+        />
+        <div style={styles.loadingText}>Cargando cuadrante del torneo...</div>
+      </div>
+    );
   }
 
   if (tournament.status === TournamentStatus.DELETED) {
@@ -634,6 +644,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: '100px',
     transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     boxShadow: '0 0 10px rgba(196, 232, 102, 0.3)',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
   },
 };
 

@@ -166,6 +166,7 @@ button.large {
 
 .animate-spin {
   animation: spin 1s linear infinite;
+  color: #C4E866;
 }
 
 @keyframes spin {

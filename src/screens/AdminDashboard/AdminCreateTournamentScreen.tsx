@@ -102,8 +102,12 @@ const AdminCreateTournamentScreen: React.FC = () => {
   if (authLoading) {
     return (
       <div style={styles.loadingContainer}>
-        <Icon name="Loader" className="animate-spin" size={32} style={{ color: 'var(--btn-primary-bg)', marginBottom: '1rem' }} />
-        <span>Verificando credenciales de administrador...</span>
+        <Icon
+          name="Loader"
+          size={32}
+          className="btn-icon animate-spin"
+        />
+        <div style={styles.loadingText}>Verificando credenciales de administrador...</div>
       </div>
     );
   }
@@ -410,10 +414,11 @@ const styles: { [key: string]: React.CSSProperties } = {
   loadingContainer: {
     display: 'flex',
     flexDirection: 'column',
+    gap: '1rem',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: '10rem 2rem',
-    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
   },
   spinnerArrows: {
     position: 'absolute',

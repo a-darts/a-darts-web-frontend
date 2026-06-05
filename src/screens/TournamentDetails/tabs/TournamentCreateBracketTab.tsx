@@ -10,6 +10,7 @@ import BracketMatchEditable from '../../../components/BracketMatchEditable';
 import Button from '../../../components/Button';
 import { useToast } from '../../../context/ToastContext';
 import { applyStandardSeeding } from '../../../utils/tournament.seeding.utils';
+import Icon from '../../../components/Icon';
 
 interface TournamentCreateBracketTabProps {
   tournament: Tournament;
@@ -76,8 +77,21 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
     }
   }, [bracket]);
 
-  if (loading) return <div style={styles.message}>Cargando editor del cuadrante...</div>;
+  if (loading) {
+    return (
+      <div style={styles.loadingContainer}>
+        <Icon
+          name="Loader"
+          size={32}
+          className="btn-icon animate-spin"
+        />
+        <div style={styles.loadingText}>Cargando editor del cuadrante...</div>
+      </div>
+    );
+  };
+
   if (error) return <ErrorMessage message={error} />;
+
   if (!bracket || !bracket.positions) return <div style={styles.message}>No hay datos del cuadrante para editar</div>;
 
   // Derive unassigned players
@@ -757,6 +771,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: 'center',
     color: 'rgba(255, 255, 255, 0.5)',
     fontSize: '1.1rem',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
   },
 };
 

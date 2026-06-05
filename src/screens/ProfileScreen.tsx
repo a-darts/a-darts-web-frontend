@@ -9,6 +9,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import { getRoleLabel } from '../utils/auth.utils';
 import i18n from '../i18n';
 import { useToast } from '../context/ToastContext';
+import Icon from '../components/Icon';
 
 const ProfileScreen: React.FC = () => {
   const { user, updateEmail, updatePassword, updateAlias } = useAuth();
@@ -39,8 +40,13 @@ const ProfileScreen: React.FC = () => {
 
   if (!user) {
     return (
-      <div style={styles.container}>
-        <p style={styles.loadingText}>{t('common.loading')}</p>
+      <div style={styles.loadingContainer}>
+        <Icon
+          name="Loader"
+          size={32}
+          className="btn-icon animate-spin"
+        />
+        <div style={styles.loadingText}>Cargando usuario...</div>
       </div>
     );
   }
@@ -292,6 +298,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: 'column',
     gap: '1.5rem',
     textAlign: 'left',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
   },
   loadingText: {
     color: 'var(--text-secondary-color)',

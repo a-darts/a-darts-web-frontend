@@ -66,8 +66,12 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
   if (loading) {
     return (
       <div style={styles.loadingContainer}>
-        <Icon name="Loader" className="animate-spin" size={32} style={{ color: 'var(--btn-primary-bg)', marginBottom: '1rem' }} />
-        <span>Cargando partidas...</span>
+        <Icon
+          name="Loader"
+          size={32}
+          className="btn-icon animate-spin"
+        />
+        <div style={styles.loadingText}>Cargando partidas del torneo...</div>
       </div>
     );
   }
@@ -260,14 +264,6 @@ const styles: { [key: string]: any } = {
     color: 'rgba(255, 255, 255, 0.6)',
     fontWeight: '500',
   },
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '6rem 2rem',
-    color: 'rgba(255, 255, 255, 0.5)',
-  },
   filterContainer: {
     display: 'flex',
     justifyContent: 'flex-start',
@@ -289,6 +285,15 @@ const styles: { [key: string]: any } = {
     flexDirection: 'column',
     gap: '1rem',
     width: '100%',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
   },
 };
 

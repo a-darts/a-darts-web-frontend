@@ -241,8 +241,12 @@ const AdminPlayersTab: React.FC = () => {
 
       {loading ? (
         <div style={styles.loadingContainer}>
-          <Icon name="Loader" className="animate-spin" size={24} style={{ color: 'var(--btn-primary-bg)', marginBottom: '1rem' }} />
-          <span>Cargando jugadores...</span>
+          <Icon
+            name="Loader"
+            size={32}
+            className="btn-icon animate-spin"
+          />
+          <div style={styles.loadingText}>Cargando jugadores...</div>
         </div>
       ) : error ? (
         <div style={{ ...styles.loadingContainer, color: '#FF7070' }}>
@@ -423,7 +427,16 @@ const styles: { [key: string]: any } = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem'
-  }
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
+  },
 };
 
 export default AdminPlayersTab;

@@ -6,6 +6,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import SearchInput from '../components/SearchInput';
 import Button from '../components/Button';
 import Title from '../components/Title';
+import Icon from '../components/Icon';
 
 type FilterType = 'all' | 'upcoming' | 'ongoing' | 'finished';
 
@@ -134,8 +135,15 @@ const TournamentsScreen: React.FC = () => {
       {error && <ErrorMessage message={error} />}
 
       {
-        loading ? (
-          <div style={styles.message}>Cargando torneos...</div>
+        !error && (loading ? (
+          <div style={styles.loadingContainer}>
+            <Icon
+              name="Loader"
+              size={32}
+              className="btn-icon animate-spin"
+            />
+            <div style={styles.loadingText}>Cargando torneos...</div>
+          </div>
         ) : filteredTournaments.length === 0 ? (
           <div style={styles.message}>
             {searchTerm || activeFilters.length > 0
@@ -148,7 +156,7 @@ const TournamentsScreen: React.FC = () => {
               <TournamentCard key={tournament.id} tournament={tournament} />
             ))}
           </div>
-        )
+        ))
       }
     </div >
   );
@@ -185,8 +193,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
     gap: '2rem',
   },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
+  },
   message: {
-    color: 'rgba(255, 255, 255, 0.5)',
+    color: 'var(--text-secondary-color)',
     textAlign: 'center',
     padding: '5rem 2rem',
     fontSize: '1.1rem',

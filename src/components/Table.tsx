@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from './Button';
+import Icon from './Icon';
 
 export interface Column<T> {
   key: keyof T | string;
@@ -27,7 +28,16 @@ const Table = <T extends { id: string | number }>({
   pagination
 }: TableProps<T>) => {
   if (loading) {
-    return <div style={styles.message}>Cargando datos...</div>;
+    return (
+      <div style={styles.loadingContainer}>
+        <Icon
+          name="Loader"
+          size={32}
+          className="btn-icon animate-spin"
+        />
+        <div style={styles.loadingText}>Cargando datos...</div>
+      </div>
+    );
   }
 
   if (data.length === 0) {
@@ -166,6 +176,15 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.75rem',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
   },
 };
 

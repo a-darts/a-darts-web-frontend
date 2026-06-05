@@ -179,7 +179,14 @@ const AdminEditTournamentScreen: React.FC = () => {
   };
 
   if (authLoading || loading) {
-    return <div style={styles.message}>Cargando información del torneo...</div>;
+    <div style={styles.loadingContainer}>
+      <Icon
+        name="Loader"
+        size={32}
+        className="btn-icon animate-spin"
+      />
+      <div style={styles.loadingText}>Cargando información del torneo...</div>
+    </div>
   }
 
   if (error) {
@@ -482,6 +489,15 @@ const styles: { [key: string]: React.CSSProperties } = {
   cancelBtn: {
     flex: 1,
     height: '48px',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
   },
 };
 

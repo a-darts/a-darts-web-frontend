@@ -3,6 +3,7 @@ import { Match, MatchStatus, matchService } from '../services/match.service';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLiveMatchSocket, LiveMatchStatus, LiveMatch } from '../hooks/useLiveMatchSocket';
 import Button from '../components/Button';
+import Icon from '../components/Icon';
 
 // Inyección de fuentes
 const fontLink = document.createElement('link');
@@ -107,7 +108,19 @@ const LiveMatchMonitorScreen: React.FC<LiveMatchMonitorScreenProps> = ({
         fetchMatchDetails();
     }, [matchId]);
 
-    if (isLoading) return <div style={styles.centerContainer}>Cargando estado del partido...</div>;
+    if (isLoading) {
+        return (
+            <div style={styles.loadingContainer}>
+                <Icon
+                    name="Loader"
+                    size={32}
+                    className="btn-icon animate-spin"
+                />
+                <div style={styles.loadingText}>Cargando estado del partido...</div>
+            </div>
+        );
+    }
+
     if (error || !match || !liveData) {
         return (
             <div style={styles.centerContainer}>
@@ -740,6 +753,15 @@ const styles: { [key: string]: React.CSSProperties } = {
         color: '#B3B3B3',
         textAlign: 'center' as const,
         lineHeight: '1.6',
+    },
+    loadingContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        alignItems: 'center',
+    },
+    loadingText: {
+        color: 'var(--text-secondary-color)',
     },
 };
 

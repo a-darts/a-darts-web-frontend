@@ -280,8 +280,12 @@ const AdminUsersTab: React.FC = () => {
 
       {usersLoading ? (
         <div style={styles.loadingContainer}>
-          <Icon name="Loader" className="animate-spin" size={24} style={{ color: 'var(--btn-primary-bg)', marginBottom: '1rem' }} />
-          <span>Cargando usuarios...</span>
+          <Icon
+            name="Loader"
+            size={32}
+            className="btn-icon animate-spin"
+          />
+          <div style={styles.loadingText}>Cargando usuarios...</div>
         </div>
       ) : usersError ? (
         <div style={{ ...styles.loadingContainer, color: '#FF7070' }}>
@@ -432,14 +436,6 @@ const styles: { [key: string]: any } = {
   filterItem: {
     minWidth: '200px',
   },
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '3rem',
-    color: 'rgba(255, 255, 255, 0.6)',
-  },
   aliasName: {
     fontWeight: '600',
     color: '#ffffff',
@@ -447,6 +443,15 @@ const styles: { [key: string]: any } = {
   actionGroup: {
     display: 'flex',
     gap: '0.5rem',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'var(--text-secondary-color)',
   },
 };
 
