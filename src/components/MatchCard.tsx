@@ -145,7 +145,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
               {match.boardNumber === null ? 'Asignar diana' : 'Reasignar diana'}
             </Button>
           )}
-          {match.status === 'SUSPENDED' && (
+          {match.status === MatchStatus.SUSPENDED && (
             <Button
               variant="primary"
               size="small"
