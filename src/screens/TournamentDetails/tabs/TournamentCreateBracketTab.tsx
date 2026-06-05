@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Tournament } from '../../../services/tournament.service';
 import { bracketService, Bracket, BracketPosition } from '../../../services/bracket.service';
-import { matchService, Match } from '../../../services/match.service';
+import { matchService, Match, MatchStatus } from '../../../services/match.service';
 import { Participant } from '../../../services/registeredParticipant.service';
 import { getFederationFlag, getFederationLabel } from '../../../utils/tournament.utils';
 import ErrorMessage from '../../../components/ErrorMessage';
@@ -263,7 +263,7 @@ const TournamentCreateBracketTab: React.FC<TournamentCreateBracketTabProps> = ({
       formattedMatches.push({
         player1: { position: 0, alias: null, federation: null, legsWon: 0, setsWon: 0 },
         player2: { position: 0, alias: null, federation: null, legsWon: 0, setsWon: 0 },
-        status: 'PENDING',
+        status: MatchStatus.PENDING,
       });
     }
 

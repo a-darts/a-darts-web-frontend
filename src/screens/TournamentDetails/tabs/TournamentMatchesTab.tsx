@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { matchService, Match } from '../../../services/match.service';
+import { matchService, Match, MatchStatus } from '../../../services/match.service';
 import ErrorMessage from '../../../components/ErrorMessage';
 import Icon from '../../../components/Icon';
 import Select from '../../../components/Select';
@@ -98,21 +98,21 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
     ? matches
     : matches.filter(m => m.round === selectedRound);
 
-  const inProgressList = filteredMatches.filter(m => m.status === 'IN_PROGRESS');
+  const inProgressList = filteredMatches.filter(m => m.status === MatchStatus.IN_PROGRESS);
   const pendingList = filteredMatches
-    .filter(m => m.status === 'PENDING' || m.status === 'READY')
+    .filter(m => m.status === MatchStatus.PENDING || m.status === MatchStatus.READY)
     .sort((a, b) => {
-      if (a.status === 'READY' && b.status !== 'READY') return -1;
-      if (a.status !== 'READY' && b.status === 'READY') return 1;
+      if (a.status === MatchStatus.READY && b.status !== MatchStatus.READY) return -1;
+      if (a.status !== MatchStatus.READY && b.status === MatchStatus.READY) return 1;
       return 0;
     });
   const finishedList = filteredMatches
-    .filter(m => m.status === 'FINISHED')
+    .filter(m => m.status === MatchStatus.FINISHED)
     .sort((a, b) => {
       if (a.round !== b.round) return b.round - a.round;
       return a.matchIndex - b.matchIndex;
     });
-  const othersList = filteredMatches.filter(m => m.status === 'CANCELLED' || m.status === 'SUSPENDED');
+  const othersList = filteredMatches.filter(m => m.status === MatchStatus.CANCELLED || m.status === MatchStatus.SUSPENDED);
 
   const renderSection = (title: string, list: Match[], icon: string, iconColor: string) => {
     if (title === 'Otras partidas' && list.length === 0) return null;

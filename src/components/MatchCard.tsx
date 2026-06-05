@@ -25,8 +25,8 @@ const MatchCard: React.FC<MatchCardProps> = ({
   onViewMatchLive,
   style
 }) => {
-  const isFinished = match.status === 'FINISHED';
-  const isInProgress = match.status === 'IN_PROGRESS';
+  const isFinished = match.status === MatchStatus.FINISHED;
+  const isInProgress = match.status === MatchStatus.IN_PROGRESS;
 
   return (
     <div style={{ ...styles.matchRowCard, ...style }}>
@@ -107,7 +107,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
       {/* Admin Quick Action Buttons */}
       {isAdmin && (
         <div style={styles.actionButtonsContainer}>
-          {match.status === 'IN_PROGRESS' && (
+          {match.status === MatchStatus.IN_PROGRESS && (
             <>
               <Button
                 variant="primary"
@@ -159,7 +159,7 @@ const MatchCard: React.FC<MatchCardProps> = ({
       )}
       {!isAdmin && (
         <div style={styles.actionButtonsContainer}>
-          {match.status === 'IN_PROGRESS' && (
+          {match.status === MatchStatus.IN_PROGRESS && (
             <Button
               variant="primary"
               size="small"

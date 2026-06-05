@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, UserRoles } from '../../../context/AuthContext';
-import { Tournament } from '../../../services/tournament.service';
+import { Tournament, TournamentStatus } from '../../../services/tournament.service';
 import {
   getFederationLabel,
   getFederationFlag,
@@ -26,7 +26,7 @@ const TournamentInfoTab: React.FC<TournamentInfoTabProps> = ({ tournament }) => 
 
   const { info } = tournament;
   const isTournamentDraftOrPublished =
-    tournament.status === 'DRAFT' || tournament.status === 'PUBLISHED';
+    tournament.status === TournamentStatus.DRAFT || tournament.status === TournamentStatus.PUBLISHED;
   const formattedDate = formatTournamentDate(info.dateTime);
   const formattedTime = formatTournamentTime(info.dateTime);
 

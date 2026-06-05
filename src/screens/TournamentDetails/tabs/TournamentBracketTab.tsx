@@ -293,7 +293,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
       formattedMatches.push({
         player1: { position: 0, alias: null, federation: null, legsWon: undefined, setsWon: undefined },
         player2: { position: 0, alias: null, federation: null, legsWon: undefined, setsWon: undefined },
-        status: 'PENDING',
+        status: MatchStatus.PENDING,
         boardNumber: null,
       });
     }

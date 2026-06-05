@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { tournamentService, Tournament } from '../services/tournament.service';
+import { tournamentService, Tournament, TournamentStatus } from '../services/tournament.service';
 import TournamentCard from '../components/TournamentCard';
 import ErrorMessage from '../components/ErrorMessage';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -65,9 +65,9 @@ const TournamentsScreen: React.FC = () => {
 
       return activeFilters.some(filter => {
         if (filter === 'all') return true;
-        if (filter === 'ongoing') return t.status === 'IN_PROGRESS';
-        if (filter === 'finished') return t.status === 'FINISHED';
-        if (filter === 'upcoming') return date >= now && t.status !== 'IN_PROGRESS' && t.status !== 'FINISHED';
+        if (filter === 'ongoing') return t.status === TournamentStatus.IN_PROGRESS;
+        if (filter === 'finished') return t.status === TournamentStatus.FINISHED;
+        if (filter === 'upcoming') return date >= now && t.status !== TournamentStatus.IN_PROGRESS && t.status !== TournamentStatus.FINISHED;
         return false;
       });
     })

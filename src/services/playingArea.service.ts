@@ -1,11 +1,17 @@
 import i18n from '../i18n';
 import { API_BASE_URL, handleFetchError, handleResponse } from './api';
 
+export enum BoardStatus {
+  AVAILABLE = 'AVAILABLE',
+  OCCUPIED = 'OCCUPIED',
+  DISABLED = 'DISABLED',
+}
+
 export interface Board {
   id: string;
   shortId: string;
   number: number;
-  status: string;
+  status: BoardStatus;
   matchId: string | null;
 }
 

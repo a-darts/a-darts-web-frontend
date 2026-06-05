@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { playingAreaService, PlayingArea } from '../../../services/playingArea.service';
-import { matchService, Match } from '../../../services/match.service';
+import { playingAreaService, PlayingArea, BoardStatus } from '../../../services/playingArea.service';
+import { matchService, Match, MatchStatus } from '../../../services/match.service';
 import Button from '../../../components/Button';
 import ErrorMessage from '../../../components/ErrorMessage';
 import { useToast } from '../../../context/ToastContext';
@@ -246,12 +246,12 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
   }
 
   const totalBoards = playingArea?.boards?.length || 0;
-  const availableBoards = playingArea?.boards?.filter((b) => b.status === 'AVAILABLE').length || 0;
-  const occupiedBoards = playingArea?.boards?.filter((b) => b.status === 'OCCUPIED').length || 0;
-  const disabledBoards = playingArea?.boards?.filter((b) => b.status === 'DISABLED').length || 0;
+  const availableBoards = playingArea?.boards?.filter((b) => b.status === BoardStatus.AVAILABLE).length || 0;
+  const occupiedBoards = playingArea?.boards?.filter((b) => b.status === BoardStatus.OCCUPIED).length || 0;
+  const disabledBoards = playingArea?.boards?.filter((b) => b.status === BoardStatus.DISABLED).length || 0;
 
   const assignableMatches = matches.filter(
-    (m) => (m.status === 'PENDING' || m.status === 'READY') && !playingArea?.boards?.some((b) => b.matchId === m.id)
+    (m) => (m.status === MatchStatus.PENDING || m.status === MatchStatus.READY) && !playingArea?.boards?.some((b) => b.matchId === m.id)
   );
 
   return (
@@ -298,7 +298,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
           color="#fbbf24"
         />
         <StatCard
-          title="Dianas inutilizables"
+          title="Dianas deshabilitadas"
           value={disabledBoards}
           color="#f87171"
         />

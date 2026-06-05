@@ -87,7 +87,7 @@ const BracketMatch: React.FC<BracketMatchProps> = ({
           </span>
         </div>
       </div>
-      {!isByeMatch && (status !== 'PENDING' && status !== 'READY' && status !== 'CANCELLED') && (
+      {!isByeMatch && (status !== MatchStatus.PENDING && status !== MatchStatus.READY && status !== MatchStatus.CANCELLED) && (
         <div style={{ display: 'flex', gap: '0.25rem' }}>
           {/* Caja de Sets */}
           <div style={{
