@@ -4,32 +4,31 @@ import { useTranslation } from 'react-i18next';
 import InfoCard from '../components/InfoCard';
 import TextInput from '../components/TextInput';
 import Button from '../components/Button';
-import Toast from '../components/Toast';
 import { useState, useEffect } from 'react';
 import ErrorMessage from '../components/ErrorMessage';
 import { getRoleLabel } from '../utils/auth.utils';
 import i18n from '../i18n';
+import { useToast } from '../context/ToastContext';
 
 const ProfileScreen: React.FC = () => {
   const { user, updateEmail, updatePassword, updateAlias } = useAuth();
   const { t } = useTranslation();
+  const { showToast } = useToast();
+
   const [email, setEmail] = useState(user?.email || '');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   // Alias state
   const [alias, setAlias] = useState(user?.alias || '');
   const [isSavingAlias, setIsSavingAlias] = useState(false);
   const [aliasError, setAliasError] = useState<string | null>(null);
-  const [aliasSuccess, setAliasSuccess] = useState(false);
 
   // Password state
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [isSavingPass, setIsSavingPass] = useState(false);
   const [passError, setPassError] = useState<string | null>(null);
-  const [passSuccess, setPassSuccess] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -59,13 +58,14 @@ const ProfileScreen: React.FC = () => {
 
     setIsSaving(true);
     setError(null);
-    setSuccess(false);
 
     try {
       await updateEmail(user.id, email);
-      setSuccess(true);
+      showToast('Correo actualizado correctamente', 'success');
     } catch (err: any) {
-      setError(err.message || 'Error al actualizar el correo');
+      const msg = err.message || 'Error al actualizar el correo';
+      setError(msg);
+      showToast(msg, 'error');
     } finally {
       setIsSaving(false);
     }
@@ -76,13 +76,14 @@ const ProfileScreen: React.FC = () => {
 
     setIsSavingAlias(true);
     setAliasError(null);
-    setAliasSuccess(false);
 
     try {
       await updateAlias(user.id, alias);
-      setAliasSuccess(true);
+      showToast(t('success.Alias updated successfully'), 'success');
     } catch (err: any) {
-      setAliasError(err.message || 'Error al actualizar el alias');
+      const msg = err.message || 'Error al actualizar el alias';
+      setAliasError(msg);
+      showToast(msg, 'error');
     } finally {
       setIsSavingAlias(false);
     }
@@ -96,15 +97,16 @@ const ProfileScreen: React.FC = () => {
 
     setIsSavingPass(true);
     setPassError(null);
-    setPassSuccess(false);
 
     try {
       await updatePassword(user.id, oldPassword, newPassword);
-      setPassSuccess(true);
+      showToast('¡Contraseña actualizada correctamente!', 'success');
       setOldPassword('');
       setNewPassword('');
     } catch (err: any) {
-      setPassError(err.message || 'Error al actualizar la contraseña');
+      const msg = err.message || 'Error al actualizar la contraseña';
+      setPassError(msg);
+      showToast(msg, 'error');
     } finally {
       setIsSavingPass(false);
     }
@@ -161,14 +163,6 @@ const ProfileScreen: React.FC = () => {
             </Button>
           </div>
 
-          {aliasSuccess && (
-            <Toast
-              message={t('auth.success.Alias updated successfully')}
-              type="success"
-              onClose={() => setAliasSuccess(false)}
-            />
-          )}
-
           <div style={styles.inputGroup}>
             <h3 style={styles.sectionTitle}>Cambiar correo electrónico</h3>
             <TextInput
@@ -188,14 +182,6 @@ const ProfileScreen: React.FC = () => {
               Actualizar correo
             </Button>
           </div>
-
-          {success && (
-            <Toast
-              message="¡Correo actualizado correctamente!"
-              type="success"
-              onClose={() => setSuccess(false)}
-            />
-          )}
 
           <div style={styles.inputGroup}>
             <h3 style={styles.sectionTitle}>Cambiar contraseña</h3>
@@ -227,14 +213,6 @@ const ProfileScreen: React.FC = () => {
               Actualizar contraseña
             </Button>
           </div>
-
-          {passSuccess && (
-            <Toast
-              message="¡Contraseña actualizada correctamente!"
-              type="success"
-              onClose={() => setPassSuccess(false)}
-            />
-          )}
         </div>
       </div>
     </div>

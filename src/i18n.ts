@@ -38,20 +38,6 @@ const resources = {
         login_success: 'Inicio de sesión exitoso',
         register_success: 'Registro exitoso',
         logout_success: 'Sesión cerrada correctamente',
-        success: {
-          // UserController
-          'Email updated successfully': 'Correo electrónico actualizado correctamente',
-          'Password updated successfully': 'Contraseña actualizada correctamente',
-          'Alias updated successfully': 'Alias actualizado correctamente',
-          // 
-
-          // AuthController
-          'User registered successfully': 'Usuario registrado exitosamente',
-          'User logged in successfully': 'Usuario logueado exitosamente',
-          'Logout successfull': 'Sesión cerrada exitosamente',
-          'User data retrieved successfully': 'Información del usuario obtenida exitosamente',
-          //
-        },
       },
       common: {
         loading: 'Cargando...',
@@ -215,6 +201,97 @@ const resources = {
         'Default': 'Ha ocurrido un error inesperado',
         //
       },
+      success: {
+        // AuthController
+        'User registered successfully': 'Usuario registrado correctamente',
+        'User logged in successfully': 'Usuario logueado correctamente',
+        'Logout successfull': 'Sesión cerrada correctamente',
+        'User data retrieved successfully': 'Información del usuario obtenida correctamente',
+        'Account activated successfully': 'Cuenta activada correctamente',
+        'Temporary password sent successfully': 'Contraseña temporal enviada correctamente',
+        //
+        // UserController
+        'Users fetched successfully': 'Usuarios obtenidos correctamente',
+        'User created successfully': 'Usuario creado correctamente',
+        'Email updated successfully': 'Correo actualizado correctamente',
+        'Password updated successfully': 'Contraseña actualizada correctamente',
+        'Alias updated successfully': 'Alias actualizado correctamente',
+        'User blocked successfully': 'Usuario bloqueado correctamente',
+        'User unblocked successfully': 'Usuario desbloqueado correctamente',
+        'User deleted successfully': 'Usuario eliminado correctamente',
+        'User restored successfully': 'Usuario restaurado correctamente',
+        // 
+        // PlayerController
+        'Players fetched successfully': 'Jugadores obtenidos correctamente',
+        'Player fetched successfully': 'Jugador obtenido correctamente',
+        'Player data retrieved successfully': 'Información del jugador obtenida correctamente',
+        'Player created successfully': 'Jugador creado correctamente',
+        'Federation updated successfully': 'Federación actualizada correctamente',
+        'Unregistered players fetched successfully': 'Jugadores no registrados obtenidos correctamente',
+        'Player deleted successfully': 'Jugador eliminado correctamente',
+        'Player restored successfully': 'Jugador restaurado correctamente',
+        //
+        // TournamentController
+        'Tournaments fetched successfully': 'Torneos obtenidos correctamente',
+        'Tournament fetched successfully': 'Torneo obtenido correctamente',
+        'Tournament created successfully': 'Torneo creado correctamente',
+        'Tournament deleted successfully': 'Torneo eliminado correctamente',
+        'Tournament restored successfully': 'Torneo restaurado correctamente',
+        'Tournament unpublished successfully': 'Torneo ocultado correctamente',
+        'Tournament published successfully': 'Torneo publicado correctamente',
+        'Tournament cancelled successfully': 'Torneo cancelado correctamente',
+        'Tournament started successfully': 'Torneo iniciado correctamente',
+        'Info updated successfully': 'Información actualizada correctamente',
+        'Name updated successfully': 'Nombre actualizado correctamente',
+        'Tournament updated successfully': 'Torneo actualizado correctamente',
+        'Registration opened successfully': 'Inscripciones abiertas correctamente',
+        'Registration closed successfully': 'Incripciones cerradas correctamente',
+        'Registration period updated successfully': 'Periodo de inscripción actualizado correctamente',
+        'Check-in enabled successfully': 'Check-in habilitado correctamente',
+        'Check-in disabled successfully': 'Check-in deshabilitado correctamente',
+        //
+        // BracketController
+        'Bracket automatically created successfully': 'Cuadrante generado automáticamente',
+        'Bracket manually created successfully': 'Cuadrante generado manualmente',
+        'Bracket fetched successfully': 'Cuadrante obtenido correctamente',
+        'Participants assigned to positions successfully': 'Participantes asignados a sus posiciones correctamente',
+        'Bracket reshuffled successfully': 'Cuadrante re-sorteado correctamente',
+        'Bracket published successfully': 'Cuadrante publicado correctamente',
+        'Bracket unpublished successfully': 'Cuadrante ocultado correctamente',
+        'Bracket deleted successfully': 'Cuadrante eliminado correctamente',
+        //
+        // MatchController
+        'Matches fetched successfully': 'Partidas obtenidas correctamente',
+        'Match fetched successfully': 'Partida obtenida correctamente',
+        'Match started successfully': 'Partida iniciada correctamente',
+        'Match finished successfully': 'Partida finalizada correctamente',
+        'Match cancelled successfully': 'Partida cancelada correctamente',
+        'Match suspended successfully': 'Partida suspendida correctamente',
+        'Match resumed successfully': 'Partida reanudada correctamente',
+        'Board number set successfully': 'Número de diana asignado a la partida correctamente',
+        'Match score updated successfully': 'Puntuación de la partida asignada correctamente',
+        'Match result set successfully': 'Resultado de la partida asignado correctamente',
+        // 
+        // PlayingAreaController
+        'Playing area fetched successfully': 'Salón de juego obtenido correctamente',
+        'Playing area created successfully': 'Salón de juego creado correctamente',
+        'Board released successfully': 'Diana liberada correctamente',
+        'Board disabled successfully': 'Diana deshabilitada correctamente',
+        'Board enabled successfully': 'Diana habilitada correctamente',
+        'Board added successfully': 'Diana añadida correctamente',
+        'Board removed successfully': 'Diana eliminada correctamente',
+        //
+        // RegisteredParticipantController
+        'Participant registered successfully': 'Participante inscrito correctamente',
+        'Participant unregistered successfully': 'Participante desinscrito correctamente',
+        'Participant checked in successfully': 'Check-in del participante hecho correctamente',
+        'Participant undo check in successfully': 'Check-in del participante deshecho correctamente',
+        'Participants fetched successfully': 'Participantes obtenidos correctamente',
+        //
+        // TournamentResultController
+        'Tournament results fetched successfully': 'Resultados del torneo obtenidos correctamente',
+        //
+      },
     }
   },
   en: {
@@ -252,20 +329,6 @@ const resources = {
         login_success: 'Login successful',
         register_success: 'Registration successful',
         logout_success: 'Logged out successfully',
-        success: {
-          // éxito en UserController
-          'Email updated successfully': 'Email updated successfully',
-          'Password updated successfully': 'Password updated successfully',
-          'Alias updated successfully': 'Alias updated successfully',
-          //
-
-          // éxito en AuthController
-          'User registered successfully': 'User registered successfully',
-          'User logged in successfully': 'User logged in successfully',
-          'Logout successfull': 'Logged out successfully',
-          'User data retrieved successfully': 'User data retrieved successfully',
-          //
-        },
       },
       common: {
         loading: 'Loading...',
@@ -427,6 +490,97 @@ const resources = {
         'Internal server error': 'Internal server error. Please try again later',
         'network_error': 'Network error. Please try again later',
         'Default': 'An unexpected error occurred',
+      },
+      success: {
+        // AuthController
+        'User registered successfully': 'User registered successfully',
+        'User logged in successfully': 'User logged in successfully',
+        'Logout successfull': 'Logout successfull',
+        'User data retrieved successfully': 'User data retrieved successfully',
+        'Account activated successfully': 'Account activated successfully',
+        'Temporary password sent successfully': 'Temporary password sent successfully',
+        //
+        // UserController
+        'Users fetched successfully': 'Users fetched successfully',
+        'User created successfully': 'User created successfully',
+        'Email updated successfully': 'Email updated successfully',
+        'Password updated successfully': 'Password updated successfully',
+        'Alias updated successfully': 'Alias updated successfully',
+        'User blocked successfully': 'User blocked successfully',
+        'User unblocked successfully': 'User unblocked successfully',
+        'User deleted successfully': 'User deleted successfully',
+        'User restored successfully': 'User restored successfully',
+        // 
+        // PlayerController
+        'Players fetched successfully': 'Players fetched successfully',
+        'Player fetched successfully': 'Player fetched successfully',
+        'Player data retrieved successfully': 'Player data retrieved successfully',
+        'Player created successfully': 'Player created successfully',
+        'Federation updated successfully': 'Federation updated successfully',
+        'Unregistered players fetched successfully': 'Unregistered players fetched successfully',
+        'Player deleted successfully': 'Player deleted successfully',
+        'Player restored successfully': 'Player restored successfully',
+        //
+        // TournamentController
+        'Tournaments fetched successfully': 'Tournaments fetched successfully',
+        'Tournament fetched successfully': 'Tournament fetched successfully',
+        'Tournament created successfully': 'Tournament created successfully',
+        'Tournament deleted successfully': 'Tournament deleted successfully',
+        'Tournament restored successfully': 'Tournament restored successfully',
+        'Tournament unpublished successfully': 'Tournament unpublished successfully',
+        'Tournament published successfully': 'Tournament published successfully',
+        'Tournament cancelled successfully': 'Tournament cancelled successfully',
+        'Tournament started successfully': 'Tournament started successfully',
+        'Info updated successfully': 'Info updated successfully',
+        'Name updated successfully': 'Name updated successfully',
+        'Tournament updated successfully': 'Tournament updated successfully',
+        'Registration opened successfully': 'Registration opened successfully',
+        'Registration closed successfully': 'Registration closed successfully',
+        'Registration period updated successfully': 'Registration period updated successfully',
+        'Check-in enabled successfully': 'Check-in enabled successfully',
+        'Check-in disabled successfully': 'Check-in disabled successfully',
+        //
+        // BracketController
+        'Bracket automatically created successfully': 'Bracket automatically created successfully',
+        'Bracket manually created successfully': 'Bracket manually created successfully',
+        'Bracket fetched successfully': 'Bracket fetched successfully',
+        'Participants assigned to positions successfully': 'Participants assigned to positions successfully',
+        'Bracket reshuffled successfully': 'Bracket reshuffled successfully',
+        'Bracket published successfully': 'Bracket published successfully',
+        'Bracket unpublished successfully': 'Bracket unpublished successfully',
+        'Bracket deleted successfully': 'Bracket deleted successfully',
+        //
+        // MatchController
+        'Matches fetched successfully': 'Matches fetched successfully',
+        'Match fetched successfully': 'Match fetched successfully',
+        'Match started successfully': 'Match started successfully',
+        'Match finished successfully': 'Match finished successfully',
+        'Match cancelled successfully': 'Match cancelled successfully',
+        'Match suspended successfully': 'Match suspended successfully',
+        'Match resumed successfully': 'Match resumed successfully',
+        'Board number set successfully': 'Board number set successfully',
+        'Match score updated successfully': 'Match score updated successfully',
+        'Match result set successfully': 'Match result set successfully',
+        // 
+        // PlayingAreaController
+        'Playing area fetched successfully': 'Playing area fetched successfully',
+        'Playing area created successfully': 'Playing area created successfully',
+        'Board released successfully': 'Board released successfully',
+        'Board disabled successfully': 'Board disabled successfully',
+        'Board enabled successfully': 'Board enabled successfully',
+        'Board added successfully': 'Board added successfully',
+        'Board removed successfully': 'Board removed successfully',
+        //
+        // RegisteredParticipantController
+        'Participant registered successfully': 'Participant registered successfully',
+        'Participant unregistered successfully': 'Participant unregistered successfully',
+        'Participant checked in successfully': 'Participant checked in successfully',
+        'Participant undo check in successfully': 'Participant undo check in successfully',
+        'Participants fetched successfully': 'Participants fetched successfully',
+        //
+        // TournamentResultController
+        'Tournament results fetched successfully': 'Tournament results fetched successfully',
+        //
       },
     }
   }
