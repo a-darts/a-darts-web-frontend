@@ -210,5 +210,25 @@ export const userService = {
     } catch (error: any) {
       throw handleFetchError(error);
     }
+  },
+
+  getStats: async (userId: string) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error('No hay token de sesión');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/stats`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const result = await handleResponse(response);
+      return result.data || result;
+    } catch (error: any) {
+      throw handleFetchError(error);
+    }
   }
 };

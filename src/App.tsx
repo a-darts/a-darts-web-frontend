@@ -15,6 +15,7 @@ import AdminEditPlayerScreen from './screens/AdminDashboard/AdminEditPlayerScree
 import AdminCreatePlayerScreen from './screens/AdminDashboard/AdminCreatePlayerScreen';
 import AdminCreateTournamentScreen from './screens/AdminDashboard/AdminCreateTournamentScreen';
 import LiveMatchMonitorScreen from './screens/LiveMatchMonitorScreen';
+import StatsScreen from './screens/StatsScreen';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/stats" element={<StatsScreen />} />
         <Route path="/admin" element={<AdminDashboardScreen />} />
         <Route path="/admin/usuarios/crear" element={<AdminCreateUserScreen />} />
         <Route path="/admin/usuarios/editar/:id" element={<AdminEditUserScreen />} />
