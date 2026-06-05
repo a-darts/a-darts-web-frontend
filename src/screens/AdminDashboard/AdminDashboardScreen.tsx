@@ -90,6 +90,7 @@ const styles: { [key: string]: any } = {
     flexDirection: 'column',
     gap: '1rem',
     alignItems: 'center',
+    margin: '2rem',
   },
   loadingText: {
     color: 'var(--text-secondary-color)',

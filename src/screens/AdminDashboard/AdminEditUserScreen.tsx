@@ -268,6 +268,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: 'column',
     gap: '1rem',
     alignItems: 'center',
+    margin: '2rem',
   },
   loadingText: {
     color: 'var(--text-secondary-color)',
