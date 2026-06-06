@@ -5,6 +5,7 @@ import InfoCard from '../components/InfoCard';
 import Table, { Column } from '../components/Table';
 import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
+import EmptyState from '../components/EmptyState';
 
 interface BestPosition {
   id: string;
@@ -28,6 +29,7 @@ const StatsScreen: React.FC = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasNoStats, setHasNoStats] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -35,13 +37,22 @@ const StatsScreen: React.FC = () => {
       try {
         setLoading(true);
         const data = await userService.getStats(user.id);
-        if (data && data.bestPositions) {
-          data.bestPositions = data.bestPositions.map((bp: any) => ({
-            ...bp,
-            id: bp.tournamentId
-          }));
+
+        if (Array.isArray(data) && data.length === 0) {
+          setHasNoStats(true);
+          setStats(null);
+        } else if (data && !Array.isArray(data)) {
+          if (data.bestPositions) {
+            data.bestPositions = data.bestPositions.map((bp: any) => ({
+              ...bp,
+              id: bp.tournamentId
+            }));
+          }
+          setStats(data);
+          setHasNoStats(false);
+        } else {
+          setStats(null);
         }
-        setStats(data);
       } catch (error: any) {
         console.error('Error fetching stats:', error);
         showToast(error.message || 'Error al obtener las estadísticas', 'error');
@@ -90,6 +101,18 @@ const StatsScreen: React.FC = () => {
     );
   }
 
+  if (hasNoStats) {
+    return (
+      <div style={styles.container}>
+        <h1 style={styles.title}>Mis Estadísticas</h1>
+        <EmptyState
+          title="Aún no tienes estadísticas"
+          description="Tus estadísticas aparecerán aquí una vez que participes en algún torneo. ¡Apúntate a un torneo y empieza a competir!"
+        />
+      </div>
+    );
+  }
+
   if (!stats) {
     return (
       <div style={styles.container}>
@@ -114,7 +137,7 @@ const StatsScreen: React.FC = () => {
           <InfoCard
             title="Partidos Jugados"
             content={stats.totalMatchesPlayed.toString()}
-            icon="Gamepad2"
+            icon="MonitorPlay"
           />
           <InfoCard
             title="Partidos Ganados"
@@ -124,12 +147,12 @@ const StatsScreen: React.FC = () => {
           <InfoCard
             title="Sets Ganados"
             content={stats.totalSetsWon.toString()}
-            icon="Layers"
+            icon="CheckCircle"
           />
           <InfoCard
             title="Legs Ganados"
             content={stats.totalLegsWon.toString()}
-            icon="Target"
+            icon="CheckCircle"
           />
           <InfoCard
             title="% Victorias"
