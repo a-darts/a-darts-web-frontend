@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, UserRoles } from '../context/AuthContext';
 import InfoCard from '../components/InfoCard';
 
 const HomeScreen: React.FC = () => {
@@ -30,7 +30,7 @@ const HomeScreen: React.FC = () => {
           </Button>
         </div>
 
-        {user && (
+        {user && user.role === UserRoles.PLAYER && (
           <div style={styles.cardsContainer}>
             <InfoCard
               title='Estadísticas'
