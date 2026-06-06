@@ -94,7 +94,30 @@ const StatsScreen: React.FC = () => {
           {item.tournamentName}
         </span>
       )
-    }
+    },
+    {
+      key: 'tournamentDate',
+      header: 'Fecha',
+      render: (item) => (
+        <span style={{ fontWeight: '500', color: 'var(--text-color)' }}>
+          {formatTournamentDate(item.tournamentDate)}
+        </span>
+      )
+    },
+    {
+      key: 'tournamentFederation',
+      header: 'Federación',
+      render: (item) => (
+        <div style={styles.federationContainer}>
+          <img
+            src={getFederationFlag(item.tournamentFederation) || ''}
+            alt="Flag"
+            style={styles.federationFlag}
+          />
+          <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--text-color)' }}>{i18n.t(`federations.${item.tournamentFederation}`)}</span>
+        </div>
+      )
+    },
   ];
 
   const columnsAllPositions: Column<PositionObject>[] = [
