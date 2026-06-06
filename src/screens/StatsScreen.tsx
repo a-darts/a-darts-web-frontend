@@ -6,12 +6,16 @@ import Table, { Column } from '../components/Table';
 import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import EmptyState from '../components/EmptyState';
+import { formatTournamentDate, getFederationFlag } from '../utils/tournament.utils';
+import i18n from '../i18n';
 
-interface BestPosition {
+interface PositionObject {
   id: string;
   position: number;
   tournamentId: string;
   tournamentName: string;
+  tournamentDate: string;
+  tournamentFederation: string;
 }
 
 interface UserStats {
@@ -20,7 +24,8 @@ interface UserStats {
   totalMatchesWon: number;
   totalSetsWon: number;
   totalLegsWon: number;
-  bestPositions: BestPosition[];
+  bestPositions: PositionObject[];
+  allPositions: PositionObject[];
 }
 
 const StatsScreen: React.FC = () => {
@@ -64,7 +69,7 @@ const StatsScreen: React.FC = () => {
     fetchStats();
   }, [user, showToast]);
 
-  const columns: Column<BestPosition>[] = [
+  const columnsBestPositions: Column<PositionObject>[] = [
     {
       key: 'position',
       header: 'Posición',
@@ -90,6 +95,57 @@ const StatsScreen: React.FC = () => {
         </span>
       )
     }
+  ];
+
+  const columnsAllPositions: Column<PositionObject>[] = [
+    {
+      key: 'position',
+      header: 'Posición',
+      render: (item) => (
+        <span style={{
+          fontWeight: '700',
+          color: item.position === 1 ? '#FFD700' : item.position === 2 ? '#C0C0C0' : item.position === 3 ? '#CD7F32' : 'var(--text-color)',
+          fontSize: '1rem'
+        }}>
+          {item.position}º
+        </span>
+      )
+    },
+    {
+      key: 'tournamentName',
+      header: 'Torneo',
+      render: (item) => (
+        <span
+          style={{ fontWeight: '500', color: 'var(--text-color)', cursor: 'pointer', textDecoration: 'underline' }}
+          onClick={() => navigate(`/torneos/${item.tournamentId}`)}
+        >
+          {item.tournamentName}
+        </span>
+      )
+    },
+    {
+      key: 'tournamentDate',
+      header: 'Fecha',
+      render: (item) => (
+        <span style={{ fontWeight: '500', color: 'var(--text-color)' }}>
+          {formatTournamentDate(item.tournamentDate)}
+        </span>
+      )
+    },
+    {
+      key: 'tournamentFederation',
+      header: 'Federación',
+      render: (item) => (
+        <div style={styles.federationContainer}>
+          <img
+            src={getFederationFlag(item.tournamentFederation) || ''}
+            alt="Flag"
+            style={styles.federationFlag}
+          />
+          <span style={{ fontSize: '0.875rem', fontWeight: '500', color: 'var(--text-color)' }}>{i18n.t(`federations.${item.tournamentFederation}`)}</span>
+        </div>
+      )
+    },
   ];
 
   if (loading) {
@@ -163,11 +219,20 @@ const StatsScreen: React.FC = () => {
       </section>
 
       <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Mejores Posiciones (Top 3)</h2>
+        <h2 style={styles.sectionTitle}>Mejores posiciones (Top 3)</h2>
         <Table
           data={stats.bestPositions}
-          columns={columns}
-          emptyMessage="Aún no tienes clasificaciones en el Top 3 de ningún torneo."
+          columns={columnsBestPositions}
+          emptyMessage="Aún no tienes clasificaciones en ningún torneo."
+        />
+      </section>
+
+      <section style={styles.section}>
+        <h2 style={styles.sectionTitle}>Todas las posiciones</h2>
+        <Table
+          data={stats.bestPositions}
+          columns={columnsAllPositions}
+          emptyMessage="Aún no tienes clasificaciones en ningún torneo."
         />
       </section>
     </div>
@@ -228,6 +293,17 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderTop: '3px solid var(--primary-color)',
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
+  },
+  federationContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  },
+  federationFlag: {
+    width: '18px',
+    height: '12px',
+    objectFit: 'cover',
+    borderRadius: '2px',
   },
 };
 
