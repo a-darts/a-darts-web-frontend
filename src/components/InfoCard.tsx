@@ -5,11 +5,18 @@ interface InfoCardProps {
   title: string;
   content: React.ReactNode;
   icon?: IconName;
+  onClick?: () => void;
 }
 
-const InfoCard: React.FC<InfoCardProps> = ({ title, content, icon }) => {
+const InfoCard: React.FC<InfoCardProps> = ({ title, content, icon, onClick }) => {
   return (
-    <div style={styles.card}>
+    <div
+      style={{ ...styles.card, ...(onClick ? styles.cardClickable : {}) }}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && onClick() : undefined}
+    >
       {icon && (
         <div style={styles.iconContainer}>
           <Icon name={icon} size={20} />
@@ -19,6 +26,11 @@ const InfoCard: React.FC<InfoCardProps> = ({ title, content, icon }) => {
         <p style={styles.title}>{title}</p>
         <div style={styles.value}>{content}</div>
       </div>
+      {onClick && (
+        <div style={styles.arrowContainer}>
+          <Icon name="ChevronRight" size={18} />
+        </div>
+      )}
     </div>
   );
 };
@@ -35,6 +47,10 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderLeft: '1px solid #C4E866',
     width: 'auto',
   },
+  cardClickable: {
+    cursor: 'pointer',
+    transition: 'background-color 0.15s ease',
+  },
   iconContainer: {
     width: '48px',
     height: '48px',
@@ -45,6 +61,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     justifyContent: 'center',
     color: 'var(--text-secondary-color)',
     flexShrink: 0,
+  },
+  arrowContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    color: 'var(--text-secondary-color)',
+    flexShrink: 0,
+    opacity: 0.5,
   },
   content: {
     flex: 1,
