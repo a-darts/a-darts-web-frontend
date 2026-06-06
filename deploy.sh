@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Iniciando despliegue del frontend web de A-Darts..."
+echo "Iniciando despliegue del frontend web de A-Darts..."
 
 # 1. Traer cambios de GitHub
 echo "1. Descargando los cambios de GitHub..."
