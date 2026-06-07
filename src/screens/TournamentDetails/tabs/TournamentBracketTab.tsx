@@ -501,13 +501,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: '100%',
     overflowX: 'auto',
     msOverflowStyle: 'none',
-    scrollbarWidth: 'none',
   },
   bracketWrapper: {
     display: 'flex',
     gap: '0',
     minWidth: 'max-content',
     alignItems: 'flex-start',
+    marginBottom: '2rem',
   },
   roundColumn: {
     display: 'flex',

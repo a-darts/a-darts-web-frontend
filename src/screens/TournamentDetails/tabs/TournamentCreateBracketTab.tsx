@@ -526,6 +526,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     minHeight: '70vh',
     position: 'relative',
     alignItems: 'flex-start',
+    overflowX: 'auto',
+    paddingBottom: '2rem',
   },
   sidebar: {
     width: '320px',
@@ -537,8 +539,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     gap: '1.5rem',
-    position: 'sticky',
-    top: '90px',
+    position: 'relative',
+    top: '0px',
     maxHeight: 'calc(100vh - 120px)',
     overflowY: 'auto',
     backdropFilter: 'blur(16px)',
@@ -684,10 +686,8 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   bracketContainer: {
     flexGrow: 1,
-    overflowX: 'auto',
+    overflowX: 'visible',
     msOverflowStyle: 'none',
-    // scrollbarWidth: 'none',
-    paddingBottom: '2rem',
   },
   bracketWrapper: {
     display: 'flex',
