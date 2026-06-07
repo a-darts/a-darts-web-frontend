@@ -6,6 +6,7 @@ export interface SocketMatchEvents {
     onScoreUpdateConfirmed?: (data: { matchId: string; throwData: any; }) => void;
     onScoreUndoConfirmed?: (data: { matchId: string; historyThrows: any[] }) => void;
     onScoreEditConfirmed?: (data: { matchId: string, throwData: any, historyThrows: any[] }) => void;
+    onSwapStartingPlayerConfirmed?: (data: { matchId: string }) => void;
     onMatchSuspended?: (data: { matchId: string }) => void;
     onMatchResumed?: (data: { matchId: string }) => void;
     onMatchCancelled?: (data: { matchId: string }) => void;
@@ -43,6 +44,7 @@ class SocketClientService {
         this.socket.on('score_update_confirmed', (data) => events.onScoreUpdateConfirmed?.(data));
         this.socket.on('score_undo_confirmed', (data) => events.onScoreUndoConfirmed?.(data));
         this.socket.on('score_edit_confirmed', (data) => events.onScoreEditConfirmed?.(data));
+        this.socket.on('swap_starting_player_confirmed', (data) => events.onSwapStartingPlayerConfirmed?.(data));
         this.socket.on('match_suspended', (data) => events.onMatchSuspended?.(data));
         this.socket.on('match_resumed', (data) => events.onMatchResumed?.(data));
         this.socket.on('match_cancelled', (data) => events.onMatchCancelled?.(data));
@@ -60,6 +62,7 @@ class SocketClientService {
             this.socket.off('score_update_confirmed');
             this.socket.off('score_undo_confirmed');
             this.socket.off('score_edit_confirmed');
+            this.socket.off('swap_starting_player_confirmed');
             this.socket.off('match_suspended');
             this.socket.off('match_resumed');
             this.socket.off('match_cancelled');

@@ -194,6 +194,18 @@ export const useLiveMatchSocket = ({
                     }
                 }
             },
+            onSwapStartingPlayerConfirmed: (data) => {
+                console.log('[LiveMonitor Hook] Cambio en el jugador inicial:', data);
+                if (data.matchId === matchId) {
+                    setLiveData((prev) => {
+                        if (!prev) return prev;
+                        return {
+                            ...prev,
+                            activePlayerIndex: prev.activePlayerIndex === 0 ? 1 : 0
+                        };
+                    });
+                }
+            },
             onMatchSuspended: (data) => {
                 console.log('[LiveMonitor Hook] Partido suspendido:', data);
                 if (data.matchId === matchId) {

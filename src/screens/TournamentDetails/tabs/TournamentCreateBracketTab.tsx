@@ -686,7 +686,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexGrow: 1,
     overflowX: 'auto',
     msOverflowStyle: 'none',
-    scrollbarWidth: 'none',
+    // scrollbarWidth: 'none',
     paddingBottom: '2rem',
   },
   bracketWrapper: {

@@ -1,7 +1,7 @@
 import i18n from '../i18n';
 
-export const API_BASE_URL = process.env.API_BASE_URL;
-export const SOCKET_URL = process.env.SOCKET_URL;
+export const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
+export const SOCKET_URL = process.env.SOCKET_URL || 'http://localhost:3000';
 
 export const handleResponse = async (response: Response) => {
   if (!response.ok) {
