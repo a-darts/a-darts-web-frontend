@@ -14,6 +14,7 @@ import Select from '../../../components/Select';
 import ErrorMessage from '../../../components/ErrorMessage';
 import IconButton from '../../../components/IconButton';
 import Icon from '../../../components/Icon';
+import SearchInput from '../../../components/SearchInput';
 
 const toLocalDateParts = (isoString: any) => {
   if (!isoString) return { date: '', time: '12:00' };
@@ -58,6 +59,8 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
   const [isTogglingCheckIn, setIsTogglingCheckIn] = useState(false);
 
   const [processingParticipantId, setProcessingParticipantId] = useState<string | null>(null);
+
+  const [playerQuery, setPlayerQuery] = useState('');
 
   React.useEffect(() => {
     const intervalId = setInterval(() => {
@@ -324,6 +327,10 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
     }] : []),
   ];
 
+  const filteredParticipants = participants.filter(p =>
+    (p.alias || '').toLowerCase().includes(playerQuery.toLowerCase())
+  );
+
   return (
     <div style={styles.content}>
       {isAdmin && (tournament.status === TournamentStatus.DRAFT || tournament.status === TournamentStatus.PUBLISHED) && (
@@ -404,8 +411,16 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
           </span>
         </div>
 
+        <div style={styles.searchWrapper}>
+          <SearchInput
+            value={playerQuery}
+            onChange={setPlayerQuery}
+            placeholder="Buscar por alias..."
+          />
+        </div>
+
         <Table
-          data={participants}
+          data={filteredParticipants}
           columns={columns}
           loading={loading}
           emptyMessage="No hay jugadores inscritos en este torneo"
@@ -571,6 +586,12 @@ const styles: { [key: string]: any } = {
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
+    whiteSpace: 'nowrap',
+  },
+  searchWrapper: {
+    width: '100%',
+    maxWidth: '600px',
+    minWidth: '240px',
   },
   infoGrid: {
     display: 'grid',
