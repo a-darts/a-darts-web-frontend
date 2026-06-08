@@ -21,8 +21,14 @@ const TournamentsScreen: React.FC = () => {
     const fetchTournaments = async () => {
       try {
         setLoading(true);
-        const data = await tournamentService.getTournaments();
-        setTournaments(data);
+        const res = await tournamentService.getTournaments();
+        if (res && res.data) {
+          if (Array.isArray(res.data)) {
+            setTournaments(res.data);
+          } else if (res.data.tournaments && Array.isArray(res.data.tournaments)) {
+            setTournaments(res.data.tournaments);
+          }
+        }
         setError(null);
       } catch (err: any) {
         console.error('Error fetching tournaments:', err);
