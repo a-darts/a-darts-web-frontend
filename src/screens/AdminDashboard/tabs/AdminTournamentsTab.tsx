@@ -5,25 +5,28 @@ import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
 import IconButton from '../../../components/IconButton';
 import { tournamentService, Tournament, Federations, GameModes, TournamentStatus } from '../../../services/tournament.service';
-import { getModeLabel, getScheduleTypeLabel, formatTournamentDate, getSeasonEndYear, getFederationFlag } from '../../../utils/tournament.utils';
+import { getModeLabel, getStatusLabel, formatTournamentDate, getSeasonEndYear, getFederationFlag } from '../../../utils/tournament.utils';
 import TournamentStatusTag from '../../../components/TournamentStatusTag';
 import Select from '../../../components/Select';
 import i18n from '../../../i18n';
 import { useToast } from '../../../context/ToastContext';
 import Modal from '../../../components/Modal';
-import Switch from '../../../components/Switch';
 
 const AdminTournamentsTab: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [tournamentQuery, setTournamentQuery] = useState('');
-  const [includeDeleted, setIncludeDeleted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [federationFilter, setFederationFilter] = useState('');
   const [modeFilter, setModeFilter] = useState('');
+  const [statusFilters, setStatusFilters] = useState<TournamentStatus[]>(
+    Object.values(TournamentStatus).filter(
+      (status) => status !== TournamentStatus.DELETED && status !== TournamentStatus.CANCELLED
+    )
+  );
 
   // Confirmation Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -35,10 +38,10 @@ const AdminTournamentsTab: React.FC = () => {
   const [modalLoading, setModalLoading] = useState(false);
 
 
-  const fetchTournaments = async (includeDeleted: boolean) => {
+  const fetchTournaments = async () => {
     try {
       setLoading(true);
-      const data = await tournamentService.getTournaments(includeDeleted);
+      const data = await tournamentService.getTournaments();
       setTournaments(data || []);
       setError(null);
     } catch (err: any) {
@@ -50,12 +53,22 @@ const AdminTournamentsTab: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchTournaments(includeDeleted);
+    fetchTournaments();
   }, []);
 
-  useEffect(() => {
-    fetchTournaments(includeDeleted);
-  }, [includeDeleted]);
+  const toggleStatusFilter = (status: TournamentStatus) => {
+    setStatusFilters((prev) => {
+      const isCurrentlySelected = prev.includes(status);
+      if (isCurrentlySelected) {
+        // if (prev.length > 1) {
+        return prev.filter((s) => s !== status);
+        // }
+        // return prev;
+      } else {
+        return [...prev, status];
+      }
+    });
+  };
 
   const filtered = tournaments.filter(t => {
     const matchesQuery = t.name.toLowerCase().includes(tournamentQuery.toLowerCase()) ||
@@ -63,8 +76,9 @@ const AdminTournamentsTab: React.FC = () => {
 
     const matchesFed = federationFilter === '' || t.info?.federation === federationFilter;
     const matchesMode = modeFilter === '' || t.info?.mode === modeFilter;
+    const matchesStatus = statusFilters.includes(t.status);
 
-    return matchesQuery && matchesFed && matchesMode;
+    return matchesQuery && matchesFed && matchesMode && matchesStatus;
   });
 
   const openConfirmModal = (
@@ -97,7 +111,7 @@ const AdminTournamentsTab: React.FC = () => {
         try {
           await tournamentService.deleteTournament(tournament.id);
           showToast('Torneo eliminado con éxito!', 'success');
-          fetchTournaments(includeDeleted);
+          fetchTournaments();
         } catch (err: any) {
           console.error('Error deleting tournament:', err);
           showToast(err.message || 'Error al eliminar el torneo.', 'error');
@@ -122,7 +136,7 @@ const AdminTournamentsTab: React.FC = () => {
         try {
           await tournamentService.restoreTournament(tournament.id);
           showToast('Torneo restaurado con éxito!', 'success');
-          fetchTournaments(includeDeleted);
+          fetchTournaments();
         } catch (err: any) {
           console.error('Error restoring tournament:', err);
           showToast(err.message || 'Error al restaurar el torneo.', 'error');
@@ -176,13 +190,26 @@ const AdminTournamentsTab: React.FC = () => {
                 icon="Users"
               />
             </div>
-            <div style={styles.filterItem}>
-              <Switch
-                label="Ver eliminados"
-                checked={includeDeleted}
-                onChange={setIncludeDeleted}
-              />
-            </div>
+          </div>
+        </div>
+
+        <div style={styles.statusToggleContainer}>
+          <span style={styles.toggleLabel}>Estados del Torneo:</span>
+          <div style={styles.toggleButtonsWrapper}>
+            {Object.values(TournamentStatus).map((status) => {
+              const isSelected = statusFilters.includes(status);
+              return (
+                <Button
+                  key={status}
+                  variant={isSelected ? 'primary' : 'secondary'}
+                  leftIcon={isSelected ? 'Check' : undefined}
+                  onClick={() => toggleStatusFilter(status)}
+                  size="small"
+                >
+                  {getStatusLabel(status)}
+                </Button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -367,6 +394,22 @@ const styles: { [key: string]: any } = {
   },
   filterItem: {
     minWidth: '200px',
+  },
+  statusToggleContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.5rem',
+    marginTop: '0.5rem',
+  },
+  toggleLabel: {
+    fontSize: '0.85rem',
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontWeight: '600',
+  },
+  toggleButtonsWrapper: {
+    display: 'flex',
+    gap: '0.5rem',
+    flexWrap: 'wrap',
   },
   tableResponsive: {
     width: '100%',
