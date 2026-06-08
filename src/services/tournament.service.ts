@@ -99,7 +99,13 @@ export interface UnregisteredPlayer {
 
 
 export const tournamentService = {
-  getTournaments: async (includeDeleted: boolean = false): Promise<Tournament[]> => {
+  getTournaments: async (
+    page?: number,
+    limit?: number,
+    statuses?: TournamentStatus[],
+    federation?: string,
+    mode?: string,
+  ): Promise<any> => {
     try {
       const token = localStorage.getItem('auth_token');
       const headers: Record<string, string> = {
@@ -111,7 +117,13 @@ export const tournamentService = {
       }
 
       const queryParams = new URLSearchParams();
-      if (includeDeleted) queryParams.append('includeDeleted', 'true');
+      if (page !== undefined) queryParams.append('page', page.toString());
+      if (limit !== undefined) queryParams.append('limit', limit.toString());
+      if (statuses && statuses.length > 0) {
+        queryParams.append('status', statuses.join(','));
+      }
+      if (federation) queryParams.append('federation', federation);
+      if (mode) queryParams.append('mode', mode);
 
       const url = queryParams.toString()
         ? `${API_BASE_URL}/tournaments?${queryParams.toString()}`
@@ -123,7 +135,7 @@ export const tournamentService = {
       });
 
       const result = await handleResponse(response);
-      return result.data;
+      return result;
     } catch (error: any) {
       throw handleFetchError(error);
     }

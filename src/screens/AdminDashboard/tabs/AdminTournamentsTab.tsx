@@ -29,6 +29,10 @@ const AdminTournamentsTab: React.FC = () => {
     )
   );
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 3;
+
   // Confirmation Modal State
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
@@ -39,12 +43,31 @@ const AdminTournamentsTab: React.FC = () => {
   const [modalLoading, setModalLoading] = useState(false);
 
 
-  const fetchTournaments = async () => {
+  const fetchTournaments = async (page: number = currentPage) => {
     try {
       setLoading(true);
-      const data = await tournamentService.getTournaments();
-      setTournaments(data || []);
       setError(null);
+
+      const res = await tournamentService.getTournaments(
+        page,
+        limit,
+        statusFilters,
+        federationFilter || undefined,
+        modeFilter || undefined,
+      );
+
+      if (res && res.data) {
+        if (Array.isArray(res.data)) {
+          setTournaments(res.data);
+          setTotalPages(1);
+        } else if (res.data.tournaments && Array.isArray(res.data.tournaments)) {
+          setTournaments(res.data.tournaments);
+          if (res.data.pagination) {
+            setTotalPages(res.data.pagination.totalPages || 1);
+            setCurrentPage(res.data.pagination.page || 1);
+          }
+        }
+      }
     } catch (err: any) {
       console.error('Error fetching tournaments:', err);
       setError(err.message || 'Error al cargar la lista de torneos.');
@@ -54,10 +77,15 @@ const AdminTournamentsTab: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchTournaments();
-  }, []);
+    fetchTournaments(currentPage);
+  }, [currentPage, statusFilters, federationFilter, modeFilter]);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
 
   const toggleStatusFilter = (status: TournamentStatus) => {
+    setCurrentPage(1);
     setStatusFilters((prev) => {
       const isCurrentlySelected = prev.includes(status);
       if (isCurrentlySelected) {
@@ -69,14 +97,8 @@ const AdminTournamentsTab: React.FC = () => {
   };
 
   const filtered = tournaments.filter(t => {
-    const matchesQuery = t.name.toLowerCase().includes(tournamentQuery.toLowerCase()) ||
+    return t.name.toLowerCase().includes(tournamentQuery.toLowerCase()) ||
       (t.info?.mode && getModeLabel(t.info.mode).toLowerCase().includes(tournamentQuery.toLowerCase()));
-
-    const matchesFed = federationFilter === '' || t.info?.federation === federationFilter;
-    const matchesMode = modeFilter === '' || t.info?.mode === modeFilter;
-    const matchesStatus = statusFilters.includes(t.status);
-
-    return matchesQuery && matchesFed && matchesMode && matchesStatus;
   });
 
   const openConfirmModal = (
@@ -252,7 +274,10 @@ const AdminTournamentsTab: React.FC = () => {
               <Select
                 label='Federación'
                 value={federationFilter}
-                onChange={setFederationFilter}
+                onChange={(val) => {
+                  setCurrentPage(1);
+                  setFederationFilter(val);
+                }}
                 options={[
                   { value: '', label: 'Todas' },
                   ...Object.entries(Federations).map(([k, v]) => ({ value: k, label: v }))
@@ -264,7 +289,10 @@ const AdminTournamentsTab: React.FC = () => {
               <Select
                 label='Modalidad'
                 value={modeFilter}
-                onChange={setModeFilter}
+                onChange={(val) => {
+                  setCurrentPage(1);
+                  setModeFilter(val);
+                }}
                 options={[
                   { value: '', label: 'Todas' },
                   ...Object.entries(GameModes).map(([k, v]) => ({ value: k, label: v }))
@@ -276,7 +304,7 @@ const AdminTournamentsTab: React.FC = () => {
         </div>
 
         <div style={styles.statusToggleContainer}>
-          <span style={styles.toggleLabel}>Estados del Torneo:</span>
+          <span style={styles.toggleLabel}>Estados de los torneos</span>
           <div style={styles.toggleButtonsWrapper}>
             {Object.values(TournamentStatus).map((status) => {
               const isSelected = statusFilters.includes(status);
@@ -315,6 +343,11 @@ const AdminTournamentsTab: React.FC = () => {
           data={filtered}
           columns={columns}
           emptyMessage="No hay torneos que coincidan con la búsqueda."
+          pagination={{
+            currentPage,
+            totalPages,
+            onPageChange: handlePageChange
+          }}
         />
       )}
 
