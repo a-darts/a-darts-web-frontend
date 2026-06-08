@@ -31,7 +31,7 @@ const AdminTournamentsTab: React.FC = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const limit = 3;
+  const limit = 10;
 
   // Confirmation Modal State
   const [modalOpen, setModalOpen] = useState(false);
