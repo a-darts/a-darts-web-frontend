@@ -297,7 +297,7 @@ const AdminPlayersTab: React.FC = () => {
         <Table
           data={filtered}
           columns={columns}
-          emptyMessage="No hay jugadores registrados que coincidan con los criterios."
+          emptyMessage="No hay jugadores registrados que coincidan con la búsqueda."
           pagination={{
             currentPage,
             totalPages,

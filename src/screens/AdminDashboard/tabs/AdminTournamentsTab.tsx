@@ -11,6 +11,7 @@ import Select from '../../../components/Select';
 import i18n from '../../../i18n';
 import { useToast } from '../../../context/ToastContext';
 import Modal from '../../../components/Modal';
+import Table, { Column } from '../../../components/Table';
 
 const AdminTournamentsTab: React.FC = () => {
   const navigate = useNavigate();
@@ -60,10 +61,7 @@ const AdminTournamentsTab: React.FC = () => {
     setStatusFilters((prev) => {
       const isCurrentlySelected = prev.includes(status);
       if (isCurrentlySelected) {
-        // if (prev.length > 1) {
         return prev.filter((s) => s !== status);
-        // }
-        // return prev;
       } else {
         return [...prev, status];
       }
@@ -144,6 +142,90 @@ const AdminTournamentsTab: React.FC = () => {
       }
     );
   };
+
+  const columns: Column<Tournament>[] = [
+    {
+      key: 'name',
+      header: 'Torneo',
+      render: (t) => (
+        <span style={styles.tournamentNameLink} onClick={() => navigate(`/torneos/${t.id}`)}>
+          {t.name}
+        </span>
+      ),
+    },
+    {
+      key: 'dateTime',
+      header: 'Fecha Inicio',
+      render: (t) => t.info?.dateTime ? formatTournamentDate(t.info.dateTime) : 'Sin programar',
+    },
+    {
+      key: 'mode',
+      header: 'Modalidad',
+      render: (t) => t.info ? `${getModeLabel(t.info.mode)}` : 'N/A',
+    },
+    {
+      key: 'federation',
+      header: 'Federación',
+      render: (t) => (
+        <div style={styles.playerFederationVal}>
+          {getFederationFlag(t.info.federation) && (
+            <img
+              src={getFederationFlag(t.info.federation) || ''}
+              alt="Flag"
+              style={styles.flagIcon}
+            />
+          )}
+          <span>{i18n.t(`federations.${t.info.federation}`)}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      render: (t) => (
+        <TournamentStatusTag
+          status={t.status}
+          size="small"
+        />
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (t) => (
+        <div style={styles.actionGroup}>
+          <IconButton
+            name="Info"
+            onClick={() => navigate(`/torneos/${t.id}`)}
+            title="Ver más información"
+          />
+          {t.status !== TournamentStatus.FINISHED && t.status !== TournamentStatus.CANCELLED && (
+            <IconButton
+              name="Edit"
+              onClick={() => navigate(`/admin/torneos/${t.id}/editar`, { state: { from: '/admin' } })}
+              title="Editar torneo"
+            />
+          )}
+          {(t.status === TournamentStatus.DRAFT || t.status === TournamentStatus.PUBLISHED) && (
+            <IconButton
+              name="Trash"
+              onClick={() => handleDeleteConfirm(t)}
+              title="Eliminar torneo"
+              className='icon-btn-danger'
+            />
+          )}
+          {t.status === TournamentStatus.DELETED && (
+            <IconButton
+              name="RefreshCw"
+              onClick={() => handleRestoreConfirm(t)}
+              title="Restaurar torneo"
+              className='icon-btn'
+            />
+          )}
+        </div>
+      ),
+    },
+  ];
 
 
   return (
@@ -229,94 +311,11 @@ const AdminTournamentsTab: React.FC = () => {
           <span>{error}</span>
         </div>
       ) : (
-        <div style={styles.tableResponsive}>
-          <table style={styles.table}>
-            <thead>
-              <tr style={styles.tr}>
-                <th style={styles.th}>Torneo</th>
-                <th style={styles.th}>Fecha Inicio</th>
-                <th style={styles.th}>Modalidad</th>
-                <th style={styles.th}>Federación</th>
-                <th style={styles.th}>Estado</th>
-                <th style={styles.th}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(t => (
-                <tr key={t.id} style={styles.trBody}>
-                  <td style={styles.td}>
-                    <span style={styles.tournamentNameLink} onClick={() => navigate(`/torneos/${t.id}`)}>
-                      {t.name}
-                    </span>
-                  </td>
-                  <td style={styles.td}>
-                    {t.info?.dateTime ? formatTournamentDate(t.info.dateTime) : 'Sin programar'}
-                  </td>
-                  <td style={styles.td}>
-                    {t.info ? `${getModeLabel(t.info.mode)}` : 'N/A'}
-                  </td>
-                  <td style={styles.td}>
-                    <div style={styles.playerFederationVal}>
-                      {getFederationFlag(t.info.federation) && (
-                        <img
-                          src={getFederationFlag(t.info.federation) || ''}
-                          alt="Flag"
-                          style={styles.flagIcon}
-                        />
-                      )}
-                      <span>{i18n.t(`federations.${t.info.federation}`)}</span>
-                    </div>
-                  </td>
-                  <td style={styles.td}>
-                    <TournamentStatusTag
-                      status={t.status}
-                      size="small"
-                    />
-                  </td>
-                  <td style={styles.td}>
-                    <div style={styles.actionGroup}>
-                      <IconButton
-                        name="Info"
-                        onClick={() => navigate(`/torneos/${t.id}`)}
-                        title="Ver más información"
-                      />
-                      {t.status !== TournamentStatus.FINISHED && t.status !== TournamentStatus.CANCELLED && (
-                        <IconButton
-                          name="Edit"
-                          onClick={() => navigate(`/admin/torneos/${t.id}/editar`, { state: { from: '/admin' } })}
-                          title="Editar torneo"
-                        />
-                      )}
-                      {(t.status === TournamentStatus.DRAFT || t.status === TournamentStatus.PUBLISHED) && (
-                        <IconButton
-                          name="Trash"
-                          onClick={() => handleDeleteConfirm(t)}
-                          title="Eliminar torneo"
-                          className='icon-btn-danger'
-                        />
-                      )}
-                      {t.status === TournamentStatus.DELETED && (
-                        <IconButton
-                          name="RefreshCw"
-                          onClick={() => handleRestoreConfirm(t)}
-                          title="Restaurar torneo"
-                          className='icon-btn'
-                        />
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} style={styles.emptyTableTd}>
-                    No hay torneos que coincidan con la búsqueda.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <Table
+          data={filtered}
+          columns={columns}
+          emptyMessage="No hay torneos que coincidan con la búsqueda."
+        />
       )}
 
       <Modal
@@ -410,48 +409,6 @@ const styles: { [key: string]: any } = {
     display: 'flex',
     gap: '0.5rem',
     flexWrap: 'wrap',
-  },
-  tableResponsive: {
-    width: '100%',
-    overflowX: 'auto',
-    borderRadius: '16px',
-    border: '1px solid rgba(255, 255, 255, 0.04)',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    textAlign: 'left',
-    fontSize: '0.9rem',
-  },
-  tr: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-  },
-  th: {
-    padding: '1.2rem 1.5rem',
-    color: 'rgba(255, 255, 255, 0.4)',
-    fontWeight: '700',
-    fontSize: '0.75rem',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-    background: 'rgba(255, 255, 255, 0.01)',
-  },
-  trBody: {
-    borderBottom: '1px solid rgba(255, 255, 255, 0.03)',
-    transition: 'background 0.2s ease',
-    ':hover': {
-      background: 'rgba(255, 255, 255, 0.01)',
-    },
-  },
-  td: {
-    padding: '1.2rem 1.5rem',
-    color: 'rgba(255, 255, 255, 0.8)',
-    verticalAlign: 'middle',
-  },
-  emptyTableTd: {
-    padding: '3rem',
-    textAlign: 'center',
-    color: 'rgba(255, 255, 255, 0.3)',
-    fontSize: '0.95rem',
   },
   tournamentNameLink: {
     fontWeight: '600',
