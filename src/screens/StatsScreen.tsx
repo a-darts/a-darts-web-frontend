@@ -206,7 +206,7 @@ const StatsScreen: React.FC = () => {
       <h1 style={styles.title}>Mis Estadísticas</h1>
 
       <section style={styles.section}>
-        <h2 style={styles.sectionTitle}>Resumen General</h2>
+        <h2 style={styles.sectionTitle}>Resumen general</h2>
         <div style={styles.statsGrid}>
           <InfoCard
             title="Torneos Jugados"
@@ -223,7 +223,7 @@ const StatsScreen: React.FC = () => {
             content={stats.totalMatchesWon.toString()}
             icon="CheckCircle"
           />
-          <InfoCard
+          {/* <InfoCard
             title="Sets Ganados"
             content={stats.totalSetsWon.toString()}
             icon="CheckCircle"
@@ -232,9 +232,9 @@ const StatsScreen: React.FC = () => {
             title="Legs Ganados"
             content={stats.totalLegsWon.toString()}
             icon="CheckCircle"
-          />
+          /> */}
           <InfoCard
-            title="% Victorias"
+            title="Victorias"
             content={stats.totalMatchesPlayed > 0 ? `${Math.round((stats.totalMatchesWon / stats.totalMatchesPlayed) * 100)}%` : '0%'}
             icon="Percent"
           />
@@ -293,7 +293,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(248px, 1fr))',
     gap: '1rem',
   },
   loadingContainer: {

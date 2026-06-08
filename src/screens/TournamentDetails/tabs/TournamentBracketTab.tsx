@@ -431,13 +431,13 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
                           {match.status && (
                             <div style={styles.statusTagContainer}>
                               <TournamentMatchStatusTag status={match.status} size="small" />
-                              {match.status === MatchStatus.IN_PROGRESS && (
+                              {!isByeMatch && (match.status === MatchStatus.READY || match.status === MatchStatus.IN_PROGRESS || match.status === MatchStatus.SUSPENDED) && (
                                 <>
-                                  {!isByeMatch && (match.boardNumber ? (
+                                  {match.boardNumber ? (
                                     <span style={styles.boardNumberText}>Diana {match.boardNumber}</span>
                                   ) : (
                                     <span style={styles.boardNumberText}>Diana sin asignar</span>
-                                  ))}
+                                  )}
                                 </>
                               )}
                             </div>
