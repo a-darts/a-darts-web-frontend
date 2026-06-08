@@ -12,6 +12,7 @@ import Table, { Column } from '../../../components/Table';
 import Modal from '../../../components/Modal';
 import TextInput from '../../../components/TextInput';
 import { useToast } from '../../../context/ToastContext';
+import Select from '../../../components/Select';
 
 interface MockUser {
   id: string;
@@ -28,7 +29,8 @@ const AdminUsersTab: React.FC = () => {
   const [users, setUsers] = useState<MockUser[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
   const [usersError, setUsersError] = useState<string | null>(null);
-  const [userQuery, setUserQuery] = useState('');
+  const [userQuery, setUserQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 16;
@@ -90,6 +92,10 @@ const AdminUsersTab: React.FC = () => {
   useEffect(() => {
     fetchUsers(1);
   }, []);
+
+  useEffect(() => {
+    fetchUsers(1);
+  }, [statusFilter]);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -171,10 +177,15 @@ const AdminUsersTab: React.FC = () => {
     setRestoreEmailError('');
   };
 
-  const filtered = users.filter(u =>
-    (u.alias || '').toLowerCase().includes(userQuery.toLowerCase()) ||
-    (u.email || '').toLowerCase().includes(userQuery.toLowerCase())
-  );
+  const filtered = users.filter(u => {
+    const matchesQuery =
+      (u.alias || '').toLowerCase().includes(userQuery.toLowerCase()) ||
+      (u.email || '').toLowerCase().includes(userQuery.toLowerCase());
+
+    const matchesStatus = statusFilter === '' || u.status === statusFilter;
+
+    return matchesQuery && matchesStatus;
+  });
 
   const formatDate = (dateStr: string) => {
     try {
@@ -274,6 +285,23 @@ const AdminUsersTab: React.FC = () => {
         <div style={styles.viewActionsContainer}>
           <div style={styles.searchWrapper}>
             <SearchInput value={userQuery} onChange={setUserQuery} placeholder="Buscar por alias o correo..." />
+          </div>
+          <div style={styles.filtersWrapper}>
+            <div style={styles.filterItem}>
+              <Select
+                label='Estado'
+                value={statusFilter}
+                onChange={(val) => setStatusFilter(val)}
+                options={[
+                  { value: '', label: 'Todos' },
+                  { value: UserStatus.ACTIVE, label: 'Activos' },
+                  { value: UserStatus.INACTIVE, label: 'Inactivos' },
+                  { value: UserStatus.BLOCKED, label: 'Bloqueados' },
+                  { value: UserStatus.DELETED, label: 'Eliminados' },
+                ]}
+                icon="UserCheck"
+              />
+            </div>
           </div>
         </div>
       </div>
