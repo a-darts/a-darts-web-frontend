@@ -6,7 +6,7 @@ import Icon from '../../../components/Icon';
 import IconButton from '../../../components/IconButton';
 import UserRoleTag from '../../../components/UserRoleTag';
 import UserStatusTag from '../../../components/UserStatusTag';
-import { UserStatus } from '../../../context/AuthContext';
+import { UserRoles, UserStatus } from '../../../context/AuthContext';
 import Button from '../../../components/Button';
 import Table, { Column } from '../../../components/Table';
 import Modal from '../../../components/Modal';
@@ -31,6 +31,7 @@ const AdminUsersTab: React.FC = () => {
   const [usersError, setUsersError] = useState<string | null>(null);
   const [userQuery, setUserQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [roleFilter, setRoleFilter] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 16;
@@ -91,11 +92,7 @@ const AdminUsersTab: React.FC = () => {
 
   useEffect(() => {
     fetchUsers(1);
-  }, []);
-
-  useEffect(() => {
-    fetchUsers(1);
-  }, [statusFilter]);
+  }, [statusFilter, roleFilter]);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -181,10 +178,10 @@ const AdminUsersTab: React.FC = () => {
     const matchesQuery =
       (u.alias || '').toLowerCase().includes(userQuery.toLowerCase()) ||
       (u.email || '').toLowerCase().includes(userQuery.toLowerCase());
-
     const matchesStatus = statusFilter === '' || u.status === statusFilter;
+    const matchesRole = roleFilter === '' || (u.role || '').toLowerCase() === roleFilter.toLowerCase();
 
-    return matchesQuery && matchesStatus;
+    return matchesQuery && matchesStatus && matchesRole;
   });
 
   const formatDate = (dateStr: string) => {
@@ -300,6 +297,19 @@ const AdminUsersTab: React.FC = () => {
                   { value: UserStatus.DELETED, label: 'Eliminados' },
                 ]}
                 icon="UserCheck"
+              />
+            </div>
+            <div style={styles.filterItem}>
+              <Select
+                label='Rol'
+                value={roleFilter}
+                onChange={(val) => setRoleFilter(val)}
+                options={[
+                  { value: '', label: 'Todos' },
+                  { value: UserRoles.ADMIN, label: 'Administrador' },
+                  { value: UserRoles.PLAYER, label: 'Jugador' },
+                ]}
+                icon="Shield"
               />
             </div>
           </div>
