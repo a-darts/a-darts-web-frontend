@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import Select from '../../../components/Select';
 import { Federations } from '../../../services/tournament.service';
 import Modal from '../../../components/Modal';
+import TextInput from '../../../components/TextInput';
 
 const AdminPlayersTab: React.FC = () => {
   const navigate = useNavigate();
@@ -28,6 +29,9 @@ const AdminPlayersTab: React.FC = () => {
 
   const [federationFilter, setFederationFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<PlayerStatus>(PlayerStatus.ACTIVE);
+  const [seasonStartYear, setSeasonStartYear] = useState<number>(new Date().getFullYear());
+  const [hoverUp, setHoverUp] = useState(false);
+  const [hoverDown, setHoverDown] = useState(false);
 
   // Confirmation Modal State
   const [modalOpen, setModalOpen] = useState(false);
@@ -185,12 +189,11 @@ const AdminPlayersTab: React.FC = () => {
   ];
 
   const filtered = players.filter(p => {
-    // (p.userAlias || '').toLowerCase().includes(playerQuery.toLowerCase())
     const matchesQuery = (p.userAlias || '').toLowerCase().includes(playerQuery.toLowerCase());
-
     const matchesFed = federationFilter === '' || p.federation === federationFilter;
+    const matchesSeason = p.seasonStartYear === seasonStartYear;
 
-    return matchesQuery && matchesFed;
+    return matchesQuery && matchesFed && matchesSeason;
   });
 
   return (
@@ -235,6 +238,43 @@ const AdminPlayersTab: React.FC = () => {
                 icon="Flag"
               />
             </div>
+            <div style={{ ...styles.filterItem, position: 'relative' }}>
+              <TextInput
+                label="Temporada"
+                type="text"
+                icon="Calendar"
+                value={`${seasonStartYear} - ${getSeasonEndYear(seasonStartYear)}`}
+                readOnly
+              />
+              <div style={styles.spinnerArrows}>
+                <button
+                  type="button"
+                  onClick={() => setSeasonStartYear((prev) => prev + 1)}
+                  onMouseEnter={() => setHoverUp(true)}
+                  onMouseLeave={() => setHoverUp(false)}
+                  style={{
+                    ...styles.spinnerArrowBtn,
+                    color: hoverUp ? '#C4E866' : 'rgba(255, 255, 255, 0.4)'
+                  }}
+                  title="Incrementar año"
+                >
+                  <Icon name="ChevronUp" size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSeasonStartYear((prev) => prev - 1)}
+                  onMouseEnter={() => setHoverDown(true)}
+                  onMouseLeave={() => setHoverDown(false)}
+                  style={{
+                    ...styles.spinnerArrowBtn,
+                    color: hoverDown ? '#C4E866' : 'rgba(255, 255, 255, 0.4)'
+                  }}
+                  title="Decrementar año"
+                >
+                  <Icon name="ChevronDown" size={14} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -257,7 +297,7 @@ const AdminPlayersTab: React.FC = () => {
         <Table
           data={filtered}
           columns={columns}
-          emptyMessage="No hay jugadores registrados que coincidan con el criterio."
+          emptyMessage="No hay jugadores registrados que coincidan con los criterios."
           pagination={{
             currentPage,
             totalPages,
@@ -437,6 +477,31 @@ const styles: { [key: string]: any } = {
   },
   loadingText: {
     color: 'var(--text-secondary-color)',
+  },
+  spinnerArrows: {
+    position: 'absolute',
+    right: '16px',
+    top: '38px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0px',
+    justifyContent: 'center',
+    height: '32px',
+    zIndex: 10,
+  },
+  spinnerArrowBtn: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '2px',
+    borderRadius: '4px',
+    transition: 'all 0.2s ease',
+    outline: 'none',
+    height: '14px',
+    width: '24px',
   },
 };
 
