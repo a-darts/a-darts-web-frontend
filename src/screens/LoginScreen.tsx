@@ -373,8 +373,8 @@ const styles: { [key: string]: React.CSSProperties } = {
   checkboxContainer: {
     display: 'flex',
     alignItems: 'flex-start',
-    marginTop: '1.5rem',
     gap: '0.5rem',
+    marginBottom: '2rem',
   },
   checkboxInput: {
     marginTop: '0.25rem',
