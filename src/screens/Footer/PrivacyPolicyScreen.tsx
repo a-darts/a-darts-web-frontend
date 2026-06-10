@@ -4,8 +4,8 @@ const PrivacyPolicyScreen: React.FC = () => {
     return (
         <div style={styles.container}>
             <div style={styles.card}>
-                <h1 style={styles.title}>PRIVACY POLICY</h1>
-                <p style={styles.subtitle}>Last updated: June 10, 2026</p>
+                <h1 style={styles.title}>POLÍTICA DE PRIVACIDAD</h1>
+                <p style={styles.subtitle}>Última actualización: 10 de Junio de 2026</p>
 
                 <hr style={styles.divider} />
 
