@@ -8,6 +8,11 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 
 const LoginScreen: React.FC = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const { showToast } = useToast();
+  const { t } = useTranslation();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,10 +21,7 @@ const LoginScreen: React.FC = () => {
 
   const [tempPassword, setTempPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  const { showToast } = useToast();
-  const { t } = useTranslation();
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +50,12 @@ const LoginScreen: React.FC = () => {
 
   const handleActivate = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!privacyAccepted) {
+      showToast('Debes aceptar la Política de Privacidad y los Términos y Condiciones para activar tu cuenta.', 'error');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -191,6 +199,28 @@ const LoginScreen: React.FC = () => {
                 required
               />
 
+              <div style={styles.checkboxContainer}>
+                <input
+                  type="checkbox"
+                  id="privacyCheckbox"
+                  checked={privacyAccepted}
+                  onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                  style={styles.checkboxInput}
+                  required
+                />
+                <label htmlFor="privacyCheckbox" style={styles.checkboxLabel}>
+                  He leído y acepto la{' '}
+                  <Link to="/privacy-policy" target="_blank" style={styles.inlineLink}>
+                    Política de Privacidad
+                  </Link>{' '}
+                  y los{' '}
+                  <Link to="/terms" target="_blank" style={styles.inlineLink}>
+                    Términos y Condiciones
+                  </Link>{' '}
+                  de A-Darts.
+                </label>
+              </div>
+
               <Button
                 type="submit"
                 variant="primary"
@@ -290,7 +320,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   header: {
     textAlign: 'center',
-    marginBottom: '2.5rem',
+    marginBottom: '2rem',
   },
   title: {
     fontSize: '2rem',
@@ -309,13 +339,12 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   forgotPassword: {
     textAlign: 'right',
-    marginBottom: '2rem',
+    marginBottom: '1rem',
   },
   submitBtn: {
     height: '52px',
     fontSize: '0.875rem',
     width: '100%',
-    marginTop: '2rem',
   },
   link: {
     fontSize: '0.875rem',
@@ -340,6 +369,28 @@ const styles: { [key: string]: React.CSSProperties } = {
   footerText: {
     fontSize: '0.875rem',
     color: 'var(--text-secondary-color)',
+  },
+  checkboxContainer: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    marginTop: '1.5rem',
+    gap: '0.5rem',
+  },
+  checkboxInput: {
+    marginTop: '0.25rem',
+    cursor: 'pointer',
+    accentColor: '#C4E866',
+  },
+  checkboxLabel: {
+    fontSize: '0.875rem',
+    color: 'var(--text-secondary-color)',
+    lineHeight: '1.4',
+    cursor: 'pointer',
+  },
+  inlineLink: {
+    color: '#FFFFFF',
+    textDecoration: 'none',
+    fontWeight: '600',
   },
 };
 

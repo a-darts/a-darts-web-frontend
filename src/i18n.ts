@@ -18,7 +18,7 @@ const resources = {
         //
         login_title: 'Bienvenido de nuevo',
         login_subtitle: 'Ingresa tus credenciales para acceder',
-        register_title: 'Crea tu cuenta',
+        register_title: 'Registrarse',
         register_subtitle: 'Únete a la comunidad de A-Darts',
         email_label: 'Correo electrónico',
         new_email_label: 'Nuevo correo electrónico',
@@ -310,7 +310,7 @@ const resources = {
         //
         login_title: 'Welcome back',
         login_subtitle: 'Enter your credentials to access',
-        register_title: 'Create your account',
+        register_title: 'Sign up',
         register_subtitle: 'Join the A-Darts community',
         email_label: 'Email address',
         new_email_label: 'New email address',
