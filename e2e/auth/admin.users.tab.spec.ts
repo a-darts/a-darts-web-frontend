@@ -23,12 +23,12 @@ const MOCK_USERS = [
         status: UserStatus.ACTIVE,
     },
     {
-        id: 'user-active-2',
+        id: 'user-inactive-2',
         alias: 'DianaZaragoza',
         email: 'diana.zgz@example.com',
         role: UserRoles.ADMIN,
         registeredAt: '2026-02-20T11:30:00.000Z',
-        status: UserStatus.ACTIVE,
+        status: UserStatus.INACTIVE,
     },
     {
         id: 'user-blocked',
@@ -155,50 +155,97 @@ test.describe('Admin Users Tab', () => {
     });
 
     test('debe comprobar el funcionamiento del filtro por rol', async ({ page }) => {
+        // 1. Navegar al panel de administración (por defecto carga la pestaña de usuarios)
         await page.goto('/admin');
 
-        // Interactuar con el Select de Rol
+        // 2. Verificar que funciona el filtro por Rol
         await page.getByRole('combobox', { name: 'Rol' }).click();
         await page.getByRole('option', { name: 'Administrador', exact: true }).click();
 
-        // Verificar filtrado afectando la vista
-        await expect(page.getByText('DianaZaragoza')).toBeVisible();
         await expect(page.getByText('DardoMaestro')).not.toBeVisible();
+        await expect(page.getByText('DianaZaragoza')).toBeVisible();
         await expect(page.getByText('TrollDardos')).not.toBeVisible();
         await expect(page.getByText('UsuarioFantasma')).not.toBeVisible();
     });
 
-    // test('debe mostrar las acciones correctas para cada estado del usuario (activo, bloqueado, eliminado)', async ({ page }) => {
-    //     await page.goto('/admin');
+    test('debe comprobar el funcionamiento del filtro por estado', async ({ page }) => {
+        // 1. Navegar al panel de administración (por defecto carga la pestaña de usuarios)
+        await page.goto('/admin');
 
-    //     // ---- 1. Estado: ACTIVO (UserStatus.ACTIVE) ----
-    //     // Permite: Editar usuario, Bloquear usuario. NO permite: Desbloquear, Restaurar.
-    //     const rowActive = page.locator('tr', { hasText: 'DardoMaestro' });
-    //     await expect(rowActive.getByRole('button', { name: /editar usuario/i })).toBeVisible();
-    //     await expect(rowActive.getByRole('button', { name: /bloquear usuario/i })).toBeVisible();
+        // 2. Verificar que funciona el filtro por Estado (Activos)
+        await page.getByRole('combobox', { name: 'Estado' }).click();
+        await page.getByRole('option', { name: 'Activos', exact: true }).click();
 
-    //     await expect(rowActive.getByRole('button', { name: /desbloquear usuario/i })).not.toBeVisible();
-    //     await expect(rowActive.getByRole('button', { name: /restaurar usuario/i })).not.toBeVisible();
+        await expect(page.getByText('DardoMaestro')).toBeVisible();
+        await expect(page.getByText('DianaZaragoza')).not.toBeVisible();
+        await expect(page.getByText('TrollDardos')).not.toBeVisible();
+        await expect(page.getByText('UsuarioFantasma')).not.toBeVisible();
 
-    //     // ---- 2. Estado: BLOQUEADO (UserStatus.BLOCKED) ----
-    //     // Permite: Editar usuario, Desbloquear usuario, Eliminar usuario. NO permite: Bloquear directo, Restaurar.
-    //     const rowBlocked = page.locator('tr', { hasText: 'TrollDardos' });
-    //     await expect(rowBlocked.getByRole('button', { name: /editar usuario/i })).toBeVisible();
-    //     await expect(rowBlocked.getByRole('button', { name: /desbloquear usuario/i })).toBeVisible();
-    //     await expect(rowBlocked.getByRole('button', { name: /eliminar usuario/i })).toBeVisible();
+        // 3. Verificar que funciona el filtro por Estado (Inactivos)
+        await page.getByRole('combobox', { name: 'Estado' }).click();
+        await page.getByRole('option', { name: 'Inactivos', exact: true }).click();
 
-    //     await expect(rowBlocked.getByRole('button', { name: /bloquear usuario/i })).not.toBeVisible();
+        await expect(page.getByText('DardoMaestro')).not.toBeVisible();
+        await expect(page.getByText('DianaZaragoza')).toBeVisible();
+        await expect(page.getByText('TrollDardos')).not.toBeVisible();
+        await expect(page.getByText('UsuarioFantasma')).not.toBeVisible();
 
-    //     // ---- 3. Estado: ELIMINADO (UserStatus.DELETED) ----
-    //     // Permite: Únicamente "Restaurar usuario" según los condicionales del renderizado. 
-    //     // NO permite: Editar, Bloquear, Desbloquear.
-    //     const rowDeleted = page.locator('tr', { hasText: 'UsuarioFantasma' });
-    //     // { u.status !== UserStatus.DELETED && ...Editar } -> O sea, oculto si está eliminado
-    //     await expect(rowDeleted.getByRole('button', { name: /editar usuario/i })).not.toBeVisible();
-    //     await expect(rowDeleted.getByRole('button', { name: /bloquear usuario/i })).not.toBeVisible();
-    //     await expect(rowDeleted.getByRole('button', { name: /desbloquear usuario/i })).not.toBeVisible();
+        // 4. Verificar que funciona el filtro por Estado (Bloqueados)
+        await page.getByRole('combobox', { name: 'Estado' }).click();
+        await page.getByRole('option', { name: 'Bloqueados', exact: true }).click();
 
-    //     // u.status === UserStatus.DELETED && Restaurar
-    //     await expect(rowDeleted.getByRole('button', { name: /restaurar usuario/i })).toBeVisible();
-    // });
+        await expect(page.getByText('DardoMaestro')).not.toBeVisible();
+        await expect(page.getByText('DianaZaragoza')).not.toBeVisible();
+        await expect(page.getByText('TrollDardos')).toBeVisible();
+        await expect(page.getByText('UsuarioFantasma')).not.toBeVisible();
+
+        // 5. Verificar que funciona el filtro por Estado (Eliminados)
+        await page.getByRole('combobox', { name: 'Estado' }).click();
+        await page.getByRole('option', { name: 'Eliminados', exact: true }).click();
+
+        await expect(page.getByText('DardoMaestro')).not.toBeVisible();
+        await expect(page.getByText('DianaZaragoza')).not.toBeVisible();
+        await expect(page.getByText('TrollDardos')).not.toBeVisible();
+        await expect(page.getByText('UsuarioFantasma')).toBeVisible();
+    });
+
+    test('debe mostrar las acciones correctas para cada estado del usuario (activo, bloqueado, eliminado)', async ({ page }) => {
+        await page.goto('/admin');
+
+        // ---- 1. Estado: ACTIVO (UserStatus.ACTIVE) ----
+        // Permite: Editar, Bloquear, Eliminar
+        const rowActive = page.locator('tr', { hasText: 'DardoMaestro' });
+        await expect(rowActive.getByRole('button', { name: 'Editar usuario', exact: true })).toBeVisible();
+        await expect(rowActive.getByRole('button', { name: 'Bloquear usuario', exact: true })).toBeVisible();
+        await expect(rowActive.getByRole('button', { name: 'Desbloquear usuario', exact: true })).not.toBeVisible();
+        await expect(rowActive.getByRole('button', { name: 'Eliminar usuario', exact: true })).toBeVisible();
+        await expect(rowActive.getByRole('button', { name: 'Restaurar usuario', exact: true })).not.toBeVisible();
+
+        // ---- 2. Estado: INACTIVO (UserStatus.INACTIVE) ----
+        // Permite: Editar, Eliminar
+        const rowInactive = page.locator('tr', { hasText: 'DianaZaragoza' });
+        await expect(rowInactive.getByRole('button', { name: 'Editar usuario', exact: true })).toBeVisible();
+        await expect(rowInactive.getByRole('button', { name: 'Bloquear usuario', exact: true })).not.toBeVisible();
+        await expect(rowInactive.getByRole('button', { name: 'Desbloquear usuario', exact: true })).not.toBeVisible();
+        await expect(rowInactive.getByRole('button', { name: 'Eliminar usuario', exact: true })).toBeVisible();
+        await expect(rowInactive.getByRole('button', { name: 'Restaurar usuario', exact: true })).not.toBeVisible();
+
+        // ---- 3. Estado: BLOQUEADO (UserStatus.BLOCKED) ----
+        // Permite: Editar, Desbloquear, Eliminar
+        const rowBlocked = page.locator('tr', { hasText: 'TrollDardos' });
+        await expect(rowBlocked.getByRole('button', { name: 'Editar usuario', exact: true })).toBeVisible();
+        await expect(rowBlocked.getByRole('button', { name: 'Bloquear usuario', exact: true })).not.toBeVisible();
+        await expect(rowBlocked.getByRole('button', { name: 'Desbloquear usuario', exact: true })).toBeVisible();
+        await expect(rowBlocked.getByRole('button', { name: 'Eliminar usuario', exact: true })).toBeVisible();
+        await expect(rowBlocked.getByRole('button', { name: 'Restaurar usuario', exact: true })).not.toBeVisible();
+
+        // ---- 4. Estado: ELIMINADO (UserStatus.DELETED) ----
+        // Permite: Editar, Desbloquear, Eliminar
+        const rowDeleted = page.locator('tr', { hasText: 'UsuarioFantasma' });
+        await expect(rowDeleted.getByRole('button', { name: 'Editar usuario', exact: true })).not.toBeVisible();
+        await expect(rowDeleted.getByRole('button', { name: 'Bloquear usuario', exact: true })).not.toBeVisible();
+        await expect(rowDeleted.getByRole('button', { name: 'Desbloquear usuario', exact: true })).not.toBeVisible();
+        await expect(rowDeleted.getByRole('button', { name: 'Eliminar usuario', exact: true })).not.toBeVisible();
+        await expect(rowDeleted.getByRole('button', { name: 'Restaurar usuario', exact: true })).toBeVisible();
+    });
 });
