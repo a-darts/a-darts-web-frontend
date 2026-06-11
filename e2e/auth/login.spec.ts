@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
  * El authService se mockea para devolver fallo porque la cuenta está inactiva.
  * Se verifica que la aplicación navega al formulario de Activar Cuenta (/login).
  * 
- * Escenario 4: Activate Account Success (200)
+ * Escenario 3: Activate Account Success (200)
  * El usuario introduce email y contraseña válidos pero la cuenta está inactiva.
  * El authService se mockea para devolver fallo porque la cuenta está inactiva.
  * Se verifica que la aplicación navega al formulario de Activar Cuenta (/login).
@@ -21,10 +21,15 @@ import { test, expect } from '@playwright/test';
  * El authService se mockea para devolver éxito al activar la cuenta.
  * Se verifica que la aplicación navega al formulario de login en la LoginScreen (/login).
  * 
- * Escenario 3: Login Form Error (401): Invalid credentials
+ * Escenario 4: Login Form Error (401): Invalid credentials
  * El usuario introduce email y contraseña inválidos.
  * El authService se mockea para devolver fallo porque las credenciales son inválidas.
  * Se verifica que la aplicación continua en el formulario de Login (/login).
+ * 
+ * Escenario 5: Forgot Password Success (200)
+ * El usuario introduce email a recuperar la contraseña.
+ * El authService se mockea para devolver éxito.
+ * Se verifica que la aplicación navega al formulario de Activar Cuenta (/login).
  */
 
 const API_BASE = 'http://localhost:3000/api';
@@ -39,7 +44,7 @@ const MOCK_USER = {
 
 const MOCK_TOKEN = 'mock-jwt-token-abc123';
 
-test.describe('Login Form Success', () => {
+test.describe('Login Form', () => {
   test.beforeEach(async ({ page }) => {
     // Mock POST /auth/login
     await page.route(`${API_BASE}/auth/login`, async (route) => {
@@ -91,6 +96,21 @@ test.describe('Login Form Success', () => {
         body: JSON.stringify({
           status: "success",
           message: 'Account activated successfully',
+          data: null,
+        }),
+      });
+    });
+
+    // Mock POST /auth/forgot-password
+    await page.route(`${API_BASE}/auth/forgot-password`, async (route) => {
+      if (route.request().method() !== 'POST') return route.continue();
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: "success",
+          message: 'Temporary password sent successfully',
           data: null,
         }),
       });
@@ -262,5 +282,42 @@ test.describe('Login Form Success', () => {
     // 6. Verificar que se muestra el error de credenciales inválidas
     const toast = page.getByText('Credenciales inválidas');
     await expect(toast).toBeVisible();
+  });
+
+  test('debe mostrar el formulario de Recuperar Contraseña ', async ({ page }) => {
+    await page.goto('/');
+    const headingHome = page.getByRole('heading', { name: 'Bienvenido a A-Darts', exact: true });
+    await expect(headingHome).toBeVisible();
+
+    // 1. Navegar a la pantalla de login
+    await page.goto('/login');
+
+    // 2. Verificar que estamos en la pantalla de login
+    await expect(page).toHaveURL('/login');
+    const headingLogin = page.getByRole('heading', { name: 'Bienvenido de nuevo', exact: true });
+    await expect(headingLogin).toBeVisible();
+
+    // 3. Navegar a la pantalla de Recuperar Contraseña
+    const registerLink = page.getByRole('button', { name: '¿Olvidaste tu contraseña?' });
+    await expect(registerLink).toBeVisible();
+    await registerLink.click();
+
+    // 4. Verificar que estamos en la pantalla de Recuperar Contraseña
+    await expect(page).toHaveURL('/login');
+    const headingForgotPassword = page.getByRole('heading', { name: 'Recuperar Contraseña', exact: true });
+    await expect(headingForgotPassword).toBeVisible();
+
+    // 5. Rellenar el campo Correo electrónico
+    const emailInput = page.getByLabel('Correo electrónico');
+    await emailInput.fill(MOCK_USER.email);
+
+    // 6. Enviar el formulario haciendo click en el botón de enviar contraseña temporal
+    const submitButton = page.locator('button[type="submit"]');
+    await submitButton.click();
+
+    // 7. Verificar que se ha navegado al formulario Activar Cuenta en la LoginScreen (/login)
+    await expect(page).toHaveURL('/login');
+    const heading = page.getByRole('heading', { name: 'Activar Cuenta', exact: true });
+    await expect(heading).toBeVisible();
   });
 });
