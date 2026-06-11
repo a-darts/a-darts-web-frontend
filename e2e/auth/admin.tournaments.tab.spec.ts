@@ -156,9 +156,12 @@ test.describe('Admin Tournaments Tab', () => {
 
                 // 2. Filtrar por federación
                 if (federationParam) {
-                    filteredTournaments = filteredTournaments.filter(t =>
-                        t.info?.federation === federationParam
-                    );
+                    filteredTournaments = filteredTournaments.filter(t => {
+                        if (!t.info?.federation) return false;
+                        const tournamentFed = t.info.federation.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                        const paramFed = federationParam.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                        return tournamentFed === paramFed;
+                    });
                 }
 
                 // 3. Filtrar por modalidad
