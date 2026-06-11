@@ -3,7 +3,7 @@ import { TournamentStatus, GameModes, GameTypes, Federations, RegistrationStatus
 
 const API_BASE = 'http://localhost:3000/api';
 
-const MOCK_USER_PLAYER = {
+const MOCK_USER = {
     id: 'user-test-123',
     email: 'test@example.com',
     alias: 'TestPlayer',
@@ -11,16 +11,7 @@ const MOCK_USER_PLAYER = {
     registeredAt: '2024-01-01T00:00:00.000Z',
 };
 
-const MOCK_USER_ADMIN = {
-    id: 'admin-test-123',
-    email: 'testAdmin@example.com',
-    alias: 'TestAdmin',
-    role: 'ADMIN',
-    registeredAt: '2024-01-01T00:00:00.000Z',
-};
-
-const MOCK_TOKEN_PLAYER = 'mock-jwt-token-abc123';
-const MOCK_TOKEN_ADMIN = 'mock-jwt-token-def456';
+const MOCK_TOKEN = 'mock-jwt-token-abc123';
 
 const MOCK_TOURNAMENTS = [
     {
@@ -107,34 +98,6 @@ const MOCK_TOURNAMENTS = [
             registrationPeriod: { startsAt: null, endsAt: null },
         },
     },
-    {
-        // Borrador
-        id: 'tournament-4',
-        name: 'Liga Secreta en Desarrollo',
-        seasonStartYear: 2026,
-        createdAt: '2026-05-01T00:00:00.000Z',
-        status: TournamentStatus.DRAFT,
-        isDelayed: false,
-        info: {
-            place: 'Barcelona',
-            dateTime: '2026-09-20T15:00:00.000Z',
-            mode: GameModes.YOUTH_SINGLES,
-            game: '301',
-            schedule: 'K.O. directo',
-            maxPlayers: 16,
-            gameType: GameTypes.BEST_OF,
-            numLegs: 3,
-            numSets: 1,
-            rules: 'Standard',
-            info: 'Draft',
-            federation: Federations.CATALUÑA,
-        },
-        registration: {
-            hasCheckIn: false,
-            status: RegistrationStatus.CLOSED,
-            registrationPeriod: { startsAt: null, endsAt: null },
-        },
-    },
 ];
 
 test.describe('Tournaments Screen', () => {
@@ -146,7 +109,7 @@ test.describe('Tournaments Screen', () => {
                 await route.fulfill({
                     status: 200,
                     contentType: 'application/json',
-                    body: JSON.stringify(MOCK_USER_ADMIN),
+                    body: JSON.stringify(MOCK_USER),
                 });
             } else {
                 await route.continue();
@@ -162,8 +125,8 @@ test.describe('Tournaments Screen', () => {
                     body: JSON.stringify({
                         data: {
                             status: "success",
-                            token: MOCK_TOKEN_ADMIN,
-                            user: MOCK_USER_ADMIN,
+                            token: MOCK_TOKEN,
+                            user: MOCK_USER,
                         },
                     }),
                 });
@@ -190,7 +153,7 @@ test.describe('Tournaments Screen', () => {
 
         // 4. Proceso automático de Login previo
         await page.goto('/login');
-        await page.getByLabel('Correo electrónico').fill(MOCK_USER_ADMIN.email);
+        await page.getByLabel('Correo electrónico').fill(MOCK_USER.email);
         await page.getByLabel('Contraseña').fill('password123');
         await page.locator('button[type="submit"]').click();
         await expect(page).toHaveURL('/');
@@ -239,6 +202,29 @@ test.describe('Tournaments Screen', () => {
 
         // 3. Verificar que el torneo que NO coincide desaparece de la vista
         await expect(page.getByText('Criterium de Verano')).not.toBeVisible();
+    });
+
+    test('debe mostrar los campos más importantes de un torneo', async ({ page }) => {
+        // 1. Navegar a la pantalla de torneos
+        await page.goto('/tournaments');
+
+        // 2. Verificar la estructura inicial y título de la pantalla
+        const title = page.getByRole('heading', { name: 'Torneos', exact: true });
+        await expect(title).toBeVisible();
+
+        // 3. Validar que aparece la información de un torneo
+        await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
+        const aragonCard = page.locator('div[style*="cursor: pointer"]').filter({
+            has: page.getByRole('heading', { name: 'Open Absoluto de Aragón', level: 3 })
+        });
+        await expect(aragonCard).toBeVisible();
+        await expect(aragonCard.getByText('Zaragoza')).toBeVisible();
+        await expect(aragonCard.getByText('15 de agosto de 2026')).toBeVisible();
+        await expect(aragonCard.getByText('20:00')).toBeVisible();
+
+        // 4. Verificar que aparece el botón "Ver más"
+        const seeMoreButton = aragonCard.getByRole('button', { name: 'Ver más' });
+        await expect(seeMoreButton).toBeVisible();
     });
 
     test('debe mostrar el mensaje de error si el servicio de la API falla', async ({ page }) => {
