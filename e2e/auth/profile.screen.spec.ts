@@ -22,7 +22,12 @@ const MOCK_USER = {
 const MOCK_TOKEN = 'mock-jwt-token-abc123';
 
 test.describe('Login Form', () => {
+  let dynamicUser = { ...MOCK_USER };
+
   test.beforeEach(async ({ page }) => {
+
+    dynamicUser = { ...MOCK_USER };
+
     // Mock POST /auth/login → devuelve datos del user
     await page.route(`${API_BASE}/auth/login`, async (route) => {
       const request = route.request();
@@ -35,7 +40,7 @@ test.describe('Login Form', () => {
               status: "success",
               message: "User logged in successfully",
               token: MOCK_TOKEN,
-              user: MOCK_USER,
+              user: dynamicUser,
             },
           }),
         });
@@ -50,7 +55,53 @@ test.describe('Login Form', () => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify(MOCK_USER),
+          body: JSON.stringify(dynamicUser),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
+    // Mock PUT /users/{userId}/alias
+    await page.route(`${API_BASE}/users/*/alias`, async (route) => {
+      const request = route.request();
+      if (request.method() === 'PUT') {
+        const body = JSON.parse(request.postData() || '{}');
+        const updatedAlias = body.newAlias || 'NewAlias';
+
+        dynamicUser.alias = updatedAlias;
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: "success",
+            message: "Alias updated successfully",
+            data: { ...dynamicUser },
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
+    // Mock PUT /users/{userId}/email
+    await page.route(`${API_BASE}/users/*/email`, async (route) => {
+      const request = route.request();
+      if (request.method() === 'PUT') {
+        const body = JSON.parse(request.postData() || '{}');
+        const updatedEmail = body.newEmail || 'NewEmail';
+
+        dynamicUser.email = updatedEmail;
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: "success",
+            message: "Email updated successfully",
+            data: null,
+          }),
         });
       } else {
         await route.continue();
@@ -97,8 +148,66 @@ test.describe('Login Form', () => {
     // 2. Verificar que se muestran los datos del usuario
     await expect(page.getByText(MOCK_USER.alias).first()).toBeVisible();
     await expect(page.getByText(MOCK_USER.role).first()).toBeVisible();
-    // se ve formateado
-    // await expect(page.getByText(MOCK_USER.registeredAt)).toBeVisible();
+    await expect(page.getByText('1 de enero de 2024')).toBeVisible();
 
+    const headingAlias = page.getByRole('heading', { name: 'Cambiar alias', exact: true });
+    await expect(headingAlias).toBeVisible();
+
+    const headingEmail = page.getByRole('heading', { name: 'Cambiar correo electrónico', exact: true });
+    await expect(headingEmail).toBeVisible();
+
+    const headingPassword = page.getByRole('heading', { name: 'Cambiar contraseña', exact: true });
+    await expect(headingPassword).toBeVisible();
+  });
+
+  test('debe cambiar el alias del usuario', async ({ page }) => {
+    // 1. Navegar a la pantalla del perfil
+    await page.goto('/profile');
+    const headingProfile = page.getByRole('heading', { name: 'Mi Perfil', exact: true });
+    await expect(headingProfile).toBeVisible();
+
+    // 2. Verificar que se muestran los datos del usuario
+    const headingAlias = page.getByRole('heading', { name: 'Cambiar alias', exact: true });
+    await expect(headingAlias).toBeVisible();
+    await expect(page.getByText(MOCK_USER.alias).first()).toBeVisible();
+    await expect(page.getByLabel('Alias')).toHaveValue(MOCK_USER.alias);
+
+    // 3. Rellenar el campo alias
+    const aliasInput = page.getByLabel('Alias');
+    await aliasInput.clear();
+    await aliasInput.fill('NewAlias');
+
+    // 4. Enviar el nuevo alias haciendo click en el botón Actualizar alias
+    const updateAliasButton = page.getByRole('button', { name: 'Actualizar alias', exact: true });
+    await expect(updateAliasButton).toBeEnabled();
+    await updateAliasButton.click();
+
+    // 5. Verificar que se muestra el nuevo alias del usuario
+    await expect(page.getByText('NewAlias').first()).toBeVisible();
+  });
+
+  test('debe cambiar el correo electrónico del usuario', async ({ page }) => {
+    // 1. Navegar a la pantalla del perfil
+    await page.goto('/profile');
+    const headingProfile = page.getByRole('heading', { name: 'Mi Perfil', exact: true });
+    await expect(headingProfile).toBeVisible();
+
+    // 2. Verificar que se muestran los datos del usuario
+    const headingAlias = page.getByRole('heading', { name: 'Cambiar correo electrónico', exact: true });
+    await expect(headingAlias).toBeVisible();
+    await expect(page.getByLabel('Correo electrónico')).toHaveValue(MOCK_USER.email);
+
+    // 3. Rellenar el campo Correo electrónico
+    const emailInput = page.getByLabel('Correo electrónico');
+    await emailInput.clear();
+    await emailInput.fill('NewEmail');
+
+    // 4. Enviar el nuevo alias haciendo click en el botón Actualizar correo
+    const updateEmailButton = page.getByRole('button', { name: 'Actualizar correo', exact: true });
+    await expect(updateEmailButton).toBeEnabled();
+    await updateEmailButton.click();
+
+    // 5. Verificar que se muestra el nuevo correo electrónico del usuario
+    await expect(page.getByLabel('Correo electrónico')).toHaveValue('NewEmail');
   });
 });
