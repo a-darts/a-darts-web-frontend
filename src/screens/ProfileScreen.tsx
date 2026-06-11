@@ -68,7 +68,7 @@ const ProfileScreen: React.FC = () => {
 
     try {
       await updateEmail(user.id, email);
-      showToast('Correo actualizado correctamente', 'success');
+      showToast(i18n.t('success.Email updated successfully'), 'success');
     } catch (err: any) {
       const msg = err.message || 'Error al actualizar el correo';
       setError(msg);
@@ -107,7 +107,7 @@ const ProfileScreen: React.FC = () => {
 
     try {
       await updatePassword(user.id, oldPassword, newPassword);
-      showToast('¡Contraseña actualizada correctamente!', 'success');
+      showToast(i18n.t('success.Password updated successfully'), 'success');
       setOldPassword('');
       setNewPassword('');
     } catch (err: any) {

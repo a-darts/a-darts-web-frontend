@@ -63,7 +63,7 @@ test.describe('Login Form', () => {
     });
 
     // Mock PUT /users/{userId}/alias
-    await page.route(`${API_BASE}/users/*/alias`, async (route) => {
+    await page.route(`${API_BASE}/users/${MOCK_USER.id}/alias`, async (route) => {
       const request = route.request();
       if (request.method() === 'PUT') {
         const body = JSON.parse(request.postData() || '{}');
@@ -86,7 +86,7 @@ test.describe('Login Form', () => {
     });
 
     // Mock PUT /users/{userId}/email
-    await page.route(`${API_BASE}/users/*/email`, async (route) => {
+    await page.route(`${API_BASE}/users/${MOCK_USER.id}/email`, async (route) => {
       const request = route.request();
       if (request.method() === 'PUT') {
         const body = JSON.parse(request.postData() || '{}');
@@ -100,6 +100,28 @@ test.describe('Login Form', () => {
           body: JSON.stringify({
             status: "success",
             message: "Email updated successfully",
+            data: null,
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+
+    // Mock PUT /users/{userId}/password
+    await page.route(`${API_BASE}/users/${MOCK_USER.id}/password`, async (route) => {
+      const request = route.request();
+      if (request.method() === 'PUT') {
+        const body = JSON.parse(request.postData() || '{}');
+        const oldPassword = body.oldPassword || 'OldPassword';
+        const newPassword = body.newPassword || 'NewPassword';
+
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: "success",
+            message: "Password updated successfully",
             data: null,
           }),
         });
@@ -182,7 +204,11 @@ test.describe('Login Form', () => {
     await expect(updateAliasButton).toBeEnabled();
     await updateAliasButton.click();
 
-    // 5. Verificar que se muestra el nuevo alias del usuario
+    // 5. Verificar que se muestra el mensaje de éxito
+    const toast = page.getByText('Alias actualizado correctamente', { exact: true });
+    await expect(toast).toBeVisible();
+
+    // 6. Verificar que se muestra el nuevo alias del usuario
     await expect(page.getByText('NewAlias').first()).toBeVisible();
   });
 
@@ -207,7 +233,45 @@ test.describe('Login Form', () => {
     await expect(updateEmailButton).toBeEnabled();
     await updateEmailButton.click();
 
-    // 5. Verificar que se muestra el nuevo correo electrónico del usuario
+    // 5. Verificar que se muestra el mensaje de éxito
+    const toast = page.getByText('Correo actualizado correctamente', { exact: true });
+    await expect(toast).toBeVisible();
+
+    // 6. Verificar que se muestra el nuevo correo electrónico del usuario
     await expect(page.getByLabel('Correo electrónico')).toHaveValue('NewEmail');
+  });
+
+  test('debe cambiar la contraseña del usuario', async ({ page }) => {
+    // 1. Navegar a la pantalla del perfil
+    await page.goto('/profile');
+    const headingProfile = page.getByRole('heading', { name: 'Mi Perfil', exact: true });
+    await expect(headingProfile).toBeVisible();
+
+    // 2. Verificar que se muestran los datos del usuario
+    const headingPassword = page.getByRole('heading', { name: 'Cambiar contraseña', exact: true });
+    await expect(headingPassword).toBeVisible();
+    await expect(page.getByLabel('Contraseña actual')).toBeVisible();
+    await expect(page.getByLabel('Nueva contraseña')).toBeVisible();
+
+    // 3. Rellenar el campo Contraseña actual
+    const oldPasswordInput = page.getByLabel('Contraseña actual');
+    await oldPasswordInput.fill('password123');
+
+    // 4. Rellenar el campo Nueva contraseña
+    const newPasswordInput = page.getByLabel('Nueva contraseña');
+    await newPasswordInput.fill('NewPassword');
+
+    // 5. Enviar las contraseñas haciendo click en el botón Actualizar contraseña
+    const updatePasswordButton = page.getByRole('button', { name: 'Actualizar contraseña', exact: true });
+    await expect(updatePasswordButton).toBeEnabled();
+    await updatePasswordButton.click();
+
+    // 6. Verificar que se muestra el mensaje de éxito
+    const toast = page.getByText('Contraseña actualizada correctamente', { exact: true });
+    await expect(toast).toBeVisible();
+
+    // 7. Verificar que se muestra el nuevo correo electrónico del usuario
+    await expect(page.getByLabel('Contraseña actual')).toHaveValue('');
+    await expect(page.getByLabel('Nueva contraseña')).toHaveValue('');
   });
 });
