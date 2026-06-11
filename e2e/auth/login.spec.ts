@@ -41,28 +41,62 @@ const MOCK_TOKEN = 'mock-jwt-token-abc123';
 
 test.describe('Login Form Success', () => {
   test.beforeEach(async ({ page }) => {
-    // Mock POST /auth/login → devuelve token + user
+    // Mock POST /auth/login
     await page.route(`${API_BASE}/auth/login`, async (route) => {
-      const request = route.request();
-      if (request.method() === 'POST') {
-        await route.fulfill({
-          status: 200,
+      if (route.request().method() !== 'POST') return route.continue();
+
+      const postData = JSON.parse(route.request().postData() || '{}');
+      const password = postData.password;
+
+      // Escenario A: Contraseña errónea -> Credenciales inválidas (401)
+      if (password === 'wrongPassword') {
+        return route.fulfill({
+          status: 401,
           contentType: 'application/json',
-          body: JSON.stringify({
-            data: {
-              status: "success",
-              message: "User logged in successfully",
-              token: MOCK_TOKEN,
-              user: MOCK_USER,
-            },
-          }),
+          body: JSON.stringify({ status: "error", message: 'Invalid credentials' }),
         });
-      } else {
-        await route.continue();
       }
+
+      // Escenario B: Contraseña de usuario inactivo -> User inactive (403)
+      if (password === 'passwordInactive') {
+        return route.fulfill({
+          status: 403,
+          contentType: 'application/json',
+          body: JSON.stringify({ status: "error", message: 'User inactive' }),
+        });
+      }
+
+      // Escenario C: Contraseña por defecto o nueva -> Éxito (200)
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: {
+            status: "success",
+            message: "User logged in successfully",
+            token: MOCK_TOKEN,
+            user: MOCK_USER,
+          },
+        }),
+      });
     });
 
-    // Mock GET /auth/me → devuelve el usuario (llamado por refreshUser en AuthContext)
+    // Mock POST /auth/activate-account
+    await page.route(`${API_BASE}/auth/activate-account`, async (route) => {
+      if (route.request().method() !== 'POST') return route.continue();
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: "success",
+          message: 'Account activated successfully',
+          data: null,
+        }),
+      });
+    });
+
+    // Mock GET /auth/me → devuelve el usuario
     await page.route(`${API_BASE}/auth/me`, async (route) => {
       if (route.request().method() === 'GET') {
         await route.fulfill({
@@ -105,28 +139,7 @@ test.describe('Login Form Success', () => {
     await expect(page).toHaveURL('/');
     await expect(page.getByText(`¡Bienvenid@, ${MOCK_USER.alias}!`)).toBeVisible();
   });
-});
 
-
-test.describe('Login Form Error: User inactive', () => {
-  test.beforeEach(async ({ page }) => {
-    // Mock POST /auth/login → devuelve error 403: User inactive
-    await page.route(`${API_BASE}/auth/login`, async (route) => {
-      const request = route.request();
-      if (request.method() === 'POST') {
-        await route.fulfill({
-          status: 403,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: "error",
-            message: 'User inactive',
-          }),
-        });
-      } else {
-        await route.continue();
-      }
-    });
-  });
 
   test('debe mostrar formulario de Activar Cuenta tras un login fallido con usuario inactivo', async ({ page }) => {
     await page.goto('/');
@@ -147,7 +160,7 @@ test.describe('Login Form Error: User inactive', () => {
 
     // 4. Rellenar el campo contraseña
     const passwordInput = page.getByLabel('Contraseña');
-    await passwordInput.fill('password123');
+    await passwordInput.fill('passwordInactive');
 
     // 5. Enviar el formulario haciendo click en el botón de login
     const submitButton = page.locator('button[type="submit"]');
@@ -162,70 +175,7 @@ test.describe('Login Form Error: User inactive', () => {
     const heading = page.getByRole('heading', { name: 'Activar Cuenta', exact: true });
     await expect(heading).toBeVisible();
   });
-});
 
-
-test.describe('Activate Account Form Success', () => {
-  test.beforeEach(async ({ page }) => {
-    // Mock POST /auth/login → devuelve success 200 o error 403: User inactive
-    await page.route(`${API_BASE}/auth/login`, async (route) => {
-      const request = route.request();
-      if (request.method() === 'POST') {
-        const postData = JSON.parse(request.postData() || '{}');
-        if (postData.password === 'password123') {
-          await route.fulfill({
-            status: 403,
-            contentType: 'application/json',
-            body: JSON.stringify({ status: "error", message: 'User inactive' }),
-          });
-        } else {
-          await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify({
-              data: {
-                token: 'mock-new-jwt-token',
-                user: MOCK_USER,
-              },
-            }),
-          });
-        }
-      } else {
-        await route.continue();
-      }
-    });
-
-    // Mock POST /auth/activate-account → devuelve success 200
-    await page.route(`${API_BASE}/auth/activate-account`, async (route) => {
-      const request = route.request();
-      if (request.method() === 'POST') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: "success",
-            message: 'Account activated successfully',
-            data: null,
-          }),
-        });
-      } else {
-        await route.continue();
-      }
-    });
-
-    // Mock GET /auth/me → devuelve el usuario (llamado por refreshUser en AuthContext)
-    await page.route(`${API_BASE}/auth/me`, async (route) => {
-      if (route.request().method() === 'GET') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify(MOCK_USER),
-        });
-      } else {
-        await route.continue();
-      }
-    });
-  });
 
   test('debe activar la cuenta correctamente tras login con usuario inactivo', async ({ page }) => {
     await page.goto('/');
@@ -246,7 +196,7 @@ test.describe('Activate Account Form Success', () => {
 
     // 4. Rellenar el campo Contraseña
     const passwordInput = page.getByLabel('Contraseña');
-    await passwordInput.fill('password123');
+    await passwordInput.fill('passwordInactive');
 
     // 5. Enviar el formulario haciendo click en el botón de login
     const submitButton = page.locator('button[type="submit"]');
@@ -282,28 +232,7 @@ test.describe('Activate Account Form Success', () => {
     await expect(page).toHaveURL('/');
     await expect(page.getByText(`¡Bienvenid@, ${MOCK_USER.alias}!`)).toBeVisible();
   });
-});
 
-
-test.describe('Login Form Error: Invalid credentials', () => {
-  test.beforeEach(async ({ page }) => {
-    // Mock POST /auth/login → devuelve error 401: Invalid credentials
-    await page.route(`${API_BASE}/auth/login`, async (route) => {
-      const request = route.request();
-      if (request.method() === 'POST') {
-        await route.fulfill({
-          status: 401,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: "error",
-            message: 'Invalid credentials',
-          }),
-        });
-      } else {
-        await route.continue();
-      }
-    });
-  });
 
   test('debe mostrar mensaje de error tras login fallido con credenciales inválidas', async ({ page }) => {
     await page.goto('/');
@@ -324,7 +253,7 @@ test.describe('Login Form Error: Invalid credentials', () => {
 
     // 4. Rellenar el campo contraseña
     const passwordInput = page.getByLabel('Contraseña');
-    await passwordInput.fill('password123');
+    await passwordInput.fill('wrongPassword');
 
     // 5. Enviar el formulario haciendo click en el botón de login
     const submitButton = page.locator('button[type="submit"]');
