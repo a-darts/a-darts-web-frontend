@@ -126,7 +126,7 @@ const ProfileScreen: React.FC = () => {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.header}>
-          <Title style={styles.title}>Mi perfil</Title>
+          <Title style={styles.title}>Mi Perfil</Title>
           <div style={styles.avatarContainer}>
             <div style={styles.avatarLarge}>
               {user.alias.charAt(0).toUpperCase()}
@@ -284,7 +284,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
 
   userAlias: {
-    fontSize: '1.5rem',
+    fontSize: '1.3rem',
     fontWeight: '600',
     margin: 0,
     color: '#ffffff',

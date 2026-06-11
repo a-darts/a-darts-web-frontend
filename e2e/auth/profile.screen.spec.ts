@@ -91,7 +91,14 @@ test.describe('Login Form', () => {
   test('debe navegar a ProfileScreen', async ({ page }) => {
     // 1. Navegar a la pantalla del perfil
     await page.goto('/profile');
-    const headingProfile = page.getByRole('heading', { name: `${MOCK_USER.alias}`, exact: true });
+    const headingProfile = page.getByRole('heading', { name: 'Mi Perfil', exact: true });
     await expect(headingProfile).toBeVisible();
+
+    // 2. Verificar que se muestran los datos del usuario
+    await expect(page.getByText(MOCK_USER.alias).first()).toBeVisible();
+    await expect(page.getByText(MOCK_USER.role).first()).toBeVisible();
+    // se ve formateado
+    // await expect(page.getByText(MOCK_USER.registeredAt)).toBeVisible();
+
   });
 });
