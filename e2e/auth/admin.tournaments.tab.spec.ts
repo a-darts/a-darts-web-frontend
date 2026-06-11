@@ -440,12 +440,82 @@ test.describe('Admin Tournaments Tab', () => {
         await page.getByRole('combobox', { name: 'Modalidad' }).click();
         await page.getByRole('option', { name: 'Individual Masculino', exact: true }).click();
 
-        // 6. Validar que la tabla se filtra correctamente y solo muestra el torneo correspondiente
+        // 6. Validar que la tabla se filtra correctamente y solo muestran los torneos correspondientes
         await expect(page.getByText('Torneo de Prueba Borrador')).toBeVisible();
         await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
         await expect(page.getByText('Criterium de Verano')).not.toBeVisible();
         await expect(page.getByText('Torneo de Invierno Pasado')).not.toBeVisible();
         await expect(page.getByText('Torneo Suspendido de Primavera')).not.toBeVisible();
         await expect(page.getByText('Torneo Eliminado Permanentemente')).not.toBeVisible();
+    });
+
+    test('debe mostrar las acciones correctas para cada estado del torneo', async ({ page }) => {
+        // 1. Navegar al panel de administración
+        await page.goto('/admin');
+
+        // 2. Verificar la estructura inicial y título de la pantalla
+        const title = page.getByRole('heading', { name: 'Panel de Usuarios', exact: true });
+        await expect(title).toBeVisible();
+
+        // 3. Navegar al panel de torneos
+        const tournamentsButton = page.getByRole('button', { name: 'Torneos', exact: true });
+        await expect(tournamentsButton).toBeVisible();
+        await tournamentsButton.click();
+
+        // 4. Verificar el título de la pantalla
+        const titleTournaments = page.getByRole('heading', { name: 'Panel de Torneos', exact: true });
+        await expect(titleTournaments).toBeVisible();
+
+        // 5. Verificar el funcionamiento de los botones de filtro por estado
+        await page.getByRole('button', { name: 'Cancelado' }).click();
+        await page.getByRole('button', { name: 'Eliminado' }).click();
+
+        // ---- 1. Estado: BORRADOR (DRAFT) ----
+        // Permite: Ver más información, Editar, Eliminar
+        const rowDraft = page.locator('tr', { hasText: 'Torneo de Prueba Borrador' });
+        await expect(rowDraft.getByRole('button', { name: /ver más información/i })).toBeVisible();
+        await expect(rowDraft.getByRole('button', { name: /editar torneo/i })).toBeVisible();
+        await expect(rowDraft.getByRole('button', { name: /eliminar torneo/i })).toBeVisible();
+        await expect(rowDraft.getByRole('button', { name: /restaurar torneo/i })).not.toBeVisible();
+
+        // ---- 2. Estado: PUBLICADO (PUBLISHED) ----
+        // Permite: Ver más información, Editar, Eliminar
+        const rowPublished = page.locator('tr', { hasText: 'Open Absoluto de Aragón' });
+        await expect(rowPublished.getByRole('button', { name: /ver más información/i })).toBeVisible();
+        await expect(rowPublished.getByRole('button', { name: /editar torneo/i })).toBeVisible();
+        await expect(rowPublished.getByRole('button', { name: /eliminar torneo/i })).toBeVisible();
+        await expect(rowPublished.getByRole('button', { name: /restaurar torneo/i })).not.toBeVisible();
+
+        // ---- 3. Estado: EN CURSO (IN_PROGRESS) ----
+        // Permite: Ver más información, Editar 
+        const rowInProgress = page.locator('tr', { hasText: 'Criterium de Verano' });
+        await expect(rowInProgress.getByRole('button', { name: /ver más información/i })).toBeVisible();
+        await expect(rowInProgress.getByRole('button', { name: /editar torneo/i })).toBeVisible();
+        await expect(rowInProgress.getByRole('button', { name: /eliminar torneo/i })).not.toBeVisible();
+        await expect(rowInProgress.getByRole('button', { name: /restaurar torneo/i })).not.toBeVisible();
+
+        // ---- 4. Estado: FINALIZADO (FINISHED) ----
+        // Permite: Ver más información 
+        const rowFinished = page.locator('tr', { hasText: 'Torneo de Invierno Pasado' });
+        await expect(rowFinished.getByRole('button', { name: /ver más información/i })).toBeVisible();
+        await expect(rowFinished.getByRole('button', { name: /editar torneo/i })).not.toBeVisible();
+        await expect(rowFinished.getByRole('button', { name: /eliminar torneo/i })).not.toBeVisible();
+        await expect(rowFinished.getByRole('button', { name: /restaurar torneo/i })).not.toBeVisible();
+
+        // ---- 5. Estado: CANCELADO (CANCELLED) ----
+        // Permite: Ver más información 
+        const rowCancelled = page.locator('tr', { hasText: 'Torneo Suspendido de Primavera' });
+        await expect(rowCancelled.getByRole('button', { name: /ver más información/i })).toBeVisible();
+        await expect(rowCancelled.getByRole('button', { name: /editar torneo/i })).not.toBeVisible();
+        await expect(rowCancelled.getByRole('button', { name: /eliminar torneo/i })).not.toBeVisible();
+        await expect(rowCancelled.getByRole('button', { name: /restaurar torneo/i })).not.toBeVisible();
+
+        // ---- 6. Estado: ELIMINADO (DELETED) ----
+        // Permite: Ver más información 
+        const rowDeleted = page.locator('tr', { hasText: 'Torneo Eliminado Permanentemente' });
+        await expect(rowDeleted.getByRole('button', { name: /ver más información/i })).toBeVisible();
+        await expect(rowDeleted.getByRole('button', { name: /editar torneo/i })).not.toBeVisible();
+        await expect(rowDeleted.getByRole('button', { name: /eliminar torneo/i })).not.toBeVisible();
+        await expect(rowDeleted.getByRole('button', { name: /restaurar torneo/i })).toBeVisible();
     });
 });

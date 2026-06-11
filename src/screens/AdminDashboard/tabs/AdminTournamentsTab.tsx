@@ -221,7 +221,7 @@ const AdminTournamentsTab: React.FC = () => {
             onClick={() => navigate(`/tournaments/${t.id}`)}
             title="Ver más información"
           />
-          {t.status !== TournamentStatus.FINISHED && t.status !== TournamentStatus.CANCELLED && (
+          {t.status !== TournamentStatus.FINISHED && t.status !== TournamentStatus.CANCELLED && t.status !== TournamentStatus.DELETED && (
             <IconButton
               name="Edit"
               onClick={() => navigate(`/admin/tournaments/${t.id}/editar`, { state: { from: '/admin' } })}
