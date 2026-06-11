@@ -15,8 +15,34 @@ const MOCK_TOKEN = 'mock-jwt-token-abc123';
 
 const MOCK_TOURNAMENTS = [
     {
-        // Próximo
-        id: 'tournament-1',
+        id: 'tournament-draft',
+        name: 'Torneo de Prueba Borrador',
+        seasonStartYear: 2026,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        status: TournamentStatus.DRAFT,
+        isDelayed: false,
+        info: {
+            place: 'Zaragoza',
+            dateTime: '2026-09-15T18:00:00.000Z',
+            mode: GameModes.MEN_SINGLES,
+            game: '501',
+            schedule: 'K.O. directo',
+            maxPlayers: 32,
+            gameType: GameTypes.FIRST_TO,
+            numLegs: 3,
+            numSets: 1,
+            rules: 'Standard',
+            info: 'Info del torneo',
+            federation: Federations.ARAGON,
+        },
+        registration: {
+            hasCheckIn: false,
+            status: RegistrationStatus.CLOSED,
+            registrationPeriod: { startsAt: null, endsAt: null }
+        },
+    },
+    {
+        id: 'tournament-published',
         name: 'Open Absoluto de Aragón',
         seasonStartYear: 2026,
         createdAt: '2026-01-01T00:00:00.000Z',
@@ -43,8 +69,7 @@ const MOCK_TOURNAMENTS = [
         },
     },
     {
-        // En curso
-        id: 'tournament-2',
+        id: 'tournament-inprogress',
         name: 'Criterium de Verano',
         seasonStartYear: 2026,
         createdAt: '2026-01-01T00:00:00.000Z',
@@ -71,8 +96,7 @@ const MOCK_TOURNAMENTS = [
         },
     },
     {
-        // Finalizado
-        id: 'tournament-3',
+        id: 'tournament-finished',
         name: 'Torneo de Invierno Pasado',
         seasonStartYear: 2025,
         createdAt: '2025-11-01T00:00:00.000Z',
@@ -94,6 +118,60 @@ const MOCK_TOURNAMENTS = [
         },
         registration: {
             hasCheckIn: true,
+            status: RegistrationStatus.CLOSED,
+            registrationPeriod: { startsAt: null, endsAt: null },
+        },
+    },
+    {
+        id: 'tournament-cancelled',
+        name: 'Torneo Suspendido de Primavera',
+        seasonStartYear: 2026,
+        createdAt: '2026-03-01T00:00:00.000Z',
+        status: TournamentStatus.CANCELLED,
+        isDelayed: false,
+        info: {
+            place: 'Barcelona',
+            dateTime: '2026-04-10T10:00:00.000Z',
+            mode: GameModes.SINGLE,
+            game: '501',
+            schedule: 'K.O. directo',
+            maxPlayers: 32,
+            gameType: GameTypes.FIRST_TO,
+            numLegs: 3,
+            numSets: 1,
+            rules: 'Standard',
+            info: 'Cancelado por fuerza mayor',
+            federation: Federations.CATALUÑA,
+        },
+        registration: {
+            hasCheckIn: false,
+            status: RegistrationStatus.CLOSED,
+            registrationPeriod: { startsAt: null, endsAt: null },
+        },
+    },
+    {
+        id: 'tournament-deleted',
+        name: 'Torneo Eliminado Permanentemente',
+        seasonStartYear: 2026,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        status: TournamentStatus.DELETED,
+        isDelayed: false,
+        info: {
+            place: 'Galicia',
+            dateTime: '2026-02-10T10:00:00.000Z',
+            mode: GameModes.SINGLE,
+            game: '501',
+            schedule: 'K.O. directo',
+            maxPlayers: 16,
+            gameType: GameTypes.FIRST_TO,
+            numLegs: 3,
+            numSets: 1,
+            rules: 'Standard',
+            info: 'Borrable',
+            federation: Federations.GALICIA,
+        },
+        registration: {
+            hasCheckIn: false,
             status: RegistrationStatus.CLOSED,
             registrationPeriod: { startsAt: null, endsAt: null },
         },
@@ -139,9 +217,9 @@ test.describe('Admin Tournaments Tab', () => {
         await page.route(new RegExp(`${API_BASE}/tournaments`), async (route) => {
             if (route.request().method() === 'GET') {
                 const url = new URL(route.request().url());
-                const statusParam = url.searchParams.get('status');       // Ej: "PUBLISHED,IN_PROGRESS"
-                const federationParam = url.searchParams.get('federation'); // Ej: "MADRID"
-                const modeParam = url.searchParams.get('mode');             // Ej: "MEN_SINGLES"
+                const statusParam = url.searchParams.get('status');
+                const federationParam = url.searchParams.get('federation');
+                const modeParam = url.searchParams.get('mode');
 
                 // Empezamos con todos los torneos mockeados
                 let filteredTournaments = [...MOCK_TOURNAMENTS];
@@ -213,9 +291,12 @@ test.describe('Admin Tournaments Tab', () => {
         await expect(titleTournaments).toBeVisible();
 
         // 5. Validar que aparecen los torneos en el listado (Por defecto, todos menos 'Cancelado' y 'Eliminado')
+        await expect(page.getByText('Torneo de Prueba Borrador')).toBeVisible();
         await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
         await expect(page.getByText('Criterium de Verano')).toBeVisible();
         await expect(page.getByText('Torneo de Invierno Pasado')).toBeVisible();
+        await expect(page.getByText('Torneo Suspendido de Primavera')).not.toBeVisible();
+        await expect(page.getByText('Torneo Eliminado Permanentemente')).not.toBeVisible();
     });
 
     test('debe comprobar el funcionamiento del buscador', async ({ page }) => {
@@ -240,15 +321,21 @@ test.describe('Admin Tournaments Tab', () => {
 
         await searchInput.fill('Aragón');
 
+        await expect(page.getByText('Torneo de Prueba Borrador')).not.toBeVisible();
         await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
         await expect(page.getByText('Criterium de Verano')).not.toBeVisible();
         await expect(page.getByText('Torneo de Invierno Pasado')).not.toBeVisible();
+        await expect(page.getByText('Torneo Suspendido de Primavera')).not.toBeVisible();
+        await expect(page.getByText('Torneo Eliminado Permanentemente')).not.toBeVisible();
 
         await searchInput.fill('');
 
+        await expect(page.getByText('Torneo de Prueba Borrador')).toBeVisible();
         await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
         await expect(page.getByText('Criterium de Verano')).toBeVisible();
         await expect(page.getByText('Torneo de Invierno Pasado')).toBeVisible();
+        await expect(page.getByText('Torneo Suspendido de Primavera')).not.toBeVisible();
+        await expect(page.getByText('Torneo Eliminado Permanentemente')).not.toBeVisible();
     });
 
     test('debe comprobar el funcionamiento del filtro por estado', async ({ page }) => {
@@ -286,9 +373,12 @@ test.describe('Admin Tournaments Tab', () => {
         await finishedButton.click();
 
         // 7. Validar que no aparece el torneo finalizado en el listado
+        await expect(page.getByText('Torneo de Prueba Borrador')).toBeVisible();
         await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
         await expect(page.getByText('Criterium de Verano')).toBeVisible();
         await expect(page.getByText('Torneo de Invierno Pasado')).not.toBeVisible();
+        await expect(page.getByText('Torneo Suspendido de Primavera')).not.toBeVisible();
+        await expect(page.getByText('Torneo Eliminado Permanentemente')).not.toBeVisible();
     });
 
     test('debe comprobar el funcionamiento del filtro por federación', async ({ page }) => {
@@ -313,9 +403,12 @@ test.describe('Admin Tournaments Tab', () => {
         await page.getByRole('option', { name: 'Aragón', exact: true }).click();
 
         // 6. Validar que sólo aparece el torneo de Aragón en el listado
+        await expect(page.getByText('Torneo de Prueba Borrador')).toBeVisible();
         await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
         await expect(page.getByText('Criterium de Verano')).not.toBeVisible();
         await expect(page.getByText('Torneo de Invierno Pasado')).not.toBeVisible();
+        await expect(page.getByText('Torneo Suspendido de Primavera')).not.toBeVisible();
+        await expect(page.getByText('Torneo Eliminado Permanentemente')).not.toBeVisible();
     });
 
     test('debe comprobar el funcionamiento del filtro por modalidad', async ({ page }) => {
@@ -336,16 +429,23 @@ test.describe('Admin Tournaments Tab', () => {
         await expect(titleTournaments).toBeVisible();
 
         // Asegurar que inicialmente se ven todos los torneos esperados
+        await expect(page.getByText('Torneo de Prueba Borrador')).toBeVisible();
         await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
         await expect(page.getByText('Criterium de Verano')).toBeVisible();
+        await expect(page.getByText('Torneo de Invierno Pasado')).toBeVisible();
+        await expect(page.getByText('Torneo Suspendido de Primavera')).not.toBeVisible();
+        await expect(page.getByText('Torneo Eliminado Permanentemente')).not.toBeVisible();
 
         // 5. Verificar el funcionamiento del filtro por modalidad
         await page.getByRole('combobox', { name: 'Modalidad' }).click();
         await page.getByRole('option', { name: 'Individual Masculino', exact: true }).click();
 
         // 6. Validar que la tabla se filtra correctamente y solo muestra el torneo correspondiente
+        await expect(page.getByText('Torneo de Prueba Borrador')).toBeVisible();
         await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
         await expect(page.getByText('Criterium de Verano')).not.toBeVisible();
         await expect(page.getByText('Torneo de Invierno Pasado')).not.toBeVisible();
+        await expect(page.getByText('Torneo Suspendido de Primavera')).not.toBeVisible();
+        await expect(page.getByText('Torneo Eliminado Permanentemente')).not.toBeVisible();
     });
 });
