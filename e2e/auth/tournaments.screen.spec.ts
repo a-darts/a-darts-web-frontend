@@ -220,7 +220,7 @@ test.describe('Tournaments Screen', () => {
         await expect(aragonCard).toBeVisible();
         await expect(aragonCard.getByText('Zaragoza')).toBeVisible();
         await expect(aragonCard.getByText('15 de agosto de 2026')).toBeVisible();
-        await expect(aragonCard.getByText('20:00')).toBeVisible();
+        await expect(aragonCard.getByText('20:00')).toBeVisible(); // Hora local
 
         // 4. Verificar que aparece el botón "Ver más"
         const seeMoreButton = aragonCard.getByRole('button', { name: 'Ver más' });
