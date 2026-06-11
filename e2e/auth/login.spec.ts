@@ -3,11 +3,13 @@ import { test, expect } from '@playwright/test';
 /**
  * Test de aceptación: Formulario de Login
  *
- * Escenario 1: El usuario introduce email y contraseña válidos.
+ * Escenario 1: Login Form Success
+ * El usuario introduce email y contraseña válidos.
  * El authService se mockea para devolver éxito.
  * Se verifica que la aplicación navega a la HomeScreen (/).
  * 
- * Escenario 2: El usuario introduce email y contraseña válidos pero la cuenta está inactiva.
+ * Escenario 2: Login Form Error: User inactive
+ * El usuario introduce email y contraseña válidos pero la cuenta está inactiva.
  * El authService se mockea para devolver fallo porque la cuenta está inactiva.
  * Se verifica que la aplicación navega al formulario de activación de cuenta.
  */
@@ -61,14 +63,16 @@ test.describe('Login Form Success', () => {
 
   test('debe navegar a la HomeScreen tras un login exitoso', async ({ page }) => {
     await page.goto('/');
-    page.getByTitle('Bienvenido a A-Darts');
+    const headingHome = page.getByRole('heading', { name: 'Bienvenido a A-Darts', exact: true });
+    await expect(headingHome).toBeVisible();
 
     // 1. Navegar a la pantalla de login
     await page.goto('/login');
 
     // 2. Verificar que estamos en la pantalla de login
     await expect(page).toHaveURL('/login');
-    page.getByTitle('Bienvenido de nuevo');
+    const headingLogin = page.getByRole('heading', { name: 'Bienvenido de nuevo', exact: true });
+    await expect(headingLogin).toBeVisible();
 
     // 3. Rellenar el campo email
     const emailInput = page.locator('input[type="email"]');
@@ -91,7 +95,7 @@ test.describe('Login Form Success', () => {
 });
 
 
-test.describe('Login Form Success', () => {
+test.describe('Login Form Error: User inactive', () => {
   test.beforeEach(async ({ page }) => {
     // Mock POST /auth/login → devuelve error 403: User inactive
     await page.route(`${API_BASE}/auth/login`, async (route) => {
@@ -108,33 +112,40 @@ test.describe('Login Form Success', () => {
         await route.continue();
       }
     });
+  });
 
-    test('debe mostrar formulario de Activar Cuenta tras un login fallido con usuario inactivo', async ({ page }) => {
-      await page.goto('/');
-      page.getByTitle('Bienvenido a A-Darts');
+  test('debe mostrar formulario de Activar Cuenta tras un login fallido con usuario inactivo', async ({ page }) => {
+    await page.goto('/');
+    const headingHome = page.getByRole('heading', { name: 'Bienvenido a A-Darts', exact: true });
+    await expect(headingHome).toBeVisible();
 
-      // 1. Navegar a la pantalla de login
-      await page.goto('/login');
+    // 1. Navegar a la pantalla de login
+    await page.goto('/login');
 
-      // 2. Verificar que estamos en la pantalla de login
-      await expect(page).toHaveURL('/login');
-      page.getByTitle('Bienvenido de nuevo');
+    // 2. Verificar que estamos en la pantalla de login
+    await expect(page).toHaveURL('/login');
+    const headingLogin = page.getByRole('heading', { name: 'Bienvenido de nuevo', exact: true });
+    await expect(headingLogin).toBeVisible();
 
-      // 3. Rellenar el campo email
-      const emailInput = page.locator('input[type="email"]');
-      await emailInput.fill(MOCK_USER.email);
+    // 3. Rellenar el campo email
+    const emailInput = page.locator('input[type="email"]');
+    await emailInput.fill(MOCK_USER.email);
 
-      // 4. Rellenar el campo contraseña
-      const passwordInput = page.locator('input[type="password"]');
-      await passwordInput.fill('password123');
+    // 4. Rellenar el campo contraseña
+    const passwordInput = page.locator('input[type="password"]');
+    await passwordInput.fill('password123');
 
-      // 5. Enviar el formulario haciendo click en el botón de login
-      const submitButton = page.locator('button[type="submit"]');
-      await submitButton.click();
+    // 5. Enviar el formulario haciendo click en el botón de login
+    const submitButton = page.locator('button[type="submit"]');
+    await submitButton.click();
 
-      // 6. Verificar que sigue en la LoginScreen pero con formulario de Activar Cuenta
-      await expect(page).toHaveURL('/login');
-      await expect(page.getByText('Activar Cuenta')).toBeVisible();
-    });
+    // 6. Verificar que se muestra el error del usuario inactivo
+    const toast = page.getByText('Debes activar tu cuenta cambiando tu contraseña');
+    await expect(toast).toBeVisible();
+
+    // 7. Verificar que sigue en la LoginScreen pero con formulario de Activar Cuenta
+    await expect(page).toHaveURL('/login');
+    const heading = page.getByRole('heading', { name: 'Activar Cuenta', exact: true });
+    await expect(heading).toBeVisible();
   });
 });

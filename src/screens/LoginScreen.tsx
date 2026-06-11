@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { authService } from '../services/auth.service';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import i18n from '../i18n';
 
 const LoginScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -36,10 +37,10 @@ const LoginScreen: React.FC = () => {
       navigate(redirect || '/');
     } catch (err: any) {
       console.error('Login error:', err);
-      if (err.message === 'User inactive') {
+      if (err.message === i18n.t('exceptions.User inactive')) {
         setTempPassword(password);
         setIsActivating(true);
-        showToast(t('auth.account_inactive_change_password') || 'Debes activar tu cuenta cambiando tu contraseña', 'info');
+        showToast('Debes activar tu cuenta cambiando tu contraseña', 'info');
       } else {
         showToast(err.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.', 'error');
       }
