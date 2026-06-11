@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useId } from 'react';
 import Icon, { IconName } from './Icon';
 import { DropdownItem } from './Dropdown';
 
@@ -11,6 +11,7 @@ interface SelectProps {
   align?: 'left' | 'right';
   style?: React.CSSProperties;
   placeholder?: string;
+  id?: string;
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -22,9 +23,12 @@ const Select: React.FC<SelectProps> = ({
   align = 'left',
   style,
   placeholder = 'Seleccionar...',
+  id,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef<HTMLDivElement>(null);
+  const selectId = id || useId();
+  const labelId = `${selectId}-label`;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -64,10 +68,24 @@ const Select: React.FC<SelectProps> = ({
   }
 
   return (
-    <div style={{ ...styles.selectContainer, ...style }} ref={selectRef}>
-      {label && <label style={styles.selectLabel}>{label}</label>}
+    <div
+      style={{ ...styles.selectContainer, ...style }}
+      ref={selectRef}
+    >
+      {label && (
+        <label
+          id={labelId}
+          htmlFor={selectId}
+          style={styles.selectLabel}
+        >{label}</label>
+      )}
       <div style={{ position: 'relative', width: '100%' }}>
         <div
+          id={selectId}
+          role="combobox"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? `${selectId}-menu` : undefined}
+          aria-labelledby={label ? labelId : undefined}
           onClick={() => setIsOpen(!isOpen)}
           style={{
             ...styles.selectWrapper,
@@ -88,16 +106,20 @@ const Select: React.FC<SelectProps> = ({
         </div>
 
         {isOpen && (
-          <div style={{
-            ...styles.menu,
-            ...(align === 'right' ? { right: 0 } : { left: 0 }),
-            width: '100%',
-            minWidth: '100%',
-            boxSizing: 'border-box'
-          }}>
+          <div
+            role="listbox"
+            style={{
+              ...styles.menu,
+              ...(align === 'right' ? { right: 0 } : { left: 0 }),
+              width: '100%',
+              minWidth: '100%',
+              boxSizing: 'border-box'
+            }}
+          >
             {dropdownItems.map((item, index) => (
               <button
                 key={index}
+                role="option"
                 onClick={() => {
                   item.onClick();
                   setIsOpen(false);

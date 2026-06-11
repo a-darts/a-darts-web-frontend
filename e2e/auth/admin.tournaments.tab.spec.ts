@@ -206,22 +206,7 @@ test.describe('Admin Tournaments Tab', () => {
         const titleTournaments = page.getByRole('heading', { name: 'Panel de Torneos', exact: true });
         await expect(titleTournaments).toBeVisible();
 
-
-        // 5. Comprobar que los botones de filtro por defecto están renderizados
-        const draftButton = page.getByRole('button', { name: 'Borrador' });
-        await expect(draftButton).toBeVisible();
-        const publishedButton = page.getByRole('button', { name: 'Publicado' });
-        await expect(publishedButton).toBeVisible();
-        const inProgressButton = page.getByRole('button', { name: 'En curso' });
-        await expect(inProgressButton).toBeVisible();
-        const cancelledButton = page.getByRole('button', { name: 'Cancelado' });
-        await expect(cancelledButton).toBeVisible();
-        const finishedButton = page.getByRole('button', { name: 'Finalizado' });
-        await expect(finishedButton).toBeVisible();
-        const deletedButton = page.getByRole('button', { name: 'Eliminado' });
-        await expect(deletedButton).toBeVisible();
-
-        // 6. Validar que aparecen los torneos en el listado (Por defecto, todos menos 'Cancelado' y 'Eliminado')
+        // 5. Validar que aparecen los torneos en el listado (Por defecto, todos menos 'Cancelado' y 'Eliminado')
         await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
         await expect(page.getByText('Criterium de Verano')).toBeVisible();
         await expect(page.getByText('Torneo de Invierno Pasado')).toBeVisible();
@@ -260,7 +245,47 @@ test.describe('Admin Tournaments Tab', () => {
         await expect(page.getByText('Torneo de Invierno Pasado')).toBeVisible();
     });
 
-    test('debe comprobar el funcionamiento de los filtros', async ({ page }) => {
+    test('debe comprobar el funcionamiento del filtro por estado', async ({ page }) => {
+        // 1. Navegar al panel de administración
+        await page.goto('/admin');
+
+        // 2. Verificar la estructura inicial y título de la pantalla
+        const title = page.getByRole('heading', { name: 'Panel de Usuarios', exact: true });
+        await expect(title).toBeVisible();
+
+        // 3. Navegar al panel de torneos
+        const tournamentsButton = page.getByRole('button', { name: 'Torneos', exact: true });
+        await expect(tournamentsButton).toBeVisible();
+        await tournamentsButton.click();
+
+        // 4. Verificar el título de la pantalla
+        const titleTournaments = page.getByRole('heading', { name: 'Panel de Torneos', exact: true });
+        await expect(titleTournaments).toBeVisible();
+
+        // 5. Verificar el funcionamiento de los botones de filtro por estado
+        const draftButton = page.getByRole('button', { name: 'Borrador' });
+        await expect(draftButton).toBeVisible();
+        const publishedButton = page.getByRole('button', { name: 'Publicado' });
+        await expect(publishedButton).toBeVisible();
+        const inProgressButton = page.getByRole('button', { name: 'En curso' });
+        await expect(inProgressButton).toBeVisible();
+        const cancelledButton = page.getByRole('button', { name: 'Cancelado' });
+        await expect(cancelledButton).toBeVisible();
+        const finishedButton = page.getByRole('button', { name: 'Finalizado' });
+        await expect(finishedButton).toBeVisible();
+        const deletedButton = page.getByRole('button', { name: 'Eliminado' });
+        await expect(deletedButton).toBeVisible();
+
+        // 6. Desactivar el filtro de los torneos finalizados
+        await finishedButton.click();
+
+        // 7. Validar que no aparece el torneo finalizado en el listado
+        await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
+        await expect(page.getByText('Criterium de Verano')).toBeVisible();
+        await expect(page.getByText('Torneo de Invierno Pasado')).not.toBeVisible();
+    });
+
+    test('debe comprobar el funcionamiento del filtro por federación', async ({ page }) => {
         // 1. Navegar al panel de administración
         await page.goto('/admin');
 
@@ -278,25 +303,12 @@ test.describe('Admin Tournaments Tab', () => {
         await expect(titleTournaments).toBeVisible();
 
         // 5. Verificar el funcionamiento de los botones de filtro
-        const draftButton = page.getByRole('button', { name: 'Borrador' });
-        await expect(draftButton).toBeVisible();
-        const publishedButton = page.getByRole('button', { name: 'Publicado' });
-        await expect(publishedButton).toBeVisible();
-        const inProgressButton = page.getByRole('button', { name: 'En curso' });
-        await expect(inProgressButton).toBeVisible();
-        const cancelledButton = page.getByRole('button', { name: 'Cancelado' });
-        await expect(cancelledButton).toBeVisible();
-        const finishedButton = page.getByRole('button', { name: 'Finalizado' });
-        await expect(finishedButton).toBeVisible();
-        const deletedButton = page.getByRole('button', { name: 'Eliminado' });
-        await expect(deletedButton).toBeVisible();
+        await page.getByRole('combobox', { name: 'Federación' }).click();
+        await page.getByRole('option', { name: 'Aragón', exact: true }).click();
 
-        // 6. Desactivar el filtro de los torneos finalizados
-        await finishedButton.click();
-
-        // 7. Validar que aparecen los torneos en el listado (Por defecto, todos menos 'Cancelado' y 'Eliminado')
+        // 6. Validar que sólo aparece el torneo de Aragón en el listado
         await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
-        await expect(page.getByText('Criterium de Verano')).toBeVisible();
+        await expect(page.getByText('Criterium de Verano')).not.toBeVisible();
         await expect(page.getByText('Torneo de Invierno Pasado')).not.toBeVisible();
     });
 });
