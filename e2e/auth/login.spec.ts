@@ -3,15 +3,20 @@ import { test, expect } from '@playwright/test';
 /**
  * Test de aceptación: Formulario de Login
  *
- * Escenario 1: Login Form Success
+ * Escenario 1: Login Form Success (200)
  * El usuario introduce email y contraseña válidos.
  * El authService se mockea para devolver éxito.
  * Se verifica que la aplicación navega a la HomeScreen (/).
  * 
- * Escenario 2: Login Form Error: User inactive
+ * Escenario 2: Login Form Error (403): User inactive
  * El usuario introduce email y contraseña válidos pero la cuenta está inactiva.
  * El authService se mockea para devolver fallo porque la cuenta está inactiva.
- * Se verifica que la aplicación navega al formulario de activación de cuenta.
+ * Se verifica que la aplicación navega al formulario de Activar Cuenta (/login).
+ * 
+ * Escenario 3: Login Form Error (401): Invalid credentials
+ * El usuario introduce email y contraseña inválidos.
+ * El authService se mockea para devolver fallo porque las credenciales son inválidas.
+ * Se verifica que la aplicación continua en el formulario de Login (/login).
  */
 
 const API_BASE = 'http://localhost:3000/api';
@@ -37,6 +42,8 @@ test.describe('Login Form Success', () => {
           contentType: 'application/json',
           body: JSON.stringify({
             data: {
+              status: "success",
+              message: "User logged in successfully",
               token: MOCK_TOKEN,
               user: MOCK_USER,
             },
@@ -105,6 +112,7 @@ test.describe('Login Form Error: User inactive', () => {
           status: 403,
           contentType: 'application/json',
           body: JSON.stringify({
+            status: "error",
             message: 'User inactive',
           }),
         });
@@ -160,6 +168,7 @@ test.describe('Login Form Error: Invalid credentials', () => {
           status: 401,
           contentType: 'application/json',
           body: JSON.stringify({
+            status: "error",
             message: 'Invalid credentials',
           }),
         });
