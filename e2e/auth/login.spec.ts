@@ -149,3 +149,57 @@ test.describe('Login Form Error: User inactive', () => {
     await expect(heading).toBeVisible();
   });
 });
+
+test.describe('Login Form Error: Invalid credentials', () => {
+  test.beforeEach(async ({ page }) => {
+    // Mock POST /auth/login → devuelve error 401: Invalid credentials
+    await page.route(`${API_BASE}/auth/login`, async (route) => {
+      const request = route.request();
+      if (request.method() === 'POST') {
+        await route.fulfill({
+          status: 401,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            message: 'Invalid credentials',
+          }),
+        });
+      } else {
+        await route.continue();
+      }
+    });
+  });
+
+  test('debe mostrar mensaje de error tras login fallido con credenciales inválidas', async ({ page }) => {
+    await page.goto('/');
+    const headingHome = page.getByRole('heading', { name: 'Bienvenido a A-Darts', exact: true });
+    await expect(headingHome).toBeVisible();
+
+    // 1. Navegar a la pantalla de login
+    await page.goto('/login');
+
+    // 2. Verificar que estamos en la pantalla de login
+    await expect(page).toHaveURL('/login');
+    const headingLogin = page.getByRole('heading', { name: 'Bienvenido de nuevo', exact: true });
+    await expect(headingLogin).toBeVisible();
+
+    // 3. Rellenar el campo email
+    const emailInput = page.locator('input[type="email"]');
+    await emailInput.fill(MOCK_USER.email);
+
+    // 4. Rellenar el campo contraseña
+    const passwordInput = page.locator('input[type="password"]');
+    await passwordInput.fill('password123');
+
+    // 5. Enviar el formulario haciendo click en el botón de login
+    const submitButton = page.locator('button[type="submit"]');
+    await submitButton.click();
+
+    // 6. Verificar que se muestra el error de credenciales inválidas
+    const toast = page.getByText('Credenciales inválidas');
+    await expect(toast).toBeVisible();
+
+    // 7. Verificar que sigue en la LoginScreen
+    await expect(page).toHaveURL('/login');
+    await expect(headingLogin).toBeVisible();
+  });
+});
