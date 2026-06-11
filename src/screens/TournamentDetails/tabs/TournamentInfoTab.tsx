@@ -37,7 +37,7 @@ const TournamentInfoTab: React.FC<TournamentInfoTabProps> = ({ tournament }) => 
           <Button
             variant="primary"
             leftIcon="Edit"
-            onClick={() => navigate(`/admin/torneos/${tournament.id}/editar`)}
+            onClick={() => navigate(`/admin/tournaments/${tournament.id}/editar`)}
           >
             Editar información
           </Button>

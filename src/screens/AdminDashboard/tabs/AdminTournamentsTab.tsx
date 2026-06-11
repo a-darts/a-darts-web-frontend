@@ -170,7 +170,7 @@ const AdminTournamentsTab: React.FC = () => {
       key: 'name',
       header: 'Torneo',
       render: (t) => (
-        <span style={styles.tournamentNameLink} onClick={() => navigate(`/torneos/${t.id}`)}>
+        <span style={styles.tournamentNameLink} onClick={() => navigate(`/tournaments/${t.id}`)}>
           {t.name}
         </span>
       ),
@@ -218,13 +218,13 @@ const AdminTournamentsTab: React.FC = () => {
         <div style={styles.actionGroup}>
           <IconButton
             name="Info"
-            onClick={() => navigate(`/torneos/${t.id}`)}
+            onClick={() => navigate(`/tournaments/${t.id}`)}
             title="Ver más información"
           />
           {t.status !== TournamentStatus.FINISHED && t.status !== TournamentStatus.CANCELLED && (
             <IconButton
               name="Edit"
-              onClick={() => navigate(`/admin/torneos/${t.id}/editar`, { state: { from: '/admin' } })}
+              onClick={() => navigate(`/admin/tournaments/${t.id}/editar`, { state: { from: '/admin' } })}
               title="Editar torneo"
             />
           )}
@@ -259,7 +259,7 @@ const AdminTournamentsTab: React.FC = () => {
             variant="primary"
             size="medium"
             leftIcon="Plus"
-            onClick={() => navigate('/admin/torneos/crear')}
+            onClick={() => navigate('/admin/tournaments/crear')}
           >
             Crear torneo
           </Button>

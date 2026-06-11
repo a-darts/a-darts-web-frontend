@@ -50,7 +50,7 @@ const TournamentMatchesTab: React.FC<TournamentMatchesTabProps> = ({ tournamentI
   }, [tournamentId]);
 
   const handleViewMatchLive = (matchId: string, boardShortId: string) => {
-    navigate(`/torneos/partido/${matchId}/diana/${boardShortId}/ver`);
+    navigate(`/tournaments/partido/${matchId}/diana/${boardShortId}/ver`);
   };
 
   const matchActions = useMatchActions({ matches, onSuccess: fetchMatches });

@@ -3,10 +3,10 @@ import { test, expect } from '@playwright/test';
 /**
  * Test de aceptación: ProfileScreen
  *
- * Escenario 1: Login Form Success (200)
- * El usuario introduce email y contraseña válidos.
- * El authService se mockea para devolver éxito.
- * Se verifica que la aplicación navega a la HomeScreen (/).
+ * Escenario 1: Mi Perfil
+ * GIVEN: El usuario PLAYER está logueado
+ * WHEN: El usuario va a su perfil
+ * THEN: Ve su informacion (alias, email, rol, fecha de registro)
  */
 
 const API_BASE = 'http://localhost:3000/api';
@@ -131,34 +131,12 @@ test.describe('Login Form', () => {
     });
 
 
-    // Loguearse como player
-    await page.goto('/');
-    const headingHome = page.getByRole('heading', { name: 'Bienvenido a A-Darts', exact: true });
-    await expect(headingHome).toBeVisible();
-
-    // 1. Navegar a la pantalla de login
+    // Proceso automático de Login previo
     await page.goto('/login');
-
-    // 2. Verificar que estamos en la pantalla de login
-    await expect(page).toHaveURL('/login');
-    const headingLogin = page.getByRole('heading', { name: 'Bienvenido de nuevo', exact: true });
-    await expect(headingLogin).toBeVisible();
-
-    // 3. Rellenar el campo email
-    const emailInput = page.getByLabel('Correo electrónico');
-    await emailInput.fill(MOCK_USER.email);
-
-    // 4. Rellenar el campo contraseña
-    const passwordInput = page.getByLabel('Contraseña');
-    await passwordInput.fill('password123');
-
-    // 5. Enviar el formulario haciendo click en el botón de login
-    const submitButton = page.locator('button[type="submit"]');
-    await submitButton.click();
-
-    // 6. Verificar que se ha navegado a la HomeScreen (/)
+    await page.getByLabel('Correo electrónico').fill(MOCK_USER.email);
+    await page.getByLabel('Contraseña').fill('password123');
+    await page.locator('button[type="submit"]').click();
     await expect(page).toHaveURL('/');
-    await expect(page.getByText(`¡Bienvenid@, ${MOCK_USER.alias}!`)).toBeVisible();
   });
 
   test('debe navegar a ProfileScreen', async ({ page }) => {

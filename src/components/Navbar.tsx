@@ -61,7 +61,7 @@ const Navbar: React.FC = () => {
   ];
 
   const tabs = [
-    { label: t('common.navbar.tournaments'), path: '/torneos' },
+    { label: t('common.navbar.tournaments'), path: '/tournaments' },
     ...(user?.role === UserRoles.ADMIN ? [{ label: t('common.navbar.admin_panel'), path: '/admin' }] : []),
   ];
 

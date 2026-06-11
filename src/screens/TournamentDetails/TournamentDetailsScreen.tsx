@@ -122,7 +122,7 @@ const TournamentDetailsScreen: React.FC = () => {
       <Button
         variant="primary"
         leftIcon="ArrowLeft"
-        onClick={() => navigate('/torneos')}
+        onClick={() => navigate('/tournaments')}
       >
         Volver a torneos
       </Button>
@@ -270,7 +270,7 @@ const TournamentDetailsScreen: React.FC = () => {
 
   const breadcrumbItems = [
     { label: 'Inicio', path: '/' },
-    { label: 'Torneos', path: '/torneos' },
+    { label: 'Torneos', path: '/tournaments' },
     { label: name },
   ];
 

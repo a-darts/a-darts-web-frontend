@@ -167,7 +167,7 @@ const AdminEditTournamentScreen: React.FC = () => {
       if (fromPath === '/admin') {
         navigate('/admin', { state: { activeTab: 'torneos' } });
       } else {
-        navigate(`/torneos/${id}`);
+        navigate(`/tournaments/${id}`);
       }
     } catch (err: any) {
       console.error('Error saving tournament:', err);
@@ -202,7 +202,7 @@ const AdminEditTournamentScreen: React.FC = () => {
               if (fromPath === '/admin') {
                 navigate('/admin', { state: { activeTab: 'torneos' } });
               } else {
-                navigate('/torneos');
+                navigate('/tournaments');
               }
             }}
           >
@@ -219,7 +219,7 @@ const AdminEditTournamentScreen: React.FC = () => {
     if (fromPath === '/admin') {
       navigate('/admin', { state: { activeTab: 'torneos' } });
     } else {
-      navigate(`/torneos/${id}`);
+      navigate(`/tournaments/${id}`);
     }
   };
 

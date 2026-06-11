@@ -24,7 +24,7 @@ const HomeScreen: React.FC = () => {
             variant='primary'
             size='medium'
             rightIcon='ArrowRight'
-            onClick={() => navigate('/torneos')}
+            onClick={() => navigate('/tournaments')}
           >
             Explorar Torneos
           </Button>

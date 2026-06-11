@@ -90,7 +90,7 @@ const StatsScreen: React.FC = () => {
       render: (item) => (
         <span
           style={{ fontWeight: '500', color: 'var(--text-color)', cursor: 'pointer', textDecoration: 'underline' }}
-          onClick={() => navigate(`/torneos/${item.tournamentId}`)}
+          onClick={() => navigate(`/tournaments/${item.tournamentId}`)}
         >
           {item.tournamentName}
         </span>
@@ -141,7 +141,7 @@ const StatsScreen: React.FC = () => {
       render: (item) => (
         <span
           style={{ fontWeight: '500', color: 'var(--text-color)', cursor: 'pointer', textDecoration: 'underline' }}
-          onClick={() => navigate(`/torneos/${item.tournamentId}`)}
+          onClick={() => navigate(`/tournaments/${item.tournamentId}`)}
         >
           {item.tournamentName}
         </span>

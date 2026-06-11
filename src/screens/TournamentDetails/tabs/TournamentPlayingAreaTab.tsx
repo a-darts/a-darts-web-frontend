@@ -180,7 +180,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
   };
 
   const handleViewMatchLive = (matchId: string, boardShortId: string) => {
-    navigate(`/torneos/partido/${matchId}/diana/${boardShortId}/ver`);
+    navigate(`/tournaments/partido/${matchId}/diana/${boardShortId}/ver`);
   };
 
   if (loading) {

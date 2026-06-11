@@ -27,8 +27,8 @@ function App() {
 
       <Routes>
         <Route path="/" element={<HomeScreen />} />
-        <Route path="/torneos" element={<TournamentsScreen />} />
-        <Route path="/torneos/:id" element={<TournamentDetailsScreen />} />
+        <Route path="/tournaments" element={<TournamentsScreen />} />
+        <Route path="/tournaments/:id" element={<TournamentDetailsScreen />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
         <Route path="/profile" element={<ProfileScreen />} />
@@ -43,9 +43,9 @@ function App() {
         <Route path="/admin/usuarios/editar/:id" element={<AdminEditUserScreen />} />
         <Route path="/admin/jugadores/editar/:id" element={<AdminEditPlayerScreen />} />
         <Route path="/admin/jugadores/registrar" element={<AdminCreatePlayerScreen />} />
-        <Route path="/admin/torneos/crear" element={<AdminCreateTournamentScreen />} />
-        <Route path="/admin/torneos/:id/editar" element={<AdminEditTournamentScreen />} />
-        <Route path="/torneos/partido/:matchId/diana/:boardShortId/ver" element={<LiveMatchMonitorScreen />} />
+        <Route path="/admin/tournaments/crear" element={<AdminCreateTournamentScreen />} />
+        <Route path="/admin/tournaments/:id/editar" element={<AdminEditTournamentScreen />} />
+        <Route path="/tournaments/partido/:matchId/diana/:boardShortId/ver" element={<LiveMatchMonitorScreen />} />
       </Routes>
 
       <footer style={styles.footer}>

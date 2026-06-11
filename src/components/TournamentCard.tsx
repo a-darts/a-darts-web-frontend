@@ -20,7 +20,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament }) => {
   const formattedTime = formatTournamentTime(dateTime);
 
   const handleSeeMore = () => {
-    navigate(`/torneos/${id}`);
+    navigate(`/tournaments/${id}`);
   };
 
   return (
