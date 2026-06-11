@@ -12,7 +12,6 @@ import { test, expect } from '@playwright/test';
  * El usuario introduce alias, email y contraseña válidos pero el correo ya está en uso.
  * El authService se mockea para devolver fallo porque el correo ya está en uso
  * Se verifica que la aplicación continua en la RegisterScreen (/register).
- * 
  */
 
 const API_BASE = 'http://localhost:3000/api';
