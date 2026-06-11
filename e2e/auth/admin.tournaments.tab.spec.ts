@@ -166,9 +166,12 @@ test.describe('Admin Tournaments Tab', () => {
 
                 // 3. Filtrar por modalidad
                 if (modeParam) {
-                    filteredTournaments = filteredTournaments.filter(t =>
-                        t.info?.mode === modeParam
-                    );
+                    filteredTournaments = filteredTournaments.filter(t => {
+                        if (!t.info?.mode) return false;
+                        const currentModeValue = t.info.mode;
+                        const matchKey = Object.keys(GameModes).find(key => GameModes[key as keyof typeof GameModes] === currentModeValue);
+                        return t.info.mode === modeParam || matchKey === modeParam;
+                    });
                 }
 
                 await route.fulfill({
@@ -310,6 +313,37 @@ test.describe('Admin Tournaments Tab', () => {
         await page.getByRole('option', { name: 'Aragón', exact: true }).click();
 
         // 6. Validar que sólo aparece el torneo de Aragón en el listado
+        await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
+        await expect(page.getByText('Criterium de Verano')).not.toBeVisible();
+        await expect(page.getByText('Torneo de Invierno Pasado')).not.toBeVisible();
+    });
+
+    test('debe comprobar el funcionamiento del filtro por modalidad', async ({ page }) => {
+        // 1. Navegar al panel de administración
+        await page.goto('/admin');
+
+        // 2. Verificar la estructura inicial y título de la pantalla
+        const title = page.getByRole('heading', { name: 'Panel de Usuarios', exact: true });
+        await expect(title).toBeVisible();
+
+        // 3. Navegar al panel de torneos
+        const tournamentsButton = page.getByRole('button', { name: 'Torneos', exact: true });
+        await expect(tournamentsButton).toBeVisible();
+        await tournamentsButton.click();
+
+        // 4. Verificar el título de la pantalla e itera sobre la carga inicial
+        const titleTournaments = page.getByRole('heading', { name: 'Panel de Torneos', exact: true });
+        await expect(titleTournaments).toBeVisible();
+
+        // Asegurar que inicialmente se ven todos los torneos esperados
+        await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
+        await expect(page.getByText('Criterium de Verano')).toBeVisible();
+
+        // 5. Verificar el funcionamiento del filtro por modalidad
+        await page.getByRole('combobox', { name: 'Modalidad' }).click();
+        await page.getByRole('option', { name: 'Individual Masculino', exact: true }).click();
+
+        // 6. Validar que la tabla se filtra correctamente y solo muestra el torneo correspondiente
         await expect(page.getByText('Open Absoluto de Aragón')).toBeVisible();
         await expect(page.getByText('Criterium de Verano')).not.toBeVisible();
         await expect(page.getByText('Torneo de Invierno Pasado')).not.toBeVisible();
