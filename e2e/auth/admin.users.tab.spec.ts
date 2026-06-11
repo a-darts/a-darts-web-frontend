@@ -114,17 +114,17 @@ test.describe('Admin Users Tab', () => {
         await page.getByLabel('Contraseña').fill('password123');
         await page.locator('button[type="submit"]').click();
         await expect(page).toHaveURL('/');
+
+        // 5. Navegar al panel de administración (por defecto carga la pestaña de usuarios)
+        await page.goto('/admin');
     });
 
     test('debe mostrar el listado completo de usuarios', async ({ page }) => {
-        // 1. Navegar al panel de administración (por defecto carga la pestaña de usuarios)
-        await page.goto('/admin');
-
-        // 2. Validar que estemos en la pantalla de los usuarios
+        // 1. Validar que estemos en la pantalla de los usuarios
         const title = page.getByRole('heading', { name: 'Panel de Usuarios', exact: true });
         await expect(title).toBeVisible();
 
-        // 3. Validar que se renderizan los alias del set de mocks
+        // 2. Validar que se renderizan los alias del set de mocks
         await expect(page.getByText('DardoMaestro')).toBeVisible();
         await expect(page.getByText('DianaZaragoza')).toBeVisible();
         await expect(page.getByText('TrollDardos')).toBeVisible();
@@ -132,10 +132,7 @@ test.describe('Admin Users Tab', () => {
     });
 
     test('debe comprobar el funcionamiento del buscador por alias o email', async ({ page }) => {
-        // 1. Navegar al panel de administración (por defecto carga la pestaña de usuarios)
-        await page.goto('/admin');
-
-        // 2. Validar que funciona el buscador por alias
+        // 1. Validar que funciona el buscador por alias
         const searchInput = page.getByPlaceholder(/buscar/i);
         await searchInput.fill('Zaragoza');
 
@@ -144,7 +141,7 @@ test.describe('Admin Users Tab', () => {
         await expect(page.getByText('TrollDardos')).not.toBeVisible();
         await expect(page.getByText('UsuarioFantasma')).not.toBeVisible();
 
-        // 3. Validar que funciona el buscador por correo
+        // 2. Validar que funciona el buscador por correo
         await searchInput.clear();
         await searchInput.fill('dardo.maestro@');
 
@@ -155,10 +152,7 @@ test.describe('Admin Users Tab', () => {
     });
 
     test('debe comprobar el funcionamiento del filtro por rol', async ({ page }) => {
-        // 1. Navegar al panel de administración (por defecto carga la pestaña de usuarios)
-        await page.goto('/admin');
-
-        // 2. Verificar que funciona el filtro por Rol
+        // 1. Verificar que funciona el filtro por Rol
         await page.getByRole('combobox', { name: 'Rol' }).click();
         await page.getByRole('option', { name: 'Administrador', exact: true }).click();
 
@@ -169,10 +163,7 @@ test.describe('Admin Users Tab', () => {
     });
 
     test('debe comprobar el funcionamiento del filtro por estado', async ({ page }) => {
-        // 1. Navegar al panel de administración (por defecto carga la pestaña de usuarios)
-        await page.goto('/admin');
-
-        // 2. Verificar que funciona el filtro por Estado (Activos)
+        // 1. Verificar que funciona el filtro por Estado (Activos)
         await page.getByRole('combobox', { name: 'Estado' }).click();
         await page.getByRole('option', { name: 'Activos', exact: true }).click();
 
@@ -181,7 +172,7 @@ test.describe('Admin Users Tab', () => {
         await expect(page.getByText('TrollDardos')).not.toBeVisible();
         await expect(page.getByText('UsuarioFantasma')).not.toBeVisible();
 
-        // 3. Verificar que funciona el filtro por Estado (Inactivos)
+        // 2. Verificar que funciona el filtro por Estado (Inactivos)
         await page.getByRole('combobox', { name: 'Estado' }).click();
         await page.getByRole('option', { name: 'Inactivos', exact: true }).click();
 
@@ -190,7 +181,7 @@ test.describe('Admin Users Tab', () => {
         await expect(page.getByText('TrollDardos')).not.toBeVisible();
         await expect(page.getByText('UsuarioFantasma')).not.toBeVisible();
 
-        // 4. Verificar que funciona el filtro por Estado (Bloqueados)
+        // 3. Verificar que funciona el filtro por Estado (Bloqueados)
         await page.getByRole('combobox', { name: 'Estado' }).click();
         await page.getByRole('option', { name: 'Bloqueados', exact: true }).click();
 
@@ -199,7 +190,7 @@ test.describe('Admin Users Tab', () => {
         await expect(page.getByText('TrollDardos')).toBeVisible();
         await expect(page.getByText('UsuarioFantasma')).not.toBeVisible();
 
-        // 5. Verificar que funciona el filtro por Estado (Eliminados)
+        // 4. Verificar que funciona el filtro por Estado (Eliminados)
         await page.getByRole('combobox', { name: 'Estado' }).click();
         await page.getByRole('option', { name: 'Eliminados', exact: true }).click();
 
@@ -210,8 +201,6 @@ test.describe('Admin Users Tab', () => {
     });
 
     test('debe mostrar las acciones correctas para cada estado del usuario (activo, bloqueado, eliminado)', async ({ page }) => {
-        await page.goto('/admin');
-
         // ---- 1. Estado: ACTIVO (UserStatus.ACTIVE) ----
         // Permite: Editar, Bloquear, Eliminar
         const rowActive = page.locator('tr', { hasText: 'DardoMaestro' });
