@@ -75,11 +75,11 @@ test.describe('Login Form Success', () => {
     await expect(headingLogin).toBeVisible();
 
     // 3. Rellenar el campo email
-    const emailInput = page.locator('input[type="email"]');
+    const emailInput = page.getByLabel('Correo electrónico');
     await emailInput.fill(MOCK_USER.email);
 
     // 4. Rellenar el campo contraseña
-    const passwordInput = page.locator('input[type="password"]');
+    const passwordInput = page.getByLabel('Contraseña');
     await passwordInput.fill('password123');
 
     // 5. Enviar el formulario haciendo click en el botón de login
@@ -128,11 +128,11 @@ test.describe('Login Form Error: User inactive', () => {
     await expect(headingLogin).toBeVisible();
 
     // 3. Rellenar el campo email
-    const emailInput = page.locator('input[type="email"]');
+    const emailInput = page.getByLabel('Correo electrónico');
     await emailInput.fill(MOCK_USER.email);
 
     // 4. Rellenar el campo contraseña
-    const passwordInput = page.locator('input[type="password"]');
+    const passwordInput = page.getByLabel('Contraseña');
     await passwordInput.fill('password123');
 
     // 5. Enviar el formulario haciendo click en el botón de login
@@ -183,11 +183,11 @@ test.describe('Login Form Error: Invalid credentials', () => {
     await expect(headingLogin).toBeVisible();
 
     // 3. Rellenar el campo email
-    const emailInput = page.locator('input[type="email"]');
+    const emailInput = page.getByLabel('Correo electrónico');
     await emailInput.fill(MOCK_USER.email);
 
     // 4. Rellenar el campo contraseña
-    const passwordInput = page.locator('input[type="password"]');
+    const passwordInput = page.getByLabel('Contraseña');
     await passwordInput.fill('password123');
 
     // 5. Enviar el formulario haciendo click en el botón de login

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import Icon, { IconName } from './Icon';
 
 interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -15,9 +15,12 @@ const TextInput: React.FC<TextInputProps> = ({
   onFocus,
   onBlur,
   style,
+  id,
   ...props
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
+
+  const inputId = id || useId();
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true);
@@ -36,7 +39,11 @@ const TextInput: React.FC<TextInputProps> = ({
       opacity: props.disabled ? 0.5 : undefined,
       cursor: props.disabled ? 'not-allowed' : undefined
     }}>
-      {label && <label style={styles.label}>{label}</label>}
+      {label && (
+        <label htmlFor={inputId} style={styles.label}>
+          {label}
+        </label>
+      )}
       <div style={{
         ...styles.inputWrapper,
         borderColor: error ? '#ff4d4f' : (isFocused ? '#C4E866' : 'var(--btn-secondary-border)'),
@@ -44,6 +51,7 @@ const TextInput: React.FC<TextInputProps> = ({
       }}>
         {icon && <Icon name={icon} size={18} style={styles.icon} />}
         <input
+          id={inputId}
           style={{
             ...styles.input,
             cursor: props.disabled ? 'not-allowed' : undefined
