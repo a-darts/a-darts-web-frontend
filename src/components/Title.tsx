@@ -25,9 +25,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   title: {
     fontSize: '2rem',
     fontWeight: '800',
-    background: 'linear-gradient(to bottom, #ffffff 0%, #a1a1a1 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
+    color: '#FFFFFF',
     margin: 0,
     fontFamily: 'var(--font-title)',
     letterSpacing: '0.5px',

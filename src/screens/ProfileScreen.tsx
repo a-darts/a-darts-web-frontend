@@ -10,6 +10,7 @@ import { getRoleLabel } from '../utils/auth.utils';
 import i18n from '../i18n';
 import { useToast } from '../context/ToastContext';
 import Icon from '../components/Icon';
+import Title from '../components/Title';
 
 const ProfileScreen: React.FC = () => {
   const { user, updateEmail, updatePassword, updateAlias } = useAuth();
@@ -125,12 +126,15 @@ const ProfileScreen: React.FC = () => {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.header}>
-          <div style={styles.avatarLarge}>
-            {user.alias.charAt(0).toUpperCase()}
-          </div>
-          <div style={styles.headerInfo}>
-            <h1 style={styles.title}>{user.alias}</h1>
-            <p style={styles.roleBadge}>{i18n.t(`auth.${getRoleLabel(user.role)}`)}</p>
+          <Title style={styles.title}>Mi perfil</Title>
+          <div style={styles.avatarContainer}>
+            <div style={styles.avatarLarge}>
+              {user.alias.charAt(0).toUpperCase()}
+            </div>
+            <div style={styles.headerInfo}>
+              <h2 style={styles.userAlias}>{user.alias}</h2>
+              <p style={styles.roleBadge}>{i18n.t(`auth.${getRoleLabel(user.role)}`)}</p>
+            </div>
           </div>
         </div>
 
@@ -242,13 +246,16 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: '100%',
   },
   card: {
-    // padding: '3rem',
     width: '100%',
     maxWidth: '1600px',
-    textAlign: 'center',
+  },
+  title: {
+    marginBottom: '1.5rem',
   },
   header: {
     marginBottom: '1.5rem',
+  },
+  avatarContainer: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
@@ -256,8 +263,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     textAlign: 'left',
   },
   avatarLarge: {
-    width: '80px',
-    height: '80px',
+    width: '60px',
+    height: '60px',
     borderRadius: '50%',
     backgroundColor: 'var(--btn-primary-bg)',
     color: 'var(--btn-primary-text)',
@@ -275,16 +282,18 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'flex-start',
     gap: '0.5rem',
   },
-  title: {
-    fontSize: '2rem',
-    fontWeight: '800',
+
+  userAlias: {
+    fontSize: '1.5rem',
+    fontWeight: '600',
     margin: 0,
     color: '#ffffff',
-    lineHeight: '1.1',
+    lineHeight: '1',
   },
   roleBadge: {
     display: 'inline-block',
     padding: '0.4rem 1rem',
+    margin: 0,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: '100px',
     fontSize: '0.75rem',

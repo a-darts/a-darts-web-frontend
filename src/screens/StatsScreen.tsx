@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import EmptyState from '../components/EmptyState';
 import { formatTournamentDate, getFederationFlag } from '../utils/tournament.utils';
 import i18n from '../i18n';
+import Title from '../components/Title';
 
 interface PositionObject {
   id: string;
@@ -183,7 +184,7 @@ const StatsScreen: React.FC = () => {
   if (hasNoStats) {
     return (
       <div style={styles.container}>
-        <h1 style={styles.title}>Mis Estadísticas</h1>
+        <Title>Mis Estadísticas</Title>
         <EmptyState
           title="Aún no tienes estadísticas"
           description="Tus estadísticas aparecerán aquí una vez que participes en algún torneo. ¡Apúntate a un torneo y empieza a competir!"
@@ -195,7 +196,7 @@ const StatsScreen: React.FC = () => {
   if (!stats) {
     return (
       <div style={styles.container}>
-        <h1 style={styles.title}>Mis Estadísticas</h1>
+        <Title>Mis Estadísticas</Title>
         <p style={{ color: 'var(--text-secondary-color)' }}>No se pudieron cargar las estadísticas.</p>
       </div>
     );
@@ -203,7 +204,7 @@ const StatsScreen: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Mis Estadísticas</h1>
+      <Title>Mis Estadísticas</Title>
 
       <section style={styles.section}>
         <h2 style={styles.sectionTitle}>Resumen general</h2>
@@ -271,14 +272,6 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     flexDirection: 'column',
     gap: '3rem',
-  },
-  title: {
-    fontSize: '2rem',
-    fontWeight: '700',
-    color: '#fff',
-    margin: 0,
-    fontFamily: 'var(--font-title)',
-    letterSpacing: '-0.5px',
   },
   section: {
     display: 'flex',
