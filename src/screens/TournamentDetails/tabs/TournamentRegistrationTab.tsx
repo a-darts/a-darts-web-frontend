@@ -49,7 +49,7 @@ interface TournamentRegistrationTabProps {
 
 const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
   tournament,
-  participants,
+  participants = [],
   loading = false,
   onRefresh
 }) => {
@@ -516,7 +516,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
                 <Select
                   label="Jugador"
                   value={selectedPlayerId}
-                  options={unregisteredPlayers.map(p => ({ value: p.id, label: p.userAlias }))}
+                  options={(unregisteredPlayers || []).map(p => ({ value: p.id, label: p.userAlias }))}
                   onChange={(val) => setSelectedPlayerId(val)}
                   icon="User"
                   placeholder="Selecciona un jugador..."
