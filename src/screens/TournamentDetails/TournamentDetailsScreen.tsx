@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { tournamentService, Tournament, TournamentStatus, RegistrationStatus } from '../../services/tournament.service';
 import { registeredParticipantService, Participant } from '../../services/registeredParticipant.service';
-import { formatTournamentDate, formatTournamentTime, getSeasonEndYear, getFederationFlag, getFederationLabel } from '../../utils/tournament.utils';
+import { getFederationFlag, getFederationLabel } from '../../utils/tournament.utils';
+import { formatDate, formatTime, getSeasonEndYear } from '../../utils/shared.utils';
 import Button from '../../components/Button';
 import ErrorMessage from '../../components/ErrorMessage';
 import Breadcrumbs from '../../components/Breadcrumbs';
@@ -265,8 +266,8 @@ const TournamentDetailsScreen: React.FC = () => {
     }
   };
 
-  const formattedDate = formatTournamentDate(info.dateTime);
-  const formattedTime = formatTournamentTime(info.dateTime);
+  const formattedDate = formatDate(info.dateTime);
+  const formattedTime = formatTime(info.dateTime);
 
   const breadcrumbItems = [
     { label: 'Inicio', path: '/' },

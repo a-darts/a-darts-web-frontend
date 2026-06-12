@@ -5,7 +5,8 @@ import Button from '../../../components/Button';
 import Icon from '../../../components/Icon';
 import IconButton from '../../../components/IconButton';
 import { tournamentService, Tournament, Federations, GameModes, TournamentStatus } from '../../../services/tournament.service';
-import { getModeLabel, getStatusLabel, formatTournamentDate, getSeasonEndYear, getFederationFlag } from '../../../utils/tournament.utils';
+import { getModeLabel, getStatusLabel, getFederationFlag } from '../../../utils/tournament.utils';
+import { formatDate, getSeasonEndYear } from '../../../utils/shared.utils';
 import TournamentStatusTag from '../../../components/TournamentStatusTag';
 import Select from '../../../components/Select';
 import i18n from '../../../i18n';
@@ -178,7 +179,7 @@ const AdminTournamentsTab: React.FC = () => {
     {
       key: 'dateTime',
       header: 'Fecha Inicio',
-      render: (t) => t.info?.dateTime ? formatTournamentDate(t.info.dateTime) : 'Sin programar',
+      render: (t) => t.info?.dateTime ? formatDate(t.info.dateTime) : 'Sin programar',
     },
     {
       key: 'mode',

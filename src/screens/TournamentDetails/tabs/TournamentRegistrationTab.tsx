@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { tournamentService, Tournament, TournamentStatus, UnregisteredPlayer } from '../../../services/tournament.service';
 import { registeredParticipantService, Participant } from '../../../services/registeredParticipant.service';
 import Table, { Column } from '../../../components/Table';
-import { getFederationLabel, getFederationFlag, getRegistrationStatusLabel, formatTournamentDateTime } from '../../../utils/tournament.utils';
+import { getFederationLabel, getFederationFlag, getRegistrationStatusLabel } from '../../../utils/tournament.utils';
+import { formatDateTime } from '../../../utils/shared.utils';
 import { useAuth, UserRoles } from '../../../context/AuthContext';
 import InfoCard from '../../../components/InfoCard';
 import Button from '../../../components/Button';
@@ -252,8 +253,8 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
   };
 
   const { registration } = tournament;
-  const registrationStartsAt = formatTournamentDateTime(registration.registrationPeriod.startsAt);
-  const registrationEndsAt = formatTournamentDateTime(registration.registrationPeriod.endsAt);
+  const registrationStartsAt = formatDateTime(registration.registrationPeriod.startsAt);
+  const registrationEndsAt = formatDateTime(registration.registrationPeriod.endsAt);
 
   const columns: Column<Participant>[] = [
     {

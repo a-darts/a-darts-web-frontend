@@ -8,9 +8,8 @@ import {
   getModeLabel,
   getGameTypeLabel,
   getScheduleTypeLabel,
-  formatTournamentDate,
-  formatTournamentTime
 } from '../../../utils/tournament.utils';
+import { formatDate, formatTime } from '../../../utils/shared.utils';
 import InfoCard from '../../../components/InfoCard';
 import Button from '../../../components/Button';
 
@@ -27,8 +26,8 @@ const TournamentInfoTab: React.FC<TournamentInfoTabProps> = ({ tournament }) => 
   const { info } = tournament;
   const isTournamentDraftOrPublished =
     tournament.status === TournamentStatus.DRAFT || tournament.status === TournamentStatus.PUBLISHED;
-  const formattedDate = formatTournamentDate(info.dateTime);
-  const formattedTime = formatTournamentTime(info.dateTime);
+  const formattedDate = formatDate(info.dateTime);
+  const formattedTime = formatTime(info.dateTime);
 
   return (
     <div style={styles.content}>

@@ -13,6 +13,7 @@ import Modal from '../../../components/Modal';
 import TextInput from '../../../components/TextInput';
 import { useToast } from '../../../context/ToastContext';
 import Select from '../../../components/Select';
+import { formatDate } from '../../../utils/shared.utils';
 
 interface MockUser {
   id: string;
@@ -69,7 +70,13 @@ const AdminUsersTab: React.FC = () => {
     try {
       setUsersLoading(true);
       setUsersError(null);
-      const res = await userService.getUsers(page, limit);
+      const res = await userService.getUsers(
+        page,
+        limit,
+        userQuery,
+        statusFilter as UserStatus,
+        roleFilter as UserRoles,
+      );
       if (res && res.data) {
         if (Array.isArray(res.data)) {
           setUsers(res.data);
@@ -92,7 +99,7 @@ const AdminUsersTab: React.FC = () => {
 
   useEffect(() => {
     fetchUsers(1);
-  }, [statusFilter, roleFilter]);
+  }, [userQuery, statusFilter, roleFilter]);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -172,28 +179,6 @@ const AdminUsersTab: React.FC = () => {
     setRestoreUserObj(user);
     setRestoreEmail('');
     setRestoreEmailError('');
-  };
-
-  const filtered = users.filter(u => {
-    const matchesQuery =
-      (u.alias || '').toLowerCase().includes(userQuery.toLowerCase()) ||
-      (u.email || '').toLowerCase().includes(userQuery.toLowerCase());
-    const matchesStatus = statusFilter === '' || u.status === statusFilter;
-    const matchesRole = roleFilter === '' || (u.role || '').toLowerCase() === roleFilter.toLowerCase();
-
-    return matchesQuery && matchesStatus && matchesRole;
-  });
-
-  const formatDate = (dateStr: string) => {
-    try {
-      return new Date(dateStr).toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    } catch (e) {
-      return dateStr;
-    }
   };
 
   const columns: Column<MockUser>[] = [
@@ -332,7 +317,7 @@ const AdminUsersTab: React.FC = () => {
         </div>
       ) : (
         <Table
-          data={filtered}
+          data={users}
           columns={columns}
           emptyMessage="No hay usuarios que coincidan con la búsqueda."
           pagination={{

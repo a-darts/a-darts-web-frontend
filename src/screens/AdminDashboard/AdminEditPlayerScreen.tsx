@@ -8,7 +8,7 @@ import Select from '../../components/Select';
 import TextInput from '../../components/TextInput';
 import { playerService, Player } from '../../services/player.service';
 import { Federations } from '../../services/tournament.service';
-import { getSeasonEndYear } from '../../utils/tournament.utils';
+import { getSeasonEndYear } from '../../utils/shared.utils';
 import i18n from '../../i18n';
 
 const AdminEditPlayerScreen: React.FC = () => {

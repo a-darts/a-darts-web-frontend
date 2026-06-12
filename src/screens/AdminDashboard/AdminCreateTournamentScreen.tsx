@@ -13,7 +13,7 @@ import DatePicker from '../../components/DatePicker';
 import TimePicker from '../../components/TimePicker';
 import TextArea from '../../components/TextArea';
 import Icon from '../../components/Icon';
-import { getSeasonEndYear } from '../../utils/tournament.utils';
+import { getSeasonEndYear } from '../../utils/shared.utils';
 
 const AdminCreateTournamentScreen: React.FC = () => {
   const navigate = useNavigate();

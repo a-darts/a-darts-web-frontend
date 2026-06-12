@@ -9,7 +9,7 @@ import TextInput from '../../components/TextInput';
 import { userService } from '../../services/user.service';
 import { playerService } from '../../services/player.service';
 import { Federations } from '../../services/tournament.service';
-import { getSeasonEndYear } from '../../utils/tournament.utils';
+import { getSeasonEndYear } from '../../utils/shared.utils';
 import i18n from '../../i18n';
 
 interface UserItem {

@@ -11,6 +11,7 @@ import i18n from '../i18n';
 import { useToast } from '../context/ToastContext';
 import Icon from '../components/Icon';
 import Title from '../components/Title';
+import { formatDate } from '../utils/shared.utils';
 
 const ProfileScreen: React.FC = () => {
   const { user, updateEmail, updatePassword, updateAlias } = useAuth();
@@ -51,14 +52,6 @@ const ProfileScreen: React.FC = () => {
       </div>
     );
   }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
 
   const handleSaveEmail = async () => {
     if (email === user.email) return;

@@ -1,3 +1,4 @@
+import { UserRoles, UserStatus } from '../context/AuthContext';
 import i18n from '../i18n';
 import { API_BASE_URL, handleFetchError, handleResponse } from './api';
 
@@ -24,7 +25,13 @@ export const userService = {
     }
   },
 
-  getUsers: async (page?: number, limit?: number) => {
+  getUsers: async (
+    page?: number,
+    limit?: number,
+    search?: string,
+    status?: UserStatus,
+    role?: UserRoles,
+  ) => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error('No hay token de sesión');
 
@@ -32,6 +39,9 @@ export const userService = {
       const queryParams = new URLSearchParams();
       if (page !== undefined) queryParams.append('page', page.toString());
       if (limit !== undefined) queryParams.append('limit', limit.toString());
+      if (search) queryParams.append('search', search);
+      if (status) queryParams.append('status', status);
+      if (role) queryParams.append('role', role);
 
       const url = queryParams.toString()
         ? `${API_BASE_URL}/users?${queryParams.toString()}`

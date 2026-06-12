@@ -6,7 +6,8 @@ import Table, { Column } from '../components/Table';
 import { useToast } from '../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import EmptyState from '../components/EmptyState';
-import { formatTournamentDate, getFederationFlag } from '../utils/tournament.utils';
+import { getFederationFlag } from '../utils/tournament.utils';
+import { formatDate } from '../utils/shared.utils';
 import i18n from '../i18n';
 import Title from '../components/Title';
 
@@ -101,7 +102,7 @@ const StatsScreen: React.FC = () => {
       header: 'Fecha',
       render: (item) => (
         <span style={{ fontWeight: '500', color: 'var(--text-color)' }}>
-          {formatTournamentDate(item.tournamentDate)}
+          {formatDate(item.tournamentDate)}
         </span>
       )
     },
@@ -152,7 +153,7 @@ const StatsScreen: React.FC = () => {
       header: 'Fecha',
       render: (item) => (
         <span style={{ fontWeight: '500', color: 'var(--text-color)' }}>
-          {formatTournamentDate(item.tournamentDate)}
+          {formatDate(item.tournamentDate)}
         </span>
       )
     },
