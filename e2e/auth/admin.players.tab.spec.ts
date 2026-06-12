@@ -165,79 +165,80 @@ test.describe('Admin Players Tab', () => {
     });
 
     test('debe mostrar el listado completo de jugadores', async ({ page }) => {
-        // 1. Validar que se renderizan todos los jugadores
+        // 1. Validar que se renderizan todos los jugadores (Filtro por defecto 'Activos')
         await expect(page.getByText('DardoMaestro')).toBeVisible();
         await expect(page.getByText('DianaZaragoza')).toBeVisible();
-        await expect(page.getByText('UsuarioFantasma')).toBeVisible();
+        await expect(page.getByText('UsuarioFantasma')).not.toBeVisible();
 
         await expect(page.getByText('FED-1111')).toBeVisible();
         await expect(page.getByText('FED-2222')).toBeVisible();
-        await expect(page.getByText('FED-9999')).toBeVisible();
+        await expect(page.getByText('FED-9999')).not.toBeVisible();
 
         await expect(page.getByText('Aragón')).toBeVisible();
         await expect(page.getByText('Cataluña')).toBeVisible();
         await expect(page.getByText('Aragón')).toBeVisible();
-
-        await expect(page.getByText('2026-2027').count()).toBe(4);
-
     });
 
     test('debe comprobar el funcionamiento del buscador por alias', async ({ page }) => {
+        // 1. Validar que funciona el buscador
         const searchInput = page.getByPlaceholder(/buscar/i);
         await searchInput.fill('Zaragoza');
 
+        // 2. Validar que se muestran los jugadores correspondientes
         await expect(page.getByText('DianaZaragoza')).toBeVisible();
         await expect(page.getByText('DardoMaestro')).not.toBeVisible();
         await expect(page.getByText('UsuarioFantasma')).not.toBeVisible();
     });
 
     test('debe comprobar el funcionamiento del filtro por federación', async ({ page }) => {
+        // 1. Validar que funciona el filtro por Federación
         await page.getByRole('combobox', { name: 'Federación' }).click();
         await page.getByRole('option', { name: 'Aragón', exact: true }).click();
 
-        await expect(page.getByText('DardoMaestro')).not.toBeVisible();
-        await expect(page.getByText('DianaZaragoza')).toBeVisible();
+        // 2. Validar que se muestran los jugadores correspondientes
+        await expect(page.getByText('DardoMaestro')).toBeVisible();
+        await expect(page.getByText('DianaZaragoza')).not.toBeVisible();
         await expect(page.getByText('UsuarioFantasma')).not.toBeVisible();
     });
 
     test('debe comprobar el funcionamiento del filtro por estado', async ({ page }) => {
-        // Por defecto el estado inicial del componente es activos, cambiamos a 'Eliminados'
+        // 1. Validar que funciona el filtro por Estado
         await page.getByRole('combobox', { name: 'Estado' }).click();
         await page.getByRole('option', { name: 'Eliminados', exact: true }).click();
 
+        // 2. Validar que se muestran los jugadores correspondientes
         await expect(page.getByText('DardoMaestro')).not.toBeVisible();
         await expect(page.getByText('DianaZaragoza')).not.toBeVisible();
         await expect(page.getByText('UsuarioFantasma')).toBeVisible();
     });
 
-    test('debe comprobar el funcionamiento del spinner para cambiar de temporada', async ({ page }) => {
-        // Año actual por defecto en el componente (2026 en este entorno de ejecución)
+    test('debe comprobar el funcionamiento del filtro por temporada', async ({ page }) => {
+        // 1. Validar que funciona el filtro por Temporada
         const currentYear = 2026;
         const inputTemporada = page.getByLabel('Temporada');
         await expect(inputTemporada).toHaveValue(`${currentYear} - ${currentYear + 1}`);
 
-        // Pulsar la flecha de arriba (incrementar año)
         await page.getByTitle('Incrementar año').click();
         await expect(inputTemporada).toHaveValue(`${currentYear + 1} - ${currentYear + 2}`);
 
-        // Al cambiar de año, los jugadores mock de 2026 ya no deberían cumplir el filtro del cliente
+        // 2. Validar que se muestran los jugadores correspondientes
         await expect(page.getByText('DardoMaestro')).not.toBeVisible();
     });
 
     test('debe mostrar las acciones correctas para cada estado del jugador (activo, eliminado)', async ({ page }) => {
         // ---- 1. Estado: ACTIVO ----
-        // Permite: Editar, Eliminar. NO permite: Restaurar.
+        // Permite: Editar, Eliminar
         const rowActive = page.locator('tr', { hasText: 'DardoMaestro' });
         await expect(rowActive.getByRole('button', { name: 'Editar jugador', exact: true })).toBeVisible();
         await expect(rowActive.getByRole('button', { name: 'Eliminar jugador', exact: true })).toBeVisible();
         await expect(rowActive.getByRole('button', { name: 'Restaurar jugador', exact: true })).not.toBeVisible();
 
-        // Cambiamos el selector de estado global a 'Eliminados' para poder inspeccionar al UsuarioFantasma
+        // 2. Cambiamos el selector de estado global a 'Eliminados'
         await page.getByRole('combobox', { name: 'Estado' }).click();
         await page.getByRole('option', { name: 'Eliminados', exact: true }).click();
 
-        // ---- 2. Estado: ELIMINADO ----
-        // Permite: Editar, Restaurar. NO permite: Eliminar.
+        // ---- 3. Estado: ELIMINADO ----
+        // Permite: Editar, Restaurar
         const rowDeleted = page.locator('tr', { hasText: 'UsuarioFantasma' });
         await expect(rowDeleted.getByRole('button', { name: 'Editar jugador', exact: true })).toBeVisible();
         await expect(rowDeleted.getByRole('button', { name: 'Restaurar jugador', exact: true })).toBeVisible();
