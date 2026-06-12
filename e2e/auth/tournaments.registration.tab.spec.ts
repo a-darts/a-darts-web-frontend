@@ -180,7 +180,7 @@ test.describe('Tournaments Registration Tab', () => {
         await expect(title).toBeVisible();
     });
 
-    test('debe navegar al tab de Inscripciones', async ({ page }) => {
+    test('debe navegar al tab de Inscripciones y mostrar los jugadores inscritos', async ({ page }) => {
         // 1. Navegar al tab de Inscripciones
         const registrationButton = page.getByRole('button', { name: 'INSCRIPCIONES', exact: true });
         await expect(registrationButton).toBeVisible();
@@ -195,5 +195,31 @@ test.describe('Tournaments Registration Tab', () => {
         await expect(page.getByText(MOCK_PARTICIPANTS[0].federation)).toBeVisible();
         await expect(page.getByText(MOCK_PARTICIPANTS[1].alias)).toBeVisible();
         await expect(page.getByText(MOCK_PARTICIPANTS[1].federation)).toBeVisible();
+        await expect(page.getByText('2 JUGADORES')).toBeVisible();
+    });
+
+    test('debe mostrar un mensaje de lista vacía cuando no hay jugadores inscritos', async ({ page }) => {
+        // 1. Sobreescribir la ruta para que no devuelva ningún jugador inscrito
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/participants`, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: "success",
+                    data: [],
+                }),
+            });
+        });
+
+        // 2. Forzamos recargar la página
+        await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+        // 3. Ir al tab de Inscripciones
+        const registrationButton = page.getByRole('button', { name: 'INSCRIPCIONES', exact: true });
+        await registrationButton.click();
+
+        // 4. Validar que el contador marque 0 y muestre el mensaje de tabla vacía
+        await expect(page.getByText('0 JUGADORES')).toBeVisible();
+        await expect(page.getByText('No hay jugadores inscritos en este torneo')).toBeVisible();
     });
 });
