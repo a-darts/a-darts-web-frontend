@@ -53,8 +53,8 @@ function App() {
           <div style={styles.footerSection}>
             <h4 style={styles.sectionTitle}>Contacto</h4>
             <div style={styles.linksContainer}>
-              <a href="mailto:a.darts.dev@gmail.com" style={styles.link} className="footer-link">
-                a.darts.dev@gmail.com
+              <a href="mailto:contacto@a-darts.com" style={styles.link} className="footer-link">
+                contacto@a-darts.com
               </a>
             </div>
           </div>

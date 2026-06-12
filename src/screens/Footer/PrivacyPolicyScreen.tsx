@@ -43,7 +43,7 @@ const PrivacyPolicyScreen: React.FC = () => {
                     We are responsible for making decisions about how your personal information is processed.
                     If you do not agree with our policies and practices, please do not use our Services. If you still have any questions or concerns,
                     please contact us at{' '}
-                    <a href="mailto:a.darts.dev@gmail.com" style={styles.link}>a.darts.dev@gmail.com</a>.
+                    <a href="mailto:contacto@a-darts.com" style={styles.link}>contacto@a-darts.com</a>.
                 </p>
 
                 <h2 style={styles.sectionTitle}>SUMMARY OF KEY POINTS</h2>
@@ -121,7 +121,7 @@ const PrivacyPolicyScreen: React.FC = () => {
                 <div style={styles.contactBlock}>
                     <p style={{ ...styles.paragraph, margin: '0.2rem 0' }}><strong>Ariana Porroche Llorén (A-Darts)</strong></p>
                     <p style={{ ...styles.paragraph, margin: '0.2rem 0' }}>Zaragoza, Spain 50014</p>
-                    <p style={{ ...styles.paragraph, margin: '0.2rem 0' }}>Email: <a href="mailto:a.darts.dev@gmail.com" style={styles.link}>a.darts.dev@gmail.com</a></p>
+                    <p style={{ ...styles.paragraph, margin: '0.2rem 0' }}>Email: <a href="mailto:contacto@a-darts.com" style={styles.link}>contacto@a-darts.com</a></p>
                 </div>
             </div>
         </div>

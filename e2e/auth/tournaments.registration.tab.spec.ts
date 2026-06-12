@@ -48,7 +48,7 @@ const MOCK_TOURNAMENT = {
     registration: {
         hasCheckIn: true,
         status: RegistrationStatus.OPEN,
-        registrationPeriod: { startsAt: null, endsAt: null }
+        registrationPeriod: { startsAt: null, endsAt: '2026-08-15T17:50:00.000Z' }
     },
 };
 
@@ -221,5 +221,97 @@ test.describe('Tournaments Registration Tab', () => {
         // 4. Validar que el contador marque 0 y muestre el mensaje de tabla vacía
         await expect(page.getByText('0 JUGADORES')).toBeVisible();
         await expect(page.getByText('No hay jugadores inscritos en este torneo')).toBeVisible();
+    });
+
+    test.describe('Vistas de Administrador', () => {
+        test.beforeEach(async ({ page }) => {
+            // 1. Sobreescribimos la ruta de identificación para que devuelva los datos del ADMIN
+            await page.route(`${API_BASE}/auth/me`, async (route) => {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify(MOCK_ADMIN),
+                });
+            });
+
+            // 2. Forzamos recargar la página
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+            // 3. Ir al tab de Inscripciones
+            const registrationButton = page.getByRole('button', { name: 'INSCRIPCIONES', exact: true });
+            await registrationButton.click();
+
+            // 4. Verificar que estamos en el tab de Inscripciones
+            const title = page.getByRole('heading', { name: 'Jugadores inscritos', exact: true });
+            await expect(title).toBeVisible();
+        });
+
+        test('debe mostrar que las inscripciones están ABIERTAS y el check-in ACTIVADO', async ({ page }) => {
+            // 1. Verificar sección del estado de las inscripciones
+            await expect(page.getByText('ESTADO').first()).toBeVisible();
+            await expect(page.locator('div', { hasText: /^Inscripciones abiertas$/ })).toBeVisible();
+            await expect(page.getByText('APERTURA INSCRIPCIONES')).toBeVisible();
+            await expect(page.getByText('Sin programar', { exact: true })).toBeVisible();
+            await expect(page.getByText('CIERRE INSCRIPCIONES')).toBeVisible();
+            await expect(page.getByText('15 de agosto de 2026 a las 19:50', { exact: true })).toBeVisible();
+
+            // 2. Verificar sección del estado del check-in
+            await expect(page.getByText('ESTADO CHECK-IN')).toBeVisible();
+            await expect(page.getByText('Activado', { exact: true })).toBeVisible();
+
+            // 3. Verificar botones de acción
+            await expect(page.getByRole('button', { name: 'Cerrar inscripciones', exact: true })).toBeVisible();
+            await expect(page.getByRole('button', { name: 'Programar apertura/cierre', exact: true })).toBeVisible();
+            await expect(page.getByRole('button', { name: 'Deshabilitar Check-In', exact: true })).toBeVisible();
+
+            await expect(page.getByRole('button', { name: 'INSCRIBIR PARTICIPANTE', exact: true })).toBeVisible();
+        });
+
+        test('debe mostrar que las inscripciones están CERRADAS y el check-in DESACTIVADO', async ({ page }) => {
+            // 1. Clonamos y modificamos las propiedades del torneo para simular las inscripciones cerradas
+            const MOCK_TOURNAMENT_CLOSED = {
+                ...MOCK_TOURNAMENT,
+                registration: {
+                    hasCheckIn: false,
+                    status: RegistrationStatus.CLOSED,
+                    registrationPeriod: { startsAt: '2026-06-12T16:32:00.000Z', endsAt: null },
+                },
+            };
+
+            // 2. Sobreescribimos el endpoint del torneo ANTES de forzar la recarga
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}`, async (route) => {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: "success",
+                        data: MOCK_TOURNAMENT_CLOSED,
+                    }),
+                });
+            });
+
+            // 3. Recargamos la interfaz para pintar la nueva configuración del API
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+            await page.getByRole('button', { name: 'INSCRIPCIONES', exact: true }).click();
+
+            // 4. Verificar sección del estado de las inscripciones
+            await expect(page.getByText('ESTADO').first()).toBeVisible();
+            await expect(page.locator('div', { hasText: /^Inscripciones cerradas$/ })).toBeVisible();
+            await expect(page.getByText('APERTURA INSCRIPCIONES')).toBeVisible();
+            await expect(page.getByText('12 de junio de 2026 a las 18:32', { exact: true })).toBeVisible();
+            await expect(page.getByText('CIERRE INSCRIPCIONES')).toBeVisible();
+            await expect(page.getByText('Sin programar', { exact: true })).toBeVisible();
+
+            // 5. Verificar sección del estado del check-in
+            await expect(page.getByText('ESTADO CHECK-IN')).toBeVisible();
+            await expect(page.getByText('Desactivado', { exact: true })).toBeVisible();
+
+            // 6. Verificar botones de acción
+            await expect(page.getByRole('button', { name: 'Abrir inscripciones', exact: true })).toBeVisible();
+            await expect(page.getByRole('button', { name: 'Programar apertura/cierre', exact: true })).toBeVisible();
+            await expect(page.getByRole('button', { name: 'Habilitar Check-In', exact: true })).toBeVisible();
+
+            await expect(page.getByRole('button', { name: 'INSCRIBIR PARTICIPANTE', exact: true })).toBeVisible();
+        });
     });
 });
