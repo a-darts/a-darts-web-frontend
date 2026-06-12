@@ -29,7 +29,7 @@ const AdminPlayersTab: React.FC = () => {
 
   const [federationFilter, setFederationFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<PlayerStatus>(PlayerStatus.ACTIVE);
-  const [seasonStartYear, setSeasonStartYear] = useState<number>(new Date().getFullYear());
+  const [seasonStartYearFilter, setSeasonStartYearFilter] = useState<number>(new Date().getFullYear());
   const [hoverUp, setHoverUp] = useState(false);
   const [hoverDown, setHoverDown] = useState(false);
 
@@ -47,7 +47,14 @@ const AdminPlayersTab: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await playerService.getPlayers(page, limit, statusFilter);
+      const res = await playerService.getPlayers(
+        page,
+        limit,
+        playerQuery,
+        statusFilter,
+        federationFilter,
+        seasonStartYearFilter,
+      );
       if (res && res.data) {
         if (Array.isArray(res.data)) {
           setPlayers(res.data);
@@ -70,7 +77,7 @@ const AdminPlayersTab: React.FC = () => {
 
   useEffect(() => {
     fetchPlayers(1);
-  }, [statusFilter]);
+  }, [playerQuery, statusFilter, federationFilter, seasonStartYearFilter]);
 
   const openConfirmModal = (
     title: string,
@@ -188,14 +195,6 @@ const AdminPlayersTab: React.FC = () => {
     },
   ];
 
-  const filtered = players.filter(p => {
-    const matchesQuery = (p.userAlias || '').toLowerCase().includes(playerQuery.toLowerCase());
-    const matchesFed = federationFilter === '' || p.federation === federationFilter;
-    const matchesSeason = p.seasonStartYear === seasonStartYear;
-
-    return matchesQuery && matchesFed && matchesSeason;
-  });
-
   return (
     <div style={styles.contentCard}>
       <div style={styles.viewHeader}>
@@ -243,13 +242,13 @@ const AdminPlayersTab: React.FC = () => {
                 label="Temporada"
                 type="text"
                 icon="Calendar"
-                value={`${seasonStartYear} - ${getSeasonEndYear(seasonStartYear)}`}
+                value={`${seasonStartYearFilter} - ${getSeasonEndYear(seasonStartYearFilter)}`}
                 readOnly
               />
               <div style={styles.spinnerArrows}>
                 <button
                   type="button"
-                  onClick={() => setSeasonStartYear((prev) => prev + 1)}
+                  onClick={() => setSeasonStartYearFilter((prev) => prev + 1)}
                   onMouseEnter={() => setHoverUp(true)}
                   onMouseLeave={() => setHoverUp(false)}
                   style={{
@@ -262,7 +261,7 @@ const AdminPlayersTab: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSeasonStartYear((prev) => prev - 1)}
+                  onClick={() => setSeasonStartYearFilter((prev) => prev - 1)}
                   onMouseEnter={() => setHoverDown(true)}
                   onMouseLeave={() => setHoverDown(false)}
                   style={{
@@ -295,7 +294,7 @@ const AdminPlayersTab: React.FC = () => {
         </div>
       ) : (
         <Table
-          data={filtered}
+          data={players}
           columns={columns}
           emptyMessage="No hay jugadores registrados que coincidan con la búsqueda."
           pagination={{

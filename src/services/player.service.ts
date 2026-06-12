@@ -41,7 +41,14 @@ export const playerService = {
   /**
    * Fetches all players, with optional pagination.
    */
-  async getPlayers(page?: number, limit?: number, status: PlayerStatus = PlayerStatus.ACTIVE) {
+  async getPlayers(
+    page?: number,
+    limit?: number,
+    search?: string,
+    status: PlayerStatus = PlayerStatus.ACTIVE,
+    federation?: string,
+    seasonStartYear?: number,
+  ) {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
@@ -49,7 +56,10 @@ export const playerService = {
       const queryParams = new URLSearchParams();
       if (page !== undefined) queryParams.append('page', page.toString());
       if (limit !== undefined) queryParams.append('limit', limit.toString());
+      if (search) queryParams.append('search', search);
       if (status !== undefined) queryParams.append('status', status);
+      if (federation) queryParams.append('federation', federation);
+      if (seasonStartYear !== undefined) queryParams.append('seasonStartYear', seasonStartYear.toString());
 
       const url = queryParams.toString()
         ? `${API_BASE_URL}/players?${queryParams.toString()}`
