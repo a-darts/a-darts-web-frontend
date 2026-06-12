@@ -208,7 +208,7 @@ test.describe('Tournaments Screen', () => {
         // 1. Navegar a la pantalla de torneos
         await page.goto('/tournaments');
 
-        // 2. Verificar la estructura inicial y título de la pantalla
+        // 2. Verificar que estamos en la pantalla de torneos
         const title = page.getByRole('heading', { name: 'Torneos', exact: true });
         await expect(title).toBeVisible();
 
