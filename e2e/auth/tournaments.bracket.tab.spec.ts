@@ -198,6 +198,7 @@ test.describe('Tournaments Bracket Tab', () => {
             });
         });
 
+        // 5. Mock GET /tournaments/{id}/bracket
         await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/bracket`, async (route) => {
             await route.fulfill({
                 status: 200,
@@ -210,6 +211,7 @@ test.describe('Tournaments Bracket Tab', () => {
             });
         });
 
+        // 6. Mock GET /tournaments/{id}/matches
         await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/matches`, async (route) => {
             await route.fulfill({
                 status: 200,
@@ -223,17 +225,17 @@ test.describe('Tournaments Bracket Tab', () => {
         });
 
 
-        // 6. Proceso automático de Login previo
+        // 7. Proceso automático de Login previo
         await page.goto('/login');
         await page.getByLabel('Correo electrónico').fill(MOCK_PLAYER.email);
         await page.getByLabel('Contraseña').fill('password123');
         await page.locator('button[type="submit"]').click();
         await expect(page).toHaveURL('/');
 
-        // 7. Navegar a la pantalla del torneo
+        // 8. Navegar a la pantalla del torneo
         await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
 
-        // 8. Verificar que estamos en la pantalla del torneo
+        // 9. Verificar que estamos en la pantalla del torneo
         const title = page.getByRole('heading', { name: `${MOCK_TOURNAMENT.name}`, exact: true });
         await expect(title).toBeVisible();
     });
