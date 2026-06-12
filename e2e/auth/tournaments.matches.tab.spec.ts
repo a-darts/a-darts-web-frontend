@@ -347,6 +347,7 @@ test.describe('Tournaments Matches Tab', () => {
     });
 
     test('debe clasificar y mostrar correctamente los partidos distribuidos en múltiples secciones simultáneas', async ({ page }) => {
+        // 1. Mockear GET /tournaments/{id}/matches
         await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/matches`, async (route) => {
             await route.fulfill({
                 status: 200,
@@ -364,7 +365,7 @@ test.describe('Tournaments Matches Tab', () => {
         await expect(matchesButton).toBeVisible();
         await matchesButton.click();
 
-        // 3. AISLAR Y VALIDAR SECCIÓN: "Partidas en curso"
+        // 3. Verificar sección Partidas en curso
         const inProgressSection = page
             .locator('div')
             .filter({ has: page.getByRole('heading', { name: /Partidas en curso/i }) })
@@ -373,7 +374,7 @@ test.describe('Tournaments Matches Tab', () => {
         await expect(inProgressSection.getByText('Rival Activo 2')).toBeVisible();
         await expect(inProgressSection.getByText('Diana 3')).toBeVisible();
 
-        // 4. AISLAR Y VALIDAR SECCIÓN: "Partidas pendientes"
+        // 4. Verificar sección Partidas pendientes
         const pendingSection = page
             .locator('div')
             .filter({ has: page.getByRole('heading', { name: /Partidas pendientes/i }) })
@@ -382,7 +383,7 @@ test.describe('Tournaments Matches Tab', () => {
         await expect(pendingSection.getByText('Rival Espera 2')).toBeVisible();
         await expect(pendingSection.getByText('Diana sin asignar')).toBeVisible();
 
-        // 5. AISLAR Y VALIDAR SECCIÓN: "Partidas finalizadas"
+        // 5. Verificar sección Partidas finalizadas
         const finishedSection = page
             .locator('div')
             .filter({ has: page.getByRole('heading', { name: /Partidas finalizadas/i }) })
@@ -391,7 +392,7 @@ test.describe('Tournaments Matches Tab', () => {
         await expect(finishedSection.getByText('Perdedor 1')).toBeVisible();
         await expect(finishedSection.getByText('Diana 4')).toBeVisible();
 
-        // 6. AISLAR Y VALIDAR SECCIÓN: "Otras partidas"
+        // 6. Verificar sección Otras partidas
         const othersSection = page
             .locator('div')
             .filter({ has: page.getByRole('heading', { name: /Otras partidas/i }) })
@@ -399,5 +400,80 @@ test.describe('Tournaments Matches Tab', () => {
         await expect(othersSection.getByText('Pausado 1')).toBeVisible();
         await expect(othersSection.getByText('Pausado 2')).toBeVisible();
         await expect(othersSection.getByText('Diana 5')).toBeVisible();
+    });
+
+    test('debe filtrar las secciones de las partidas al alternar los botones de estado', async ({ page }) => {
+        // 1. Mockear datos mixtos para tener elementos en todas las secciones
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/matches`, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: "success",
+                    data: MOCK_MIXED_MATCHES,
+                }),
+            });
+        });
+
+        // 2. Ir a la pestaña de PARTIDAS
+        const matchesButton = page.getByRole('button', { name: 'PARTIDAS', exact: true });
+        await matchesButton.click();
+
+        // 3. Verificar que inicialmente todas las secciones seleccionadas por defecto están visibles
+        await expect(page.getByRole('heading', { name: /Partidas en curso/i })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Partidas pendientes/i })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Partidas finalizadas/i })).toBeVisible();
+
+        // 4. Desactivar el filtro "En curso" haciendo clic en su botón
+        const inProgressFilterButton = page.getByRole('button', { name: 'En curso', exact: true });
+        await inProgressFilterButton.click();
+
+        // 5. Verificar que la sección "Partidas en curso" desaparece del DOM
+        await expect(page.getByRole('heading', { name: /Partidas en curso/i })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: /Partidas pendientes/i })).toBeVisible();
+
+        // 6. Desactivar el filtro "Pendientes"
+        const pendingFilterButton = page.getByRole('button', { name: 'Pendientes', exact: true });
+        await pendingFilterButton.click();
+
+        // 7. Verificar que solo queda la sección de finalizadas y otras partidas
+        await expect(page.getByRole('heading', { name: /Partidas pendientes/i })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: /Partidas finalizadas/i })).toBeVisible();
+    });
+
+    test('debe filtrar las partidas por la ronda seleccionada en el dropdown', async ({ page }) => {
+        // 1. Mockear datos mixtos (MOCK_MIXED_MATCHES tiene partidas de Ronda 1, MOCK_MATCHES tiene de Ronda 2)
+        const ALL_MATCHES = [...MOCK_MIXED_MATCHES, MOCK_MATCHES[2]];
+
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/matches`, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: "success",
+                    data: ALL_MATCHES,
+                }),
+            });
+        });
+
+        // 2. Ir a la pestaña de PARTIDAS
+        const matchesButton = page.getByRole('button', { name: 'PARTIDAS', exact: true });
+        await matchesButton.click();
+
+        // 3. Localizar el selector de Ronda (buscando por su etiqueta vinculada)
+        await page.getByRole('combobox', { name: 'Ronda' }).click();
+        await page.getByRole('option', { name: 'Ronda 2', exact: true }).click();
+
+        // 4. Verificar que los elementos de la Ronda 1 ya no son visibles en sus respectivas secciones
+        await expect(page.getByText('Rival Activo 1')).not.toBeVisible();
+
+        // 5. Verificar que la partida de la Ronda 2 (Por determinar) ahora es la que se muestra
+        const pendingSection = page.locator('div').filter({ has: page.getByRole('heading', { name: /Partidas pendientes/i }) }).first();
+        await expect(pendingSection.getByText('Por determinar').first()).toBeVisible();
+
+        // 6. Volver a seleccionar "Todas las rondas" y comprobar que vuelven a aparecer
+        await page.getByRole('combobox', { name: 'Ronda' }).click();
+        await page.getByRole('option', { name: 'Todas las rondas', exact: true }).click();
+        await expect(page.getByText('Rival Activo 1')).toBeVisible();
     });
 });
