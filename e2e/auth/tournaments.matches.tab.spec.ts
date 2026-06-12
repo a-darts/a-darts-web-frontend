@@ -69,19 +69,6 @@ const MOCK_PARTICIPANTS = [
     },
 ];
 
-// const MOCK_BRACKET = {
-//     id: 'bracket-1',
-//     tournamentId: 'tournament-1',
-//     status: BracketStatus.PUBLISHED,
-//     totalPositions: 4,
-//     positions: [
-//         { position: 1, participantId: 'p1', participantAlias: 'Player 1', participantFederation: Federations.MADRID },
-//         { position: 2, participantId: 'p2', participantAlias: 'Player 2', participantFederation: Federations.GALICIA },
-//         { position: 3, participantId: 'p3', participantAlias: 'Player 3', participantFederation: Federations.BALEARES },
-//         { position: 4, participantId: 'p4', participantAlias: 'Player 4', participantFederation: Federations.CANARIAS },
-//     ],
-// };
-
 const MOCK_MATCHES = [
     {
         id: 'm1',
@@ -133,6 +120,72 @@ const MOCK_MATCHES = [
     },
 ];
 
+const MOCK_MIXED_MATCHES = [
+    {
+        id: 'match-in-progress',
+        round: 1,
+        matchIndex: 0,
+        boardNumber: 3,
+        boardShortId: 'BOARD-003',
+        startedAt: '2026-08-15T18:05:00.000Z',
+        finishedAt: null,
+        status: 'IN_PROGRESS',
+        participant1: { id: 'p1', alias: 'Rival Activo 1', federation: Federations.MADRID },
+        participant2: { id: 'p2', alias: 'Rival Activo 2', federation: Federations.GALICIA },
+        matchScore: {
+            participant1: { setsWon: 0, legsWon: 2 },
+            participant2: { setsWon: 0, legsWon: 1 },
+        },
+    },
+    {
+        id: 'match-pending',
+        round: 1,
+        matchIndex: 1,
+        boardNumber: null,
+        boardShortId: null,
+        startedAt: null,
+        finishedAt: null,
+        status: 'PENDING',
+        participant1: { id: 'p3', alias: 'Rival Espera 1', federation: Federations.BALEARES },
+        participant2: { id: 'p4', alias: 'Rival Espera 2', federation: Federations.CANARIAS },
+        matchScore: {
+            participant1: { setsWon: 0, legsWon: 0 },
+            participant2: { setsWon: 0, legsWon: 0 },
+        },
+    },
+    {
+        id: 'match-finished',
+        round: 1,
+        matchIndex: 2,
+        boardNumber: 4,
+        boardShortId: 'BOARD-004',
+        startedAt: '2026-08-15T18:00:00.000Z',
+        finishedAt: '2026-08-15T18:25:00.000Z',
+        status: 'FINISHED',
+        participant1: { id: 'p5', alias: 'Ganador 1', federation: Federations.ARAGON },
+        participant2: { id: 'p6', alias: 'Perdedor 1', federation: Federations.ARAGON },
+        matchScore: {
+            participant1: { setsWon: 1, legsWon: 3 },
+            participant2: { setsWon: 0, legsWon: 1 },
+        },
+    },
+    {
+        id: 'match-suspended',
+        round: 1,
+        matchIndex: 3,
+        boardNumber: 5,
+        boardShortId: 'BOARD-005',
+        startedAt: '2026-08-15T18:10:00.000Z',
+        finishedAt: null,
+        status: 'SUSPENDED',
+        participant1: { id: 'p7', alias: 'Pausado 1', federation: Federations.GALICIA },
+        participant2: { id: 'p8', alias: 'Pausado 2', federation: Federations.GALICIA },
+        matchScore: {
+            participant1: { setsWon: 0, legsWon: 1 },
+            participant2: { setsWon: 0, legsWon: 1 },
+        },
+    }
+];
 
 
 test.describe('Tournaments Matches Tab', () => {
@@ -291,5 +344,60 @@ test.describe('Tournaments Matches Tab', () => {
         await expect(emptyInProgress).toBeVisible();
         const emptyFinished = page.getByText('No hay partidas finalizadas', { exact: false });
         await expect(emptyFinished).toBeVisible();
+    });
+
+    test('debe clasificar y mostrar correctamente los partidos distribuidos en múltiples secciones simultáneas', async ({ page }) => {
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/matches`, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: "success",
+                    message: "Matches fetched successfully",
+                    data: MOCK_MIXED_MATCHES,
+                }),
+            });
+        });
+
+        // 2. Navegar a la pestaña de Partidas
+        const matchesButton = page.getByRole('button', { name: 'PARTIDAS', exact: true });
+        await expect(matchesButton).toBeVisible();
+        await matchesButton.click();
+
+        // 3. AISLAR Y VALIDAR SECCIÓN: "Partidas en curso"
+        const inProgressSection = page
+            .locator('div')
+            .filter({ has: page.getByRole('heading', { name: /Partidas en curso/i }) })
+            .first();
+        await expect(inProgressSection.getByText('Rival Activo 1')).toBeVisible();
+        await expect(inProgressSection.getByText('Rival Activo 2')).toBeVisible();
+        await expect(inProgressSection.getByText('Diana 3')).toBeVisible();
+
+        // 4. AISLAR Y VALIDAR SECCIÓN: "Partidas pendientes"
+        const pendingSection = page
+            .locator('div')
+            .filter({ has: page.getByRole('heading', { name: /Partidas pendientes/i }) })
+            .first();
+        await expect(pendingSection.getByText('Rival Espera 1')).toBeVisible();
+        await expect(pendingSection.getByText('Rival Espera 2')).toBeVisible();
+        await expect(pendingSection.getByText('Diana sin asignar')).toBeVisible();
+
+        // 5. AISLAR Y VALIDAR SECCIÓN: "Partidas finalizadas"
+        const finishedSection = page
+            .locator('div')
+            .filter({ has: page.getByRole('heading', { name: /Partidas finalizadas/i }) })
+            .first();
+        await expect(finishedSection.getByText('Ganador 1')).toBeVisible();
+        await expect(finishedSection.getByText('Perdedor 1')).toBeVisible();
+        await expect(finishedSection.getByText('Diana 4')).toBeVisible();
+
+        // 6. AISLAR Y VALIDAR SECCIÓN: "Otras partidas"
+        const othersSection = page
+            .locator('div')
+            .filter({ has: page.getByRole('heading', { name: /Otras partidas/i }) })
+            .first();
+        await expect(othersSection.getByText('Pausado 1')).toBeVisible();
+        await expect(othersSection.getByText('Pausado 2')).toBeVisible();
+        await expect(othersSection.getByText('Diana 5')).toBeVisible();
     });
 });
