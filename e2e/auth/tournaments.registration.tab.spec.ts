@@ -223,6 +223,37 @@ test.describe('Tournaments Registration Tab', () => {
         await expect(page.getByText('No hay jugadores inscritos en este torneo')).toBeVisible();
     });
 
+    test('debe permitir buscar y filtrar participantes por alias', async ({ page }) => {
+        // 1. Navegar al tab de Inscripciones
+        const registrationButton = page.getByRole('button', { name: 'INSCRIPCIONES', exact: true });
+        await registrationButton.click();
+
+        // 2. Localizar el buscador usando el placeholder del componente
+        const searchInput = page.getByPlaceholder('Buscar por alias...');
+        await expect(searchInput).toBeVisible();
+
+        // 3. CASO 1: Filtrado con coincidencia exacta/parcial
+        await searchInput.fill('Jugador 1');
+
+        await expect(page.getByText(MOCK_PARTICIPANTS[0].alias)).toBeVisible();
+        await expect(page.getByText(MOCK_PARTICIPANTS[1].alias)).not.toBeVisible();
+
+        // 4. CASO 2: Búsqueda sin ningún resultado
+        await searchInput.fill('InexistenteXYZ');
+
+        await expect(page.getByText(MOCK_PARTICIPANTS[0].alias)).not.toBeVisible();
+        await expect(page.getByText(MOCK_PARTICIPANTS[1].alias)).not.toBeVisible();
+
+        await expect(page.getByText('No hay jugadores inscritos en este torneo')).toBeVisible();
+
+        // 5. CASO 3: Restaurar el buscador
+        await searchInput.fill('');
+        await expect(page.getByText(MOCK_PARTICIPANTS[0].alias)).toBeVisible();
+        await expect(page.getByText(MOCK_PARTICIPANTS[1].alias)).toBeVisible();
+    });
+
+
+
     test.describe('Vistas de Administrador', () => {
         test.beforeEach(async ({ page }) => {
             // 1. Sobreescribimos la ruta de identificación para que devuelva los datos del ADMIN
