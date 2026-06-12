@@ -223,7 +223,7 @@ test.describe('Tournaments Matches Tab', () => {
             }
         });
 
-        // 3. Mock GET /tournaments/{id} usando un patrón flexible por los queryParams
+        // 3. Mock GET /tournaments/{id}
         await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}`, async (route) => {
             if (route.request().method() === 'GET') {
                 await route.fulfill({
@@ -250,18 +250,6 @@ test.describe('Tournaments Matches Tab', () => {
                 }),
             });
         });
-
-        // await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/bracket`, async (route) => {
-        //     await route.fulfill({
-        //         status: 200,
-        //         contentType: 'application/json',
-        //         body: JSON.stringify({
-        //             status: "success",
-        //             message: "Bracket fetched successfully",
-        //             data: MOCK_BRACKET,
-        //         }),
-        //     });
-        // });
 
         // 5. Mock GET /tournaments/{id}/matches
         await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/matches`, async (route) => {
