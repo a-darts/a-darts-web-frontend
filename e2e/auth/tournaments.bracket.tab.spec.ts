@@ -302,8 +302,60 @@ test.describe('Tournaments Bracket Tab', () => {
         await expect(registrationButton).toBeVisible();
         await registrationButton.click();
 
-        // 4. Validar que se muestra el mensaje de error
+        // 4. Verificar que se muestra el mensaje de error
         await expect(page.getByText('Cuadrante no disponible')).toBeVisible();
         await expect(page.getByText('Aún no se ha publicado el cuadrante para este torneo. Por favor, vuelve a consultar más tarde.')).toBeVisible();
+    });
+
+
+    test.describe('Vistas de Administrador', () => {
+        test.beforeEach(async ({ page }) => {
+            // 1. Sobreescribimos la ruta de identificación para que devuelva los datos del ADMIN
+            await page.route(`${API_BASE}/auth/me`, async (route) => {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify(MOCK_ADMIN),
+                });
+            });
+
+            // 2. Forzamos recargar la página
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+            // 3. Ir al tab de Cuadrante
+            const registrationButton = page.getByRole('button', { name: 'CUADRANTE', exact: true });
+            await registrationButton.click();
+        });
+
+        test('debe mostrar opciones de generar si el cuadrante no está disponible', async ({ page }) => {
+            // 1. Sobreescribir la ruta para que no devuelva ningún cuadrante
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/bracket`, async (route) => {
+                await route.fulfill({
+                    status: 404,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: "error",
+                        message: "Bracket not found",
+                        data: null,
+                    }),
+                });
+            });
+
+            // 2. Forzamos recargar la página
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+            // 3. Ir al tab de Cuadrante
+            const registrationButton = page.getByRole('button', { name: 'CUADRANTE', exact: true });
+            await expect(registrationButton).toBeVisible();
+            await registrationButton.click();
+
+            // 4. Verificar que se muestra el mensaje de error
+            await expect(page.getByText('Cuadrante no disponible')).toBeVisible();
+            await expect(page.getByText('El cuadrante aún no ha sido generado para este torneo. Como administrador, puedes generarlo automáticamente con los participantes inscritos.')).toBeVisible();
+
+            // 5. Verificar botones de acción
+            await expect(page.getByRole('button', { name: 'Generar cuadrante automáticamente', exact: true })).toBeVisible();
+            await expect(page.getByRole('button', { name: 'Generar cuadrante manualmente', exact: true })).toBeVisible();
+        });
     });
 });

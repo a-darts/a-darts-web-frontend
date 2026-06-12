@@ -208,7 +208,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
     return (
       <EmptyState
         title={"Torneo Eliminado"}
-        description={"Este torneo ha sido eliminado. No se pueden generar ni configurar cuadrantes."}
+        description={"Este torneo ha sido eliminado. No se puede configurar el cuadrante."}
       />
     );
   }
@@ -242,7 +242,7 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
               onClick={handleGenerateBracketManually}
               loading={isGenerating}
             >
-              Configurar cuadrante manualmente
+              Generar cuadrante manualmente
             </Button>
           </>
         )}
