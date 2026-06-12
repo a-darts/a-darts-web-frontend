@@ -29,17 +29,6 @@ const HomeScreen: React.FC = () => {
             Explorar Torneos
           </Button>
         </div>
-
-        {user && user.role === UserRoles.PLAYER && (
-          <div style={styles.cardsContainer}>
-            <InfoCard
-              title='Estadísticas'
-              content='Ver tu historial'
-              icon='ChartColumnBig'
-              onClick={() => navigate('/stats')}
-            />
-          </div>
-        )}
       </section>
     </main>
   );
@@ -76,13 +65,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   },
   cta: {
     display: 'flex',
-    gap: '1rem',
-    justifyContent: 'center',
-  },
-  cardsContainer: {
-    marginTop: '4rem',
-    display: 'flex',
-    flexDirection: 'column',
     gap: '1rem',
     justifyContent: 'center',
   },
