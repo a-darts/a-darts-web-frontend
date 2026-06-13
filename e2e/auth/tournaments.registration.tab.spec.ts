@@ -444,5 +444,115 @@ test.describe('Tournaments Registration Tab', () => {
             await expect(page.getByText('3 JUGADORES')).toBeVisible();
             await expect(participantsContainer.getByText(MOCK_PLAYER.alias)).toBeVisible();
         });
+
+        test('un jugador (PLAYER) debe poder desinscribirse de un torneo', async ({ page }) => {
+            // 1. Preparar el participante que representa al usuario actual ya inscrito
+            const MOCK_MY_PARTICIPANT = {
+                id: 'participant-active-123',
+                playerId: 'player-mock-id-999', // El ID asignado al perfil de jugador
+                registeredAt: '2026-01-02T00:00:00.000Z',
+                checkedInAt: null,
+                alias: MOCK_PLAYER.alias,
+                federation: Federations.ARAGON,
+            };
+
+            // Lista inicial donde el jugador SÍ está inscrito
+            const INITIAL_PARTICIPANTS = [...MOCK_PARTICIPANTS, MOCK_MY_PARTICIPANT];
+
+            let hasUnregistered = false;
+
+            // 2. Interceptar las peticiones de desinscripción (DELETE) y obtención de participantes (GET)
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/participants`, async (route) => {
+                const method = route.request().method();
+
+                if (method === 'GET') {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: "success",
+                            data: hasUnregistered ? MOCK_PARTICIPANTS : INITIAL_PARTICIPANTS,
+                        }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            // Endpoint DELETE específico que consume tu Front-End usando el id de participante
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/participants/${MOCK_MY_PARTICIPANT.id}`, async (route) => {
+                if (route.request().method() === 'DELETE') {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: "success",
+                            message: "Participant unregistered successfully",
+                            data: null,
+                        }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            // Mockear el perfil de jugador de la temporada actual para que asocie al usuario con el participante
+            await page.route(`${API_BASE}/players/users/${MOCK_PLAYER.id}/seasons/${MOCK_TOURNAMENT.seasonStartYear}`, async (route) => {
+                if (route.request().method() === 'GET') {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: "success",
+                            data: {
+                                id: MOCK_MY_PARTICIPANT.playerId,
+                                userId: MOCK_PLAYER.id,
+                                registrationNumber: '999',
+                                federation: MOCK_MY_PARTICIPANT.federation,
+                                seasonStartYear: MOCK_TOURNAMENT.seasonStartYear,
+                            },
+                        }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            // 3. Forzar carga de la pantalla del torneo y navegar al Tab de inscripciones
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+            const registrationButton = page.getByRole('button', { name: 'INSCRIPCIONES', exact: true });
+            await registrationButton.click();
+
+            // 4. Verificar que inicialmente SÍ figura en la lista (Total: 3)
+            await expect(page.getByText('3 JUGADORES')).toBeVisible();
+            const participantsContainer = page.getByRole('table').or(page.locator('.participants-list-container'));
+            await expect(participantsContainer.getByText(MOCK_PLAYER.alias)).toBeVisible();
+
+            // 5. Hacer clic en el botón del Header 'DESINSCRIBIRSE'
+            const unregisterMeButton = page.getByRole('button', { name: 'DESINSCRIBIRSE', exact: true });
+            await expect(unregisterMeButton).toBeVisible();
+            await unregisterMeButton.click();
+
+            // 6. Verificar que se muestra el modal con el texto correspondiente
+            const modalHeading = page.getByRole('heading', { name: 'DESINSCRIBIRSE', exact: true })
+                .or(page.getByRole('heading', { name: `¿Estás seguro de que deseas desinscribirte del torneo ${MOCK_TOURNAMENT.name}?`, exact: true }));
+            await expect(modalHeading).toBeVisible();
+
+            // Cambiamos el flag de control antes de confirmar la acción en el modal
+            hasUnregistered = true;
+
+            // 7. Confirmar la acción en el modal
+            const confirmButton = page.getByRole('button', { name: 'Desinscribirse', exact: true });
+            await expect(confirmButton).toBeVisible();
+            await confirmButton.click();
+
+            // 8. Verificar que se cierra el modal, vuelve a haber 2 jugadores y el alias ya no aparece
+            await expect(modalHeading).not.toBeVisible();
+            await expect(page.getByText('2 JUGADORES')).toBeVisible();
+            await expect(participantsContainer.getByText(MOCK_PLAYER.alias)).not.toBeVisible();
+
+            // 9. Verificar que el botón cambia de estado visual a "INSCRIBIRSE"
+            await expect(page.getByRole('button', { name: 'INSCRIBIRSE', exact: true })).toBeVisible();
+        });
     });
 });
