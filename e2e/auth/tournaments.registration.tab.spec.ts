@@ -345,4 +345,104 @@ test.describe('Tournaments Registration Tab', () => {
             await expect(page.getByRole('button', { name: 'INSCRIBIR PARTICIPANTE', exact: true })).toBeVisible();
         });
     });
+
+    test.describe('Vistas del Player', () => {
+        test('un jugador (PLAYER) debe poder inscribirse en un torneo', async ({ page }) => {
+            // 1. Preparar los datos que simulan al jugador ya inscrito tras la acción
+            const MOCK_NEW_PARTICIPANT = {
+                id: '3',
+                playerId: 'player-3',
+                registeredAt: new Date().toISOString(),
+                checkedInAt: null,
+                alias: MOCK_PLAYER.alias,
+                federation: Federations.ARAGON,
+            };
+
+            // Creamos la lista actualizada que el backend devolvería en la segunda llamada
+            const UPDATED_PARTICIPANTS = [...MOCK_PARTICIPANTS, MOCK_NEW_PARTICIPANT];
+
+            // 3. Modificamos dinámicamente el GET de participantes para que devuelva la lista con el nuevo jugador
+            let hasRegistered = false;
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/participants`, async (route) => {
+                const method = route.request().method();
+
+                if (method === 'POST') {
+                    await route.fulfill({
+                        status: 201,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: "success",
+                            message: "Participant registered successfully",
+                            data: null,
+                        }),
+                    });
+                } else if (method === 'GET') {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: "success",
+                            data: hasRegistered ? UPDATED_PARTICIPANTS : MOCK_PARTICIPANTS,
+                        }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            await page.route(`${API_BASE}/players/users/${MOCK_PLAYER.id}/seasons/${MOCK_TOURNAMENT.seasonStartYear}`, async (route) => {
+                if (route.request().method() === 'GET') {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: "success",
+                            message: "Player data retrieved successfully",
+                            data: {
+                                id: MOCK_NEW_PARTICIPANT.playerId,
+                                userId: MOCK_PLAYER.id,
+                                registrationNumber: '3',
+                                federation: MOCK_NEW_PARTICIPANT.federation,
+                                seasonStartYear: MOCK_TOURNAMENT.seasonStartYear,
+                            },
+                        }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            // 4. Navegar a la pestaña de Inscripciones
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+            const registrationButton = page.getByRole('button', { name: 'INSCRIPCIONES', exact: true });
+            await registrationButton.click();
+
+            // 5. Verificar que inicialmente no está inscrito (total 2)
+            await expect(page.getByText('2 JUGADORES')).toBeVisible();
+            const participantsContainer = page.getByRole('table').or(page.locator('.participants-list-container'));
+            await expect(participantsContainer.getByText(MOCK_PLAYER.alias)).not.toBeVisible();
+
+            // 6. Hacer clic en el botón de inscripción para Jugadores
+            const registerMeButton = page.getByRole('button', { name: 'INSCRIBIRSE', exact: true });
+            await expect(registerMeButton).toBeVisible();
+            await registerMeButton.click();
+
+            // 7. Verificar que se meustra el modal de doble confirmación
+            const modalHeading = page.getByRole('heading', { name: 'INSCRIBIRSE', exact: true });
+            await expect(modalHeading).toBeVisible();
+            await expect(page.getByText(`Confirma la inscripción al torneo ${MOCK_TOURNAMENT.name}`)).toBeVisible();
+
+            hasRegistered = true;
+
+            // 8. Confirmar la acción en el modal
+            const confirmButton = page.getByRole('button', { name: 'Confirmar', exact: true });
+            await expect(confirmButton).toBeVisible();
+            confirmButton.click()
+
+            // 9. Verificar que se cierra el modal y aparece el jugador inscrito (total 3)
+            await expect(modalHeading).not.toBeVisible();
+            await expect(page.getByText('3 JUGADORES')).toBeVisible();
+            await expect(participantsContainer.getByText(MOCK_PLAYER.alias)).toBeVisible();
+        });
+    });
 });
