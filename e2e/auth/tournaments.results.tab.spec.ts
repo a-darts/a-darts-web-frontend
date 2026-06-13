@@ -285,16 +285,21 @@ test.describe('Tournaments Results Tab', () => {
 
         await expect(table.getByRole('cell', { name: 'Player 1', exact: true })).toBeVisible();
         await expect(table.getByRole('cell', { name: '1º', exact: true })).toBeVisible();
+        await expect(table.getByRole('cell', { name: '5', exact: true })).toBeVisible(); // Victorias
+        await expect(table.getByRole('cell', { name: '0', exact: true })).toBeVisible(); // Derrotas
 
         await expect(table.getByRole('cell', { name: 'Player 2', exact: true })).toBeVisible();
         await expect(table.getByRole('cell', { name: '2º', exact: true })).toBeVisible();
+        await expect(table.getByRole('cell', { name: '4', exact: true })).toBeVisible(); // Victorias
 
         await expect(table.getByRole('cell', { name: 'Player 3', exact: true })).toBeVisible();
         await expect(table.getByRole('cell', { name: 'Player 4', exact: true })).toBeVisible();
         await expect(table.getByRole('cell', { name: '3º - 4º', exact: true })).toHaveCount(2);
+        await expect(table.getByRole('cell', { name: '3', exact: true })).toHaveCount(2); // Victorias
 
         await expect(table.getByRole('cell', { name: 'Player 5', exact: true })).toBeVisible();
         await expect(table.getByRole('cell', { name: '5º - 8º', exact: true })).toBeVisible();
+        await expect(table.getByRole('cell', { name: '2', exact: true })).toBeVisible(); // Victorias
     });
 
     test('debe mostrar el Empty State si la API devuelve lista vacía', async ({ page }) => {
