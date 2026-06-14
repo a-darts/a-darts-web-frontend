@@ -3,7 +3,6 @@ import { renderHook, act } from '@testing-library/react';
 import { useLiveMatchSocket, LiveMatchStatus, LiveMatch } from '../useLiveMatchSocket';
 import { socketClientService } from '../../services/socket.service';
 
-// Mockear el servicio de sockets
 vi.mock('../../services/socket.service', () => {
     return {
         socketClientService: {
@@ -45,9 +44,11 @@ describe('useLiveMatchSocket - Unit Tests', () => {
         });
     });
 
-    // =========================================================================
+
+    // --------------------------------------------------------------------
     // 1. CONTROL DE CICLO DE VIDA Y FLUJOS INICIALES
-    // =========================================================================
+    // --------------------------------------------------------------------
+
     it('debe limpiar el estado y desconectar si faltan los identificadores requeridos', () => {
         const { result } = renderHook(() => useLiveMatchSocket({ ...defaultProps, boardShortId: '', matchId: '' }));
 
@@ -77,9 +78,10 @@ describe('useLiveMatchSocket - Unit Tests', () => {
         expect(socketClientService.disconnect).toHaveBeenCalled();
     });
 
-    // =========================================================================
+
+    // --------------------------------------------------------------------
     // 2. PRUEBAS DE EVENTOS DE SOCKET ENTRANTE (CALLBACKS)
-    // =========================================================================
+    // --------------------------------------------------------------------
 
     it('debe cambiar isLiveConnected a true cuando se ejecuta el callback onConnect', () => {
         const { result } = renderHook(() => useLiveMatchSocket(defaultProps));
@@ -195,9 +197,10 @@ describe('useLiveMatchSocket - Unit Tests', () => {
         expect(result.current.liveData?.activePlayerIndex).toBe(1); // Conmutado de 0 a 1
     });
 
-    // =========================================================================
+
+    // --------------------------------------------------------------------
     // 3. PRUEBAS DE EVENTOS SINDICALES Y NOTIFICACIONES (PROPS)
-    // =========================================================================
+    // --------------------------------------------------------------------
     it('debe disparar la función onSuspendedChange ante eventos de suspensión y reanudación', () => {
         const { result } = renderHook(() => useLiveMatchSocket(defaultProps));
 
@@ -238,8 +241,8 @@ describe('useLiveMatchSocket - Unit Tests', () => {
         const { result } = renderHook(() => useLiveMatchSocket(defaultProps));
 
         act(() => {
-            capturedCallbacks.onConnect(); // Conectamos primero
-            capturedCallbacks.onDisconnect('transport close'); // Desconexión forzada
+            capturedCallbacks.onConnect();
+            capturedCallbacks.onDisconnect('transport close');
         });
 
         expect(result.current.isLiveConnected).toBe(false);
