@@ -86,26 +86,49 @@ test.describe('Admin Users Tab', () => {
 
         // 3. Mock GET /users (Paginado y simulando filtros internos)
         await page.route(new RegExp(`${API_BASE}/users`), async (route) => {
-            if (route.request().method() === 'GET') {
-                // Devolvemos la estructura esperada por tu userService.getUsers
-                await route.fulfill({
-                    status: 200,
-                    contentType: 'application/json',
-                    body: JSON.stringify({
-                        status: "success",
-                        data: {
-                            users: MOCK_USERS,
-                            pagination: {
-                                totalPages: 1,
-                                page: 1,
-                                limit: 16
-                            }
-                        }
-                    }),
-                });
-            } else {
-                await route.continue();
+            if (route.request().method() !== 'GET') {
+                return route.continue();
             }
+
+            const url = new URL(route.request().url());
+            // Extraer parámetros idénticos a los que envía tu userService
+            const search = url.searchParams.get('search')?.toLowerCase() || '';
+            const status = url.searchParams.get('status') || '';
+            const role = url.searchParams.get('role') || '';
+
+            // Aplicar la lógica del servidor de forma simulada
+            let filteredUsers = [...MOCK_USERS];
+
+            if (search) {
+                filteredUsers = filteredUsers.filter(u =>
+                    u.alias.toLowerCase().includes(search) ||
+                    u.email.toLowerCase().includes(search)
+                );
+            }
+
+            if (status) {
+                filteredUsers = filteredUsers.filter(u => u.status === status);
+            }
+
+            if (role) {
+                filteredUsers = filteredUsers.filter(u => u.role === role);
+            }
+
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: "success",
+                    data: {
+                        users: filteredUsers,
+                        pagination: {
+                            totalPages: 1,
+                            page: 1,
+                            limit: 16
+                        }
+                    }
+                }),
+            });
         });
 
         // 4. Proceso automático de Login previo
