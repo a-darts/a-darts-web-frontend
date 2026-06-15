@@ -344,6 +344,92 @@ test.describe('Tournaments Registration Tab', () => {
 
             await expect(page.getByRole('button', { name: 'INSCRIBIR PARTICIPANTE', exact: true })).toBeVisible();
         });
+
+        test('debe permitir al administrador inscribir a un participante correctamente', async ({ page }) => {
+            // 1. Mockear la llamada de la API para registrar al participante (POST)
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/participants`, async (route) => {
+                if (route.request().method() === 'POST') {
+                    const body = JSON.parse(route.request().postData() || '{}');
+                    // Verificamos que se envía el ID del jugador seleccionado en el modal
+                    expect(body.playerId).toBe('p3');
+
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({ status: 'success' }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            await expect(page.getByText(MOCK_UNREGISTERED_PLAYERS[0].userAlias)).not.toBeVisible();
+
+            // 2. Hacer clic en el botón para abrir el modal de inscripción
+            const registerButton = page.getByRole('button', { name: 'INSCRIBIR PARTICIPANTE', exact: true });
+            await expect(registerButton).toBeVisible();
+            await registerButton.click();
+
+            // 3. Verificar que el modal se ha abierto
+            await expect(page.getByRole('heading', { name: 'INSCRIBIR PARTICIPANTE', exact: true })).toBeVisible();
+            await expect(page.getByText(`Elige el jugador al que inscribir al torneo`)).toBeVisible();
+
+            // 4. Seleccionar el jugador del desplegable
+            await page.getByRole('combobox', { name: 'Jugador' }).click();
+            await page.getByRole('option', { name: 'Jugador 3', exact: true }).click();
+
+            // 5. Confirmar la inscripción
+            const confirmButton = page.getByRole('button', { name: 'Confirmar', exact: true });
+            await expect(confirmButton).toBeEnabled();
+            await confirmButton.click();
+
+            // 6. Verificar que el modal se cierra y se ha inscrito al jugador
+            await expect(page.getByRole('heading', { name: 'INSCRIBIR PARTICIPANTE', exact: true })).not.toBeVisible();
+            const toast = page.getByText('Participante inscrito correctamente.');
+            await expect(toast).toBeVisible();
+        });
+
+        test('debe permitir al administrador desinscribir a un participante correctamente', async ({ page }) => {
+            const participantToDelete = MOCK_PARTICIPANTS[0];
+
+            // 1. Mockear la llamada de la API para desinscribir (DELETE)
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/participants/${participantToDelete.id}`, async (route) => {
+                if (route.request().method() === 'DELETE') {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: 'success',
+                            message: 'Participant unregistered successfully',
+                            data: null,
+                        }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            // 2. Localizar la fila del primer jugador y su respectivo botón "Desinscribir"
+            const tableRow = page.locator('tr', { hasText: participantToDelete.alias });
+            const unregisterButton = tableRow.getByRole('button', { name: 'Desinscribir', exact: true });
+
+            await expect(unregisterButton).toBeVisible();
+            await unregisterButton.click();
+
+            // 3. Verificar que se abre el modal de confirmación de borrado
+            await expect(page.getByRole('heading', { name: 'DESINSCRIBIR JUGADOR', exact: true })).toBeVisible();
+            await expect(page.getByText(`¿Estás seguro de que deseas desinscribir a ${participantToDelete.alias} del torneo ${MOCK_TOURNAMENT.name}?`)).toBeVisible();
+
+            // 4. Hacer clic en el botón "Desinscribir" del modal para confirmar la acción
+            const modal = page.getByRole('dialog');
+            const modalConfirmButton = modal.getByRole('button', { name: 'Desinscribir', exact: true });
+            await modalConfirmButton.click();
+
+            // 5. Verificar que el modal se cierra y se ha desinscrito al jugador
+            await expect(page.getByRole('heading', { name: 'DESINSCRIBIR JUGADOR', exact: true })).not.toBeVisible();
+            const toast = page.getByText('Participante desinscrito correctamente');
+            await expect(toast).toBeVisible();
+        });
     });
 
     test.describe('Vistas del Player', () => {

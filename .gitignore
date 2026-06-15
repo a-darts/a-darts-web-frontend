@@ -1,6 +1,7 @@
 .env
 
-test-results
+test-results/
+coverage/
 
 # Logs
 logs
