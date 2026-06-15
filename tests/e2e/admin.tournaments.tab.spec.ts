@@ -438,4 +438,129 @@ test.describe('Admin Tournaments Tab', () => {
         await expect(rowDeleted.getByRole('button', { name: /eliminar torneo/i })).not.toBeVisible();
         await expect(rowDeleted.getByRole('button', { name: /restaurar torneo/i })).toBeVisible();
     });
+
+    test('debe permitir eliminar un torneo en estado borrador', async ({ page }) => {
+        const draftTournament = MOCK_TOURNAMENTS.find(t => t.id === 'tournament-draft');
+
+        // 1. Mockear la petición DELETE del torneo y el GET posterior con la lista actualizada
+        await page.route(new RegExp(`${API_BASE}/tournaments`), async (route) => {
+            const method = route.request().method();
+            const url = route.request().url();
+
+            if (method === 'DELETE' && url.includes(draftTournament?.id ?? '')) {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: 'success',
+                        message: "Tournament deleted successfully",
+                        data: null,
+                    }),
+                });
+            } else if (method === 'GET') {
+                const url2 = new URL(route.request().url());
+                const statusParam = url2.searchParams.get('status');
+                let filtered = MOCK_TOURNAMENTS.filter(t => t.id !== 'tournament-draft');
+                if (statusParam) {
+                    const activeStatuses = statusParam.split(',');
+                    filtered = filtered.filter(t => activeStatuses.includes(t.status));
+                }
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ status: "success", data: filtered }),
+                });
+            } else {
+                await route.continue();
+            }
+        });
+
+        // 2. Localizar la fila del torneo borrador y hacer clic en el botón de eliminar (icono papelera)
+        const rowDraft = page.locator('tr', { hasText: 'Torneo de Prueba Borrador' });
+        const deleteButton = rowDraft.getByRole('button', { name: /eliminar torneo/i });
+        await expect(deleteButton).toBeVisible();
+        await deleteButton.click();
+
+        // 3. Validar que se abre el modal de confirmación
+        const modalTitle = page.getByRole('heading', { name: 'Eliminar torneo', exact: true });
+        await expect(modalTitle).toBeVisible();
+
+        // 4. Hacer clic en el botón de confirmar del modal
+        const confirmButton = page.getByRole('button', { name: 'Eliminar', exact: true });
+        await confirmButton.click();
+
+        // 5. Verificar que el modal se cierra y el torneo ya no aparece en el listado
+        await expect(modalTitle).not.toBeVisible();
+        await expect(page.getByText('Torneo de Prueba Borrador')).not.toBeVisible();
+    });
+
+    test('debe permitir restaurar un torneo en estado eliminado', async ({ page }) => {
+        const deletedTournament = MOCK_TOURNAMENTS.find(t => t.id === 'tournament-deleted');
+
+        // Flag para saber si la restauración ya se ha confirmado
+        let restored = false;
+
+        // 1. Mockear la petición POST de restauración y el GET posterior con la lista actualizada
+        await page.route(new RegExp(`${API_BASE}/tournaments`), async (route) => {
+            const method = route.request().method();
+            const url = route.request().url();
+
+            if (method === 'POST' && url.includes(`${deletedTournament?.id}/restore`)) {
+                restored = true;
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: 'success',
+                        message: "Tournament restored successfully",
+                        data: null,
+                    }),
+                });
+            } else if (method === 'GET') {
+                const url2 = new URL(route.request().url());
+                const statusParam = url2.searchParams.get('status');
+                // Solo devolver el estado actualizado DESPUÉS de la restauración
+                let tournaments = restored
+                    ? MOCK_TOURNAMENTS.map(t =>
+                        t.id === 'tournament-deleted' ? { ...t, status: TournamentStatus.DRAFT } : t
+                    )
+                    : [...MOCK_TOURNAMENTS];
+                if (statusParam) {
+                    const activeStatuses = statusParam.split(',');
+                    tournaments = tournaments.filter(t => activeStatuses.includes(t.status));
+                }
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ status: "success", data: tournaments }),
+                });
+            } else {
+                await route.continue();
+            }
+        });
+
+        // 2. Activar el filtro 'Eliminado' para poder ver el torneo mockeado en la tabla
+        const deletedFilterButton = page.getByRole('button', { name: 'Eliminado' });
+        await deletedFilterButton.click();
+
+        // 3. Localizar la fila del torneo eliminado y hacer clic en restaurar (icono RefreshCw)
+        const rowDeleted = page.locator('tr', { hasText: 'Torneo Eliminado Permanentemente' });
+        const restoreButton = rowDeleted.getByRole('button', { name: /restaurar torneo/i });
+        await expect(restoreButton).toBeVisible();
+        await restoreButton.click();
+
+        // 4. Validar que se abre el modal de confirmación de restauración
+        const modalTitle = page.getByRole('heading', { name: 'Restaurar torneo', exact: true });
+        await expect(modalTitle).toBeVisible();
+
+        // 5. Hacer clic en el botón de confirmar del modal
+        const confirmButton = page.getByRole('button', { name: 'Restaurar', exact: true });
+        await confirmButton.click();
+
+        // 6. Verificar que el modal se cierra
+        await expect(modalTitle).not.toBeVisible();
+
+        // Como el filtro 'Eliminado' sigue activo y ahora su estado simulado es DRAFT, ya no debería verse en esta vista filtrada
+        await expect(page.getByText('Torneo Eliminado Permanentemente')).not.toBeVisible();
+    });
 });
