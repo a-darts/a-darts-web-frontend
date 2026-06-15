@@ -274,4 +274,133 @@ test.describe('Admin Users Tab', () => {
         const formTitle = page.getByRole('heading', { name: 'Editar Usuario', exact: true });
         await expect(formTitle).toBeVisible();
     });
+
+    test('debe abrir el modal de bloquear, confirmar la acción y mostrar el toast de éxito', async ({ page }) => {
+        const targetUser = MOCK_USERS[0]; // DardoMaestro (ACTIVE)
+        const rowActive = page.locator('tr', { hasText: targetUser.alias });
+
+        // 1. Mockear la llamada POST al endpoint de bloquear usuario
+        await page.route(`${API_BASE}/users/${targetUser.id}/block`, async (route) => {
+            expect(route.request().method()).toBe('POST');
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: 'success' })
+            });
+        });
+
+        // 2. Abrir el modal haciendo clic en el botón de la fila
+        await rowActive.getByRole('button', { name: 'Bloquear usuario', exact: true }).click();
+
+        // 3. Validar contenido del modal genérico
+        const modal = page.locator('div[role="dialog"]'); // O la estructura de tu componente Modal
+        await expect(modal.getByRole('heading', { name: 'Bloquear usuario' })).toBeVisible();
+        await expect(modal.getByText(targetUser.alias)).toBeVisible();
+
+        // 4. Confirmar la acción en el modal
+        await modal.getByRole('button', { name: 'Bloquear', exact: true }).click();
+
+        // 5. Verificar que el toast de éxito aparece en pantalla
+        await expect(page.getByText('¡Usuario documento bloqueado con éxito!').or(page.getByText('¡Usuario bloqueado con éxito!'))).toBeVisible();
+    });
+
+    test('debe abrir el modal de desbloquear, confirmar la acción y mostrar el toast de éxito', async ({ page }) => {
+        const targetUser = MOCK_USERS[2]; // TrollDardos (BLOCKED)
+        const rowBlocked = page.locator('tr', { hasText: targetUser.alias });
+
+        // 1. Mockear la llamada POST al endpoint de desbloquear usuario
+        await page.route(`${API_BASE}/users/${targetUser.id}/unblock`, async (route) => {
+            expect(route.request().method()).toBe('POST');
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: 'success' })
+            });
+        });
+
+        // 2. Abrir el modal haciendo clic en el botón de la fila
+        await rowBlocked.getByRole('button', { name: 'Desbloquear usuario', exact: true }).click();
+
+        // 3. Validar contenido del modal genérico
+        const modal = page.locator('div[role="dialog"]');
+        await expect(modal.getByRole('heading', { name: 'Desbloquear usuario' })).toBeVisible();
+        await expect(modal.getByText(targetUser.alias)).toBeVisible();
+
+        // 4. Confirmar la acción en el modal
+        await modal.getByRole('button', { name: 'Desbloquear', exact: true }).click();
+
+        // 5. Verificar toast de éxito
+        await expect(page.getByText('¡Usuario desbloqueado con éxito!')).toBeVisible();
+    });
+
+    test('debe abrir el modal de eliminar, confirmar la acción y mostrar el toast de éxito', async ({ page }) => {
+        const targetUser = MOCK_USERS[0]; // DardoMaestro
+        const rowActive = page.locator('tr', { hasText: targetUser.alias });
+
+        // 1. Mockear la llamada DELETE al endpoint de eliminar usuario
+        await page.route(`${API_BASE}/users/${targetUser.id}`, async (route) => {
+            expect(route.request().method()).toBe('DELETE');
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: 'success' })
+            });
+        });
+
+        // 2. Abrir el modal haciendo clic en el botón de la fila
+        await rowActive.getByRole('button', { name: 'Eliminar usuario', exact: true }).click();
+
+        // 3. Validar contenido del modal genérico
+        const modal = page.locator('div[role="dialog"]');
+        await expect(modal.getByRole('heading', { name: 'Eliminar usuario' })).toBeVisible();
+        await expect(modal.getByText(targetUser.alias)).toBeVisible();
+
+        // 4. Confirmar la acción en el modal
+        await modal.getByRole('button', { name: 'Eliminar', exact: true }).click();
+
+        // 5. Verificar toast de éxito
+        await expect(page.getByText('¡Usuario eliminado con éxito!')).toBeVisible();
+    });
+
+    test('debe abrir el modal específico de restaurar, requerir el email, enviarlo correctamente y mostrar el toast de éxito', async ({ page }) => {
+        const targetUser = MOCK_USERS[3]; // UsuarioFantasma (DELETED)
+        const rowDeleted = page.locator('tr', { hasText: targetUser.alias });
+        const NEW_RESTORE_EMAIL = 'fantasma.renacido@example.com';
+
+        // 1. Mockear la llamada POST/PUT al endpoint de restaurar usuario
+        await page.route(`${API_BASE}/users/${targetUser.id}/restore`, async (route) => {
+            expect(route.request().method() === 'POST' || route.request().method() === 'PUT').toBeTruthy();
+
+            // Validamos que el frontend envíe el email introducido en el body
+            const payload = JSON.parse(route.request().postData() || '{}');
+            expect(payload.email).toBe(NEW_RESTORE_EMAIL);
+
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: 'success' })
+            });
+        });
+
+        // 2. Abrir el modal haciendo clic en el botón de restaurar
+        await rowDeleted.getByRole('button', { name: 'Restaurar usuario', exact: true }).click();
+
+        // 3. Localizar el modal específico de restauración
+        const modal = page.locator('div[role="dialog"]');
+        await expect(modal.getByRole('heading', { name: 'Restaurar usuario' })).toBeVisible();
+        await expect(modal.getByText(targetUser.alias)).toBeVisible();
+
+        // 4. Intentar enviar vacío para validar el error del cliente en el TextInput
+        const submitButton = modal.getByRole('button', { name: 'Restaurar', exact: true });
+        await submitButton.click();
+        await expect(modal.getByText('El correo electrónico es requerido.')).toBeVisible();
+
+        // 5. Rellenar el input con el nuevo email de confirmación y guardar
+        const emailInput = modal.getByLabel('Correo electrónico');
+        await emailInput.fill(NEW_RESTORE_EMAIL);
+        await submitButton.click();
+
+        // 6. Verificar toast final de éxito
+        await expect(page.getByText('¡Usuario restaurado con éxito!')).toBeVisible();
+    });
 });
