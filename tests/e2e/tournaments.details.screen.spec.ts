@@ -371,5 +371,85 @@ test.describe('Tournaments Details Screen', () => {
             await cancelButton.click();
             expect(cancelCalled).toBe(true);
         });
+
+        test('debe permitir a un administrador INICIAR el torneo correctamente si cumple los requisitos', async ({ page }) => {
+            // Interceptamos la llamada de inicio del torneo con éxito
+            let startCalled = false;
+            await page.route(new RegExp(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/start`), async (route) => {
+                startCalled = true;
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ status: "success" }),
+                });
+            });
+
+            // 1. Ir al detalle del torneo
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+            // 2. Verificar y hacer clic en el botón "INICIAR TORNEO"
+            const startButton = page.getByRole('button', { name: 'INICIAR TORNEO' });
+            await expect(startButton).toBeVisible();
+            await startButton.click();
+
+            // 3. Verificar que se abre el modal de confirmación
+            const modalTitle = page.getByRole('heading', { name: 'INICIAR TORNEO', exact: true });
+            await expect(modalTitle).toBeVisible();
+
+            // 4. Confirmar el inicio dentro del modal
+            const confirmButton = page.getByRole('button', { name: 'Iniciar' }).nth(1);
+            await confirmButton.click();
+
+            // 5. Verificar que se ha realizado la llamada al servicio de backend
+            expect(startCalled).toBe(true);
+        });
+
+        test('debe mostrar un mensaje de error si el torneo no se puede INICIAR porque no hay cuadrante', async ({ page }) => {
+            // Interceptamos el fallo simulando el error del backend de cuadrante no preparado
+            let startCalled = false;
+            await page.route(new RegExp(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/start`), async (route) => {
+                startCalled = true;
+                await route.fulfill({
+                    status: 400,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ message: "Bracket not in draft or published" }),
+                });
+            });
+
+            // 1. Ir al detalle del torneo y abrir el modal de inicio
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+            await page.getByRole('button', { name: 'INICIAR TORNEO' }).click();
+
+            // 2. Confirmar la acción en el modal
+            await page.getByRole('button', { name: 'Iniciar' }).nth(1).click();
+
+            // 3. Verificar que se llamó al endpoint y que el Toast/mensaje de error captura el payload
+            const toast = page.getByText('El cuadrante no está en borrador ni publicado');
+            await expect(toast).toBeVisible();
+        });
+
+        test('debe mostrar un mensaje de error si el torneo no se puede INICIAR debido a inscripciones abiertas', async ({ page }) => {
+            // Interceptamos el fallo simulando otro de los casos del schema: "Registration is not closed"
+            let startCalled = false;
+            await page.route(new RegExp(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/start`), async (route) => {
+                startCalled = true;
+                await route.fulfill({
+                    status: 400,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ message: "Registration is not closed" }),
+                });
+            });
+
+            // 1. Ir al detalle del torneo y abrir el modal de inicio
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+            await page.getByRole('button', { name: 'INICIAR TORNEO' }).click();
+
+            // 2. Confirmar la acción en el modal
+            await page.getByRole('button', { name: 'Iniciar' }).nth(1).click();
+
+            // 3. Verificar el Toast con el error específico del backend
+            const toast = page.getByText('Las inscripciones no están cerradas');
+            await expect(toast).toBeVisible();
+        });
     });
 });
