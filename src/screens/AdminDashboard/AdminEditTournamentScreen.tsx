@@ -179,14 +179,16 @@ const AdminEditTournamentScreen: React.FC = () => {
   };
 
   if (authLoading || loading) {
-    <div style={styles.loadingContainer}>
-      <Icon
-        name="Loader"
-        size={32}
-        className="btn-icon animate-spin"
-      />
-      <div style={styles.loadingText}>Cargando información del torneo...</div>
-    </div>
+    return (
+      <div style={styles.loadingContainer}>
+        <Icon
+          name="Loader"
+          size={32}
+          className="btn-icon animate-spin"
+        />
+        <div style={styles.loadingText}>Cargando información del torneo...</div>
+      </div>
+    );
   }
 
   if (error) {
