@@ -109,7 +109,7 @@ const AdminPlayersTab: React.FC = () => {
       async () => {
         try {
           await playerService.deletePlayer(player.id);
-          showToast('Jugador eliminado con éxito!', 'success');
+          showToast('¡Jugador eliminado con éxito!', 'success');
           fetchPlayers(currentPage);
         } catch (err: any) {
           console.error('Error deleting player:', err);
@@ -122,7 +122,7 @@ const AdminPlayersTab: React.FC = () => {
   const handleRestore = async (player: Player) => {
     try {
       await playerService.restorePlayer(player.id);
-      showToast('Jugador restaurado con éxito!', 'success');
+      showToast('¡Jugador restaurado con éxito!', 'success');
       fetchPlayers(currentPage);
     } catch (err: any) {
       console.error('Error restoring player:', err);

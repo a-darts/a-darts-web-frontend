@@ -244,4 +244,80 @@ test.describe('Admin Players Tab', () => {
         await expect(rowDeleted.getByRole('button', { name: 'Restaurar jugador', exact: true })).toBeVisible();
         await expect(rowDeleted.getByRole('button', { name: 'Eliminar jugador', exact: true })).not.toBeVisible();
     });
+
+    test('debe abrir el modal de confirmación, permitir cancelar y confirmar la eliminación con éxito', async ({ page }) => {
+        const TARGET_PLAYER_ID = 'player-1';
+
+        // 1. Interceptar la llamada DELETE al servidor
+        await page.route(`${API_BASE}/players/${TARGET_PLAYER_ID}`, async (route) => {
+            if (route.request().method() === 'DELETE') {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ status: 'success', message: 'Player deleted' }),
+                });
+            } else {
+                await route.continue();
+            }
+        });
+
+        const rowActive = page.locator('tr', { hasText: 'DardoMaestro' });
+        const deleteButton = rowActive.getByRole('button', { name: 'Eliminar jugador', exact: true });
+
+        // 2. Hacer click en el botón de la papelera para abrir el Modal
+        await deleteButton.click();
+
+        // 3. Comprobar que el modal emerge con el título y la descripción esperados
+        const modalHeading = page.getByRole('heading', { name: 'Eliminar jugador', exact: true });
+        await expect(modalHeading).toBeVisible();
+        await expect(page.getByText('¿Estás seguro de que deseas eliminar permanentemente al jugador DardoMaestro?')).toBeVisible();
+
+        // 4. Probar la cancelación del modal primero
+        const cancelButton = page.getByRole('button', { name: /cancelar/i, exact: true });
+        await cancelButton.click();
+        await expect(modalHeading).not.toBeVisible(); // El modal debe cerrarse
+
+        // 5. Volver a abrir y confirmar definitivamente la acción
+        await deleteButton.click();
+        const confirmButton = page.getByRole('button', { name: 'Eliminar', exact: true });
+        await confirmButton.click();
+
+        // 6. Validar que aparece el Toast de éxito definitivo
+        const successToast = page.getByText('¡Jugador eliminado con éxito!');
+        await expect(successToast).toBeVisible();
+
+        // 7. El modal debe haber desaparecido tras la resolución asíncrona
+        await expect(modalHeading).not.toBeVisible();
+    });
+
+    test('debe procesar la restauración directa de un jugador inactivo con éxito', async ({ page }) => {
+        const DELETED_PLAYER_ID = 'player-deleted';
+
+        // 1. Interceptar la llamada de restauración
+        await page.route(`${API_BASE}/players/${DELETED_PLAYER_ID}/restore`, async (route) => {
+            if (route.request().method() === 'PUT' || route.request().method() === 'POST') {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ status: 'success', message: 'Player restored' }),
+                });
+            } else {
+                await route.continue();
+            }
+        });
+
+        // 2. Cambiar al estado de "Eliminados" para ver al 'UsuarioFantasma'
+        await page.getByRole('combobox', { name: 'Estado' }).click();
+        await page.getByRole('option', { name: 'Eliminados', exact: true }).click();
+
+        const rowDeleted = page.locator('tr', { hasText: 'UsuarioFantasma' });
+        const restoreButton = rowDeleted.getByRole('button', { name: 'Restaurar jugador', exact: true });
+
+        // 3. Ejecutar la restauración directa
+        await restoreButton.click();
+
+        // 4. Validar que la interfaz responde mostrando el Toast correspondiente de confirmación
+        const successToast = page.getByText('¡Jugador restaurado con éxito!');
+        await expect(successToast).toBeVisible();
+    });
 });
