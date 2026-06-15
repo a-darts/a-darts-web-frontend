@@ -505,4 +505,143 @@ test.describe('Tournament Playing Area Tab (Salón de Juego)', () => {
         // Opcional: Validar que el Toast o la UI informen del cambio de estado a ocupado o refleje el éxito
         await expect(page.getByText('Partida asignada correctamente')).toBeVisible();
     });
+
+    test('debe permitir suspender una partida en curso en una diana ocupada', async ({ page }) => {
+        const MOCK_ACTIVE_MATCH = {
+            id: 'match-live-456',
+            tournamentId: MOCK_TOURNAMENT.id,
+            round: 1,
+            matchIndex: 1,
+            status: 'IN_PROGRESS',
+            participant1: { alias: 'Jugador 1' },
+            participant2: { alias: 'Jugador 2' },
+        };
+
+        // 1. Forzar que el salón devuelva la Diana 1 ocupada por esta partida
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/playing-areas`, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: 'success',
+                    data: {
+                        ...MOCK_PLAYING_AREA,
+                        boards: [
+                            { number: 1, shortId: 'B-01', status: BoardStatus.OCCUPIED, matchId: MOCK_ACTIVE_MATCH.id },
+                            { number: 2, shortId: 'B-02', status: BoardStatus.DISABLED, matchId: null }
+                        ]
+                    }
+                }),
+            });
+        });
+
+        await page.route(new RegExp(`/tournaments/${MOCK_TOURNAMENT.id}/matches`), async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    success: true,
+                    data: [MOCK_ACTIVE_MATCH],
+                })
+            });
+        });
+
+        // 2. Mockear el endpoint del servicio (matchActions / matchService) para suspender la partida
+        let suspendRequestTriggered = false;
+        await page.route(new RegExp(`/matches/${MOCK_ACTIVE_MATCH.id}/suspend`), async (route) => {
+            if (route.request().method() === 'POST' || route.request().method() === 'PUT') {
+                suspendRequestTriggered = true;
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ status: 'success' }),
+                });
+            }
+        });
+
+        // 3. Recargar la sección del torneo y navegar al salón de juego
+        await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+        await page.getByRole('button', { name: 'SALÓN DE JUEGO', exact: true }).click();
+
+        // 4. Localizar la diana ocupada y abrir las acciones de partida (MatchActionModals)
+        const boardOneCard = page.locator('div').filter({ hasText: 'B-01' }).first();
+        const actionsButton = boardOneCard.getByRole('button', { name: 'Acciones' }).or(boardOneCard.getByRole('button', { name: 'Gestionar partida' }));
+
+        // En caso de que se renderice directamente el botón "Suspender" en la BoardCard:
+        const suspendButton = boardOneCard.getByRole('button', { name: 'Suspender', exact: false });
+        await expect(suspendButton).toBeVisible();
+        await suspendButton.click();
+
+        // 6. Verificar éxito
+        expect(suspendRequestTriggered).toBeTruthy();
+        await expect(page.getByText('Partida suspendida con éxito.')).toBeVisible();
+    });
+
+    test('debe permitir reanudar una partida que ha sido suspendida', async ({ page }) => {
+        const MOCK_SUSPENDED_MATCH = {
+            id: 'match-suspended-789',
+            tournamentId: MOCK_TOURNAMENT.id,
+            round: 1,
+            matchIndex: 2,
+            status: 'SUSPENDED',
+            participant1: { alias: 'Jugador 1' },
+            participant2: { alias: 'Jugador 2' },
+        };
+
+        // 1. Forzar que la Diana 1 tenga la partida asignada (o que aparezca como suspendida en la gestión)
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/playing-areas`, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: 'success',
+                    data: {
+                        ...MOCK_PLAYING_AREA,
+                        boards: [
+                            { number: 1, shortId: 'B-01', status: BoardStatus.OCCUPIED, matchId: MOCK_SUSPENDED_MATCH.id },
+                            { number: 2, shortId: 'B-02', status: BoardStatus.DISABLED, matchId: null }
+                        ]
+                    }
+                }),
+            });
+        });
+
+        await page.route(new RegExp(`/tournaments/${MOCK_TOURNAMENT.id}/matches`), async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    success: true,
+                    data: [MOCK_SUSPENDED_MATCH],
+                })
+            });
+        });
+
+        // 2. Interceptar la llamada a la API para reanudar la partida
+        let resumeRequestTriggered = false;
+        await page.route(new RegExp(`/matches/${MOCK_SUSPENDED_MATCH.id}/resume`), async (route) => {
+            if (route.request().method() === 'POST' || route.request().method() === 'PUT') {
+                resumeRequestTriggered = true;
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ status: 'success' }),
+                });
+            }
+        });
+
+        // 3. Ir a la vista
+        await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+        await page.getByRole('button', { name: 'SALÓN DE JUEGO', exact: true }).click();
+
+        // 4. Buscar el botón de reanudar en la tarjeta de la Diana 1
+        const boardOneCard = page.locator('div').filter({ hasText: 'B-01' }).first();
+        const resumeButton = boardOneCard.getByRole('button', { name: 'Reanudar', exact: false });
+        await expect(resumeButton).toBeVisible();
+        await resumeButton.click();
+
+        // 5. Validar que la petición de red se realizó con éxito
+        expect(resumeRequestTriggered).toBeTruthy();
+        await expect(page.getByText('Partida reanudada con éxito')).toBeVisible();
+    });
 });
