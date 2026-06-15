@@ -248,4 +248,128 @@ test.describe('Tournaments Details Screen', () => {
         // 6. Verificar que se muestra INSCRIPCIONES CERRADAS
         await expect(page.getByText('INSCRIPCIONES CERRADAS')).toBeVisible();
     });
+
+
+    test.describe('Vistas del Admin', () => {
+        test.beforeEach(async ({ page }) => {
+            // Sobrescribimos el mock de /auth/me para que devuelva el rol de ADMIN
+            await page.route(`${API_BASE}/auth/me`, async (route) => {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify(MOCK_ADMIN),
+                });
+            });
+
+            // Modificamos el login para devolver el usuario administrador
+            await page.route(`${API_BASE}/auth/login`, async (route) => {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        data: {
+                            status: "success",
+                            token: MOCK_TOKEN,
+                            user: MOCK_ADMIN,
+                        },
+                    }),
+                });
+            });
+
+            // Realizar Login como Admin
+            await page.goto('/login');
+            await page.getByLabel('Correo electrónico').fill(MOCK_ADMIN.email);
+            await page.getByLabel('Contraseña').fill('password123');
+            await page.locator('button[type="submit"]').click();
+            await expect(page).toHaveURL('/');
+        });
+
+        test('debe permitir a un administrador PUBLICAR un torneo en borrador', async ({ page }) => {
+            // 1. Modificamos temporalmente el mock del torneo para que empiece como DRAFT
+            const draftTournament = {
+                ...MOCK_TOURNAMENT,
+                status: TournamentStatus.DRAFT
+            };
+
+            await page.route(new RegExp(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}$`), async (route) => {
+                if (route.request().method() === 'GET') {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({ status: "success", data: draftTournament }),
+                    });
+                }
+            });
+
+            // Interceptamos la petición de publicar (ajusta el método HTTP si usas PUT/PATCH)
+            let publishCalled = false;
+            await page.route(new RegExp(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/publish`), async (route) => {
+                publishCalled = true;
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ status: "success" }),
+                });
+            });
+
+            // 2. Ir al detalle del torneo
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+            // 3. Verificar que aparece el botón "PUBLICAR TORNEO"
+            const publishButton = page.getByRole('button', { name: 'PUBLICAR TORNEO' });
+            await expect(publishButton).toBeVisible();
+
+            // 4. Hacer click en publicar y verificar llamada
+            await publishButton.click();
+            expect(publishCalled).toBe(true);
+        });
+
+        test('debe permitir a un administrador OCULTAR un torneo publicado', async ({ page }) => {
+            // Interceptamos la petición de ocultar (unpublish)
+            let unpublishCalled = false;
+            await page.route(new RegExp(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/unpublish`), async (route) => {
+                unpublishCalled = true;
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ status: "success" }),
+                });
+            });
+
+            // 1. Ir al detalle del torneo (que por defecto en tus mocks viene como PUBLISHED)
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+            // 2. Verificar que aparece el botón "OCULTAR TORNEO"
+            const hideButton = page.getByRole('button', { name: 'OCULTAR TORNEO' });
+            await expect(hideButton).toBeVisible();
+
+            // 3. Hacer click en ocultar y verificar llamada
+            await hideButton.click();
+            expect(unpublishCalled).toBe(true);
+        });
+
+        test('debe permitir a un administrador CANCELAR un torneo', async ({ page }) => {
+            // Interceptamos la petición de cancelar del backend
+            let cancelCalled = false;
+            await page.route(new RegExp(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/cancel`), async (route) => {
+                cancelCalled = true;
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ status: "success" }),
+                });
+            });
+
+            // 1. Ir al detalle del torneo
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+            // 2. Verificar que aparece el botón "CANCELAR TORNEO"
+            const cancelButton = page.getByRole('button', { name: 'CANCELAR TORNEO' });
+            await expect(cancelButton).toBeVisible();
+
+            // 3. Hacer click en cancelar y verificar llamada
+            await cancelButton.click();
+            expect(cancelCalled).toBe(true);
+        });
+    });
 });
