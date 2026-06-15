@@ -1,8 +1,5 @@
 import { test, expect } from '@playwright/test';
 import { TournamentStatus, GameModes, GameTypes, Federations, RegistrationStatus } from '../../src/services/tournament.service';
-import { formatDate, formatDateTime, formatTime } from '../../src/utils/shared.utils';
-import { getGameTypeLabel } from '../../src/utils/tournament.utils';
-
 
 const API_BASE = 'http://localhost:3000/api';
 
@@ -345,6 +342,150 @@ test.describe('Tournaments Registration Tab', () => {
             await expect(page.getByRole('button', { name: 'INSCRIBIR PARTICIPANTE', exact: true })).toBeVisible();
         });
 
+        test('debe poder cerrar las inscripciones cuando están ABIERTAS', async ({ page }) => {
+            // Variable de control local para alternar el estado que devuelve el GET del torneo
+            let registrationClosed = false;
+
+            // 1. Redefinimos el GET del torneo de forma dinámica para este test específico
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}`, async (route) => {
+                if (route.request().method() === 'GET') {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: "success",
+                            data: {
+                                ...MOCK_TOURNAMENT,
+                                registration: {
+                                    ...MOCK_TOURNAMENT.registration,
+                                    // Retorna CLOSED solo si ya se ha ejecutado con éxito el POST de cierre
+                                    status: registrationClosed ? RegistrationStatus.CLOSED : RegistrationStatus.OPEN,
+                                }
+                            },
+                        }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            // 2. Mockear la acción de cerrar inscripciones (POST)
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/registration/close`, async (route) => {
+                if (route.request().method() === 'POST') {
+                    // Activamos el flag justo antes de resolver con éxito la mutación en el servidor mock
+                    registrationClosed = true;
+
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: "success",
+                            message: "Registration closed successfully",
+                            data: null,
+                        }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            // 3. Forzar una recarga limpia para asegurar que tome la redefinición dinámica del GET
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+            await page.getByRole('button', { name: 'INSCRIPCIONES', exact: true }).click();
+
+            // 4. Verificar el estado inicial de las inscripciones en la tarjeta informativa (Debe ser ABIERTAS)
+            await expect(page.getByText('ESTADO').first()).toBeVisible();
+            await expect(page.locator('div', { hasText: /^Inscripciones abiertas$/ })).toBeVisible();
+
+            // 5. Localizar el botón de acción y lanzar el evento de cierre
+            const closeRegistrationButton = page.getByRole('button', { name: 'Cerrar inscripciones', exact: true });
+            await expect(closeRegistrationButton).toBeVisible();
+            await closeRegistrationButton.click();
+
+            // 6. Validar que aparezca el Toast de feedback provisto por tu componente React
+            const successToast = page.getByText('Inscripciones cerradas correctamente.');
+            await expect(successToast).toBeVisible();
+
+            // 7. Verificar el cambio de estado en caliente tras el onRefresh() de la tarjeta informativa (Debe cambiar a CERRADAS)
+            await expect(page.getByText('ESTADO').first()).toBeVisible();
+            await expect(page.locator('div', { hasText: /^Inscripciones cerradas$/ })).toBeVisible();
+
+            // 8. Verificar que el botón cambia su estado interno automáticamente a "Abrir inscripciones"
+            await expect(page.getByRole('button', { name: 'Abrir inscripciones', exact: true })).toBeVisible();
+        });
+
+        test('debe poder abrir las inscripciones cuando están CERRADAS', async ({ page }) => {
+            // Variable de control local para alternar el estado que devuelve el GET del torneo
+            let registrationOpened = false;
+
+            // 1. Redefinimos el GET del torneo de forma dinámica para este test específico
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}`, async (route) => {
+                if (route.request().method() === 'GET') {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: "success",
+                            data: {
+                                ...MOCK_TOURNAMENT,
+                                registration: {
+                                    ...MOCK_TOURNAMENT.registration,
+                                    // Comienza estando CERRADO y cambia a OPEN tras el POST de éxito
+                                    status: registrationOpened ? RegistrationStatus.OPEN : RegistrationStatus.CLOSED,
+                                }
+                            },
+                        }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            // 2. Mockear la acción de abrir inscripciones (POST)
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/registration/open`, async (route) => {
+                if (route.request().method() === 'POST') {
+                    // Activamos el flag justo antes de resolver con éxito la mutación
+                    registrationOpened = true;
+
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: "success",
+                            message: "Registration opened successfully",
+                            data: null,
+                        }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            // 3. Forzar una recarga limpia para asegurar que tome la configuración de inscripciones CERRADAS inicial
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+            await page.getByRole('button', { name: 'INSCRIPCIONES', exact: true }).click();
+
+            // 4. Verificar el estado inicial de las inscripciones en la tarjeta informativa (Debe ser CERRADAS)
+            await expect(page.getByText('ESTADO').first()).toBeVisible();
+            await expect(page.locator('div', { hasText: /^Inscripciones cerradas$/ })).toBeVisible();
+
+            // 5. Localizar el botón de acción "Abrir inscripciones" y hacer clic
+            const openRegistrationButton = page.getByRole('button', { name: 'Abrir inscripciones', exact: true });
+            await expect(openRegistrationButton).toBeVisible();
+            await openRegistrationButton.click();
+
+            // 6. Validar que aparezca el Toast de feedback provisto al abrir las inscripciones con éxito
+            const successToast = page.getByText('Inscripciones abiertas correctamente.');
+            await expect(successToast).toBeVisible();
+
+            // 7. Verificar el cambio de estado tras el onRefresh() automático (Debe cambiar a ABIERTAS)
+            await expect(page.getByText('ESTADO').first()).toBeVisible();
+            await expect(page.locator('div', { hasText: /^Inscripciones abiertas$/ })).toBeVisible();
+
+            // 8. Verificar que el botón cambia su etiqueta automáticamente a "Cerrar inscripciones"
+            await expect(page.getByRole('button', { name: 'Cerrar inscripciones', exact: true })).toBeVisible();
+        });
+
         test('debe permitir al administrador inscribir a un participante correctamente', async ({ page }) => {
             // 1. Mockear la llamada de la API para registrar al participante (POST)
             await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/participants`, async (route) => {
@@ -429,6 +570,100 @@ test.describe('Tournaments Registration Tab', () => {
             await expect(page.getByRole('heading', { name: 'DESINSCRIBIR JUGADOR', exact: true })).not.toBeVisible();
             const toast = page.getByText('Participante desinscrito correctamente');
             await expect(toast).toBeVisible();
+        });
+
+        test('debe permitir al administrador programar las fechas de apertura y cierre correctamente', async ({ page }) => {
+            // Variable de control local para simular la respuesta del servidor actualizada
+            let scheduleUpdated = false;
+
+            const EXPECTED_STARTS_AT = '2026-07-01T10:00:00.000Z';
+            const EXPECTED_ENDS_AT = '2026-07-15T22:30:00.000Z';
+
+            // 1. Redefinimos el GET del torneo de forma dinámica para reflejar los cambios programados al refrescar
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}`, async (route) => {
+                if (route.request().method() === 'GET') {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: "success",
+                            data: {
+                                ...MOCK_TOURNAMENT,
+                                registration: {
+                                    ...MOCK_TOURNAMENT.registration,
+                                    registrationPeriod: scheduleUpdated
+                                        ? { startsAt: EXPECTED_STARTS_AT, endsAt: EXPECTED_ENDS_AT }
+                                        : MOCK_TOURNAMENT.registration.registrationPeriod
+                                }
+                            },
+                        }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            // 2. Mockear el endpoint PUT del servicio updateRegistrationSchedule
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/registration/schedule`, async (route) => {
+                if (route.request().method() === 'PUT') {
+                    const payload = JSON.parse(route.request().postData() || '{}');
+
+                    // Validamos que el Front-End envíe la estructura esperada hacia tu backend
+                    expect(payload.newRegistrationPeriod).toBeDefined();
+
+                    scheduleUpdated = true; // Cambiamos el flag al recibir la petición con éxito
+
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({ status: 'success' }),
+                    });
+                } else {
+                    await route.continue();
+                }
+            });
+
+            // 3. Hacer clic en el botón para abrir el modal de programación
+            const scheduleButton = page.getByRole('button', { name: 'Programar apertura/cierre', exact: true });
+            await expect(scheduleButton).toBeVisible();
+            await scheduleButton.click();
+
+            // 4. Validar que el modal se abre con su título en mayúsculas
+            const modalHeading = page.getByRole('heading', { name: 'PROGRAMAR CIERRE/APERTURA DE INSCRIPCIONES', exact: true });
+            await expect(modalHeading).toBeVisible();
+
+            // --- SECCIÓN: CONFIGURAR APERTURA ---
+            // Localizamos el primer select (Apertura) dentro del contenedor modal
+            await page.getByRole('combobox', { name: '¿Deseas programar la apertura de las inscripciones?' }).click();
+            await page.getByRole('option', { name: 'Sí', exact: true }).click();
+
+            // Rellenamos la fecha y la hora de apertura que emergen condicionalmente
+            await page.getByLabel('Fecha de apertura').fill('2026-07-01');
+            await page.getByLabel('Hora de apertura').fill('10:00');
+
+            // --- SECCIÓN: CONFIGURAR CIERRE ---
+            // Localizamos el segundo select (Cierre)
+            await page.getByRole('combobox', { name: '¿Deseas programar el cierre de las inscripciones?' }).click();
+            await page.getByRole('option', { name: 'Sí', exact: true }).click();
+
+            // Rellenamos la fecha y la hora de cierre correspondientes
+            await page.getByLabel('Fecha de cierre').fill('2026-07-15');
+            await page.getByLabel('Hora de cierre').fill('22:30');
+
+            // 5. Hacer clic en el botón de "Confirmar" del Modal
+            const confirmButton = page.getByRole('dialog').getByRole('button', { name: 'Confirmar', exact: true });
+            await confirmButton.click();
+
+            // 6. Verificar que aparece el Toast informativo de éxito enviado por el componente
+            const successToast = page.getByText('Inscripciones programadas correctamente');
+            await expect(successToast).toBeVisible();
+
+            // 7. Verificar que el modal se cierra satisfactoriamente
+            await expect(modalHeading).not.toBeVisible();
+
+            // 8. Verificar que las tarjetas informativas muestran el cambio de hora formateado tras el onRefresh()
+            await expect(page.getByText('1 de julio de 2026 a las 12:00')).toBeVisible();
+            await expect(page.getByText('16 de julio de 2026 a las 00:30')).toBeVisible();
         });
     });
 
