@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
@@ -11,9 +11,11 @@ const TextArea: React.FC<TextAreaProps> = ({
   className = '',
   onFocus,
   onBlur,
+  id,
   ...props
 }) => {
   const [isFocused, setIsFocused] = React.useState(false);
+  const textAreaId = id || useId();
 
   const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
     setIsFocused(true);
@@ -27,12 +29,13 @@ const TextArea: React.FC<TextAreaProps> = ({
 
   return (
     <div style={styles.container}>
-      {label && <label style={styles.label}>{label}</label>}
+      {label && <label htmlFor={textAreaId} style={styles.label}>{label}</label>}
       <div style={{
         ...styles.textareaWrapper,
         borderColor: error ? '#ff4d4f' : (isFocused ? '#C4E866' : 'var(--btn-secondary-border)')
       }}>
         <textarea
+          id={textAreaId}
           style={styles.textarea}
           className={className}
           onFocus={handleFocus}
