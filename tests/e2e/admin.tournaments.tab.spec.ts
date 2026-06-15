@@ -559,8 +559,7 @@ test.describe('Admin Tournaments Tab', () => {
 
         // 6. Verificar que el modal se cierra
         await expect(modalTitle).not.toBeVisible();
-
-        // Como el filtro 'Eliminado' sigue activo y ahora su estado simulado es DRAFT, ya no debería verse en esta vista filtrada
-        await expect(page.getByText('Torneo Eliminado Permanentemente')).not.toBeVisible();
+        const toast = page.getByText('¡Torneo restaurado con éxito!');
+        await expect(toast).toBeVisible();
     });
 });

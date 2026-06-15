@@ -156,7 +156,7 @@ const AdminTournamentsTab: React.FC = () => {
       async () => {
         try {
           await tournamentService.restoreTournament(tournament.id);
-          showToast('Torneo restaurado con éxito!', 'success');
+          showToast('¡Torneo restaurado con éxito!', 'success');
           fetchTournaments();
         } catch (err: any) {
           console.error('Error restoring tournament:', err);
