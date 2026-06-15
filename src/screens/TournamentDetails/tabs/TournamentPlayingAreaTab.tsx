@@ -58,7 +58,7 @@ const TournamentPlayingAreaTab: React.FC<TournamentPlayingAreaTabProps> = ({ tou
         setError(err.message || 'Error al cargar los datos');
       }
     } finally {
-      if (showLoading) setLoading(false);
+      setLoading(false);
     }
   };
 

@@ -285,4 +285,110 @@ test.describe('Tournament Playing Area Tab (Salón de Juego)', () => {
 
         expect(deleteRequestTriggered).toBeTruthy();
     });
+
+    test('debe permitir configurar el salón de juego desde cero con 2 dianas', async ({ page }) => {
+        await page.route(new RegExp(`/tournaments/${MOCK_TOURNAMENT.id}/matches`), async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: 'success', data: [] }),
+            });
+        });
+
+        let isAreaConfiguredInBackend = false;
+        let postRequestPayload: any = null;
+        await page.route(new RegExp(`/tournaments/${MOCK_TOURNAMENT.id}/playing-areas`), async (route) => {
+            const method = route.request().method();
+
+            if (method === 'POST') {
+                postRequestPayload = route.request().postDataJSON();
+                isAreaConfiguredInBackend = true;
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        success: "true",
+                        message: "Playing area created successfully",
+                        data: {
+                            id: PLAYING_AREA_ID,
+                            shortId: 'PA-88',
+                            tournamentId: MOCK_TOURNAMENT.id,
+                            boards: [
+                                { id: "BOARD-01-PA-88", shortId: 'B-01', number: 1, status: BoardStatus.AVAILABLE, matchId: null },
+                                { id: "BOARD-02-PA-88", shortId: 'B-02', number: 2, status: BoardStatus.AVAILABLE, matchId: null }
+                            ]
+                        },
+                    }),
+                });
+            } else if (method === 'GET') {
+                if (isAreaConfiguredInBackend) {
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            id: PLAYING_AREA_ID,
+                            shortId: 'PA-88',
+                            tournamentId: MOCK_TOURNAMENT.id,
+                            boards: [
+                                { number: 1, shortId: 'B-01', status: BoardStatus.AVAILABLE, matchId: null },
+                                { number: 2, shortId: 'B-02', status: BoardStatus.AVAILABLE, matchId: null }
+                            ]
+                        }),
+                    });
+                } else {
+                    await route.fulfill({
+                        status: 404,
+                        contentType: 'application/json',
+                        body: JSON.stringify({
+                            status: 'error',
+                            message: 'Playing area not found',
+                            data: null,
+                        }),
+                    });
+                }
+            }
+        });
+
+        // 2. Forzar la recarga para que el mock entre en vigor
+        await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+        // 3. Verificar que estamos en la pantalla del torneo
+        const title = page.getByRole('heading', { name: `${MOCK_TOURNAMENT.name}`, exact: true });
+        await expect(title).toBeVisible();
+
+        // 4. Navegar al tab de Partidas
+        const playingAreaButton = page.getByRole('button', { name: 'SALÓN DE JUEGO', exact: true });
+        await playingAreaButton.click();
+
+        // 5. Verificar que aparece el estado vacío (Empty State) ahora que la API ya respondió
+        await expect(page.getByText('Salón de juego sin configurar')).toBeVisible();
+
+        // 7. Interactuar con el formulario de configuración
+        const configurePlayingAreaButton = page.getByRole('button', { name: 'Configurar salón de juego', exact: true });
+        await expect(configurePlayingAreaButton).toBeVisible();
+        await configurePlayingAreaButton.click();
+
+        const boardsInput = page.getByLabel('Número de dianas');
+        await expect(boardsInput).toBeVisible();
+        await boardsInput.fill('2');
+
+        // 8. Enviar el formulario esperando proactivamente la llamada a la API
+        const saveButton = page.getByRole('button', { name: 'Guardar configuración', exact: true });
+        await expect(saveButton).toBeVisible();
+
+        const postResponsePromise = page.waitForResponse(
+            response => response.url().includes(`/tournaments/${MOCK_TOURNAMENT.id}/playing-areas`) && response.request().method() === 'POST'
+        );
+
+        await saveButton.click();
+        await postResponsePromise;
+
+        // 9. Validaciones finales
+        await expect(page.getByRole('heading', { name: 'Salón de Juego' })).toBeVisible();
+        await expect(page.getByText('ID: PA-88')).toBeVisible();
+
+        // 10. Comprobar que las dianas creadas están en la vista
+        await expect(page.locator('div').filter({ hasText: 'B-01' }).first()).toBeVisible();
+        await expect(page.locator('div').filter({ hasText: 'B-02' }).first()).toBeVisible();
+    });
 });
