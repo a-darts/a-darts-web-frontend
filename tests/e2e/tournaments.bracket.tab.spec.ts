@@ -359,5 +359,102 @@ test.describe('Tournaments Bracket Tab', () => {
             await expect(page.getByRole('button', { name: 'Generar cuadrante automáticamente', exact: true })).toBeVisible();
             await expect(page.getByRole('button', { name: 'Generar cuadrante manualmente', exact: true })).toBeVisible();
         });
+
+        test('debe permitir al administrador publicar un cuadrante en estado borrador', async ({ page }) => {
+            // 1. Forzar que el cuadrante mockeado devuelva estado DRAFT
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/bracket`, async (route) => {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: "success",
+                        data: { ...MOCK_BRACKET, status: BracketStatus.DRAFT },
+                    }),
+                });
+            });
+
+            // Mockear la petición de publicación (asumiendo que cambia el estado a PUBLISHED)
+            let publishCalled = false;
+            await page.route(`${API_BASE}/brackets/${MOCK_BRACKET.id}/publish`, async (route) => {
+                if (route.request().method() === 'PUT' || route.request().method() === 'POST') {
+                    publishCalled = true;
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({ status: "success", message: "Bracket published" }),
+                    });
+                }
+            });
+
+            // 2. Recargar para aplicar el estado DRAFT
+            await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+            await page.getByRole('button', { name: 'CUADRANTE', exact: true }).click();
+
+            // 3. Verificar que se muestra el botón de publicar y el tag correspondiente
+            const publishButton = page.getByRole('button', { name: 'Publicar cuadrante', exact: true });
+            await expect(publishButton).toBeVisible();
+
+            // 4. Interceptamos el re-fetch que hace el componente tras publicar con éxito
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/bracket`, async (route) => {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: "success",
+                        data: { ...MOCK_BRACKET, status: BracketStatus.PUBLISHED }, // Ya publicado
+                    }),
+                });
+            });
+
+            // 5. Hacer click en publicar y verificar flujo
+            await publishButton.click();
+
+            // Verificar que se llamó a la API de publicación y desapareció el botón
+            expect(publishCalled).toBe(true);
+            await expect(page.getByText('¡Cuadrante publicado correctamente!')).toBeVisible();
+            await expect(publishButton).not.toBeVisible();
+        });
+
+        test('debe permitir al administrador ocultar un cuadrante ya publicado', async ({ page }) => {
+            // El MOCK_BRACKET inicial ya viene como BracketStatus.PUBLISHED, lo aprovechamos.
+
+            // Mockear la petición de ocultar (unpublish)
+            let unpublishCalled = false;
+            await page.route(`${API_BASE}/brackets/${MOCK_BRACKET.id}/unpublish`, async (route) => {
+                if (route.request().method() === 'PUT' || route.request().method() === 'POST') {
+                    unpublishCalled = true;
+                    await route.fulfill({
+                        status: 200,
+                        contentType: 'application/json',
+                        body: JSON.stringify({ status: "success", message: "Bracket unpublished" }),
+                    });
+                }
+            });
+
+            // 1. Verificar que se muestra el botón de ocultar
+            const hideButton = page.getByRole('button', { name: 'Ocultar cuadrante', exact: true });
+            await expect(hideButton).toBeVisible();
+
+            // 2. Interceptamos el re-fetch que hace el componente (devuelve DRAFT de nuevo)
+            await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/bracket`, async (route) => {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: "success",
+                        data: { ...MOCK_BRACKET, status: BracketStatus.DRAFT },
+                    }),
+                });
+            });
+
+            // 3. Ocultar el cuadrante
+            await hideButton.click();
+
+            // Verificar que se procesó correctamente en el cliente
+            expect(unpublishCalled).toBe(true);
+            await expect(page.getByText('¡Cuadrante ocultado correctamente!')).toBeVisible();
+            await expect(hideButton).not.toBeVisible();
+            await expect(page.getByRole('button', { name: 'Publicar cuadrante', exact: true })).toBeVisible();
+        });
     });
 });
