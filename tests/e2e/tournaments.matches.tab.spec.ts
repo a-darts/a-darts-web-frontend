@@ -197,7 +197,7 @@ test.describe('Tournaments Matches Tab', () => {
                 await route.fulfill({
                     status: 200,
                     contentType: 'application/json',
-                    body: JSON.stringify(MOCK_PLAYER),
+                    body: JSON.stringify(MOCK_ADMIN),
                 });
             } else {
                 await route.continue();
@@ -214,7 +214,7 @@ test.describe('Tournaments Matches Tab', () => {
                         data: {
                             status: "success",
                             token: MOCK_TOKEN,
-                            user: MOCK_PLAYER,
+                            user: MOCK_ADMIN,
                         },
                     }),
                 });
@@ -266,7 +266,7 @@ test.describe('Tournaments Matches Tab', () => {
 
         // 6. Proceso automático de Login previo
         await page.goto('/login');
-        await page.getByLabel('Correo electrónico').fill(MOCK_PLAYER.email);
+        await page.getByLabel('Correo electrónico').fill(MOCK_ADMIN.email);
         await page.getByLabel('Contraseña').fill('password123');
         await page.locator('button[type="submit"]').click();
         await expect(page).toHaveURL('/');
@@ -463,5 +463,189 @@ test.describe('Tournaments Matches Tab', () => {
         await page.getByRole('combobox', { name: 'Ronda' }).click();
         await page.getByRole('option', { name: 'Todas las rondas', exact: true }).click();
         await expect(page.getByText('Rival Activo 1')).toBeVisible();
+    });
+
+    test('debe permitir asignar una diana a una partida pendiente desde la pestaña de partidas', async ({ page }) => {
+        // 1. Definimos una partida sin diana (boardNumber: null) pero lista para jugar (READY) 
+        // para que sea interactuable en la sección de Pendientes
+        const MOCK_MATCH_WITHOUT_BOARD = {
+            id: 'match-unassigned-123',
+            round: 1,
+            matchIndex: 4,
+            boardNumber: null,
+            boardShortId: null,
+            startedAt: null,
+            finishedAt: null,
+            status: 'READY',
+            participant1: { id: 'p10', alias: 'Aspirante A', federation: Federations.ARAGON },
+            participant2: { id: 'p11', alias: 'Aspirante B', federation: Federations.ARAGON },
+            matchScore: {
+                participant1: { setsWon: 0, legsWon: 0 },
+                participant2: { setsWon: 0, legsWon: 0 },
+            },
+        };
+
+        // Inyectamos esta partida en el endpoint de consulta
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/matches`, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: "success",
+                    message: "Matches fetched successfully",
+                    data: [MOCK_MATCH_WITHOUT_BOARD],
+                }),
+            });
+        });
+
+        // 2. Interceptamos la llamada PUT/POST que ejecuta el backend al asignar la diana (ej: Diana número 3)
+        let putRequestTriggered = false;
+        await page.route(new RegExp(`/matches/${MOCK_MATCH_WITHOUT_BOARD.id}/board`), async (route) => {
+            putRequestTriggered = true;
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: 'success' }),
+            });
+        });
+
+        // 3. Navegar a la pantalla del torneo
+        await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+        // 4. Verificar que estamos en la pantalla del torneo
+        const title = page.getByRole('heading', { name: `${MOCK_TOURNAMENT.name}`, exact: true });
+        await expect(title).toBeVisible();
+
+        // 5. Navegamos explícitamente a la pestaña "PARTIDAS"
+        const matchesButton = page.getByRole('button', { name: 'PARTIDAS', exact: true });
+        await expect(matchesButton).toBeVisible();
+        await matchesButton.click();
+
+        // 6. Localizamos la tarjeta específica de la partida buscando a sus participantes
+        const pendingSection = page.locator('div').filter({ has: page.getByRole('heading', { name: /Partidas pendientes/i }) }).first();
+        const matchCard = pendingSection.locator('div').filter({ hasText: 'Aspirante A' }).first();
+        await expect(matchCard).toBeVisible();
+
+        // Verificamos que inicialmente muestre el estado sin diana
+        await expect(matchCard.getByText('Diana sin asignar')).toBeVisible();
+
+        // 7. Buscamos y pulsamos el botón de asignación dentro de esa tarjeta de partida
+        const assignBoardButton = matchCard.getByRole('button', { name: 'Asignar diana', exact: true });
+        await expect(assignBoardButton).toBeVisible();
+        await assignBoardButton.click();
+
+        // 8. Interactuar con el Modal 'Asignar Diana'
+        // Validamos que el título del modal sea el correcto
+        const modalHeading = page.getByRole('heading', { name: 'Asignar Diana', exact: true });
+        await expect(modalHeading).toBeVisible();
+
+        // Localizamos el TextInput mediante su label "Número de diana" e introducimos el valor
+        const boardInput = page.getByLabel('Número de diana');
+        await expect(boardInput).toBeVisible();
+        await boardInput.fill('3');
+
+        // Localizamos el botón de confirmación "Asignar" del modal y hacemos click
+        const confirmModalButton = page.getByRole('button', { name: 'Asignar', exact: true });
+        await expect(confirmModalButton).toBeEnabled();
+        await confirmModalButton.click();
+
+        // 9. Validación de que la API recibió la petición de guardado
+        await expect.poll(() => putRequestTriggered).toBeTruthy();
+
+        // Verificamos que tras confirmar, el modal se haya cerrado de la vista
+        await expect(modalHeading).not.toBeVisible();
+    });
+
+    test('debe permitir cambiar (reasignar) la diana a una partida que ya tiene una asignada', async ({ page }) => {
+        // 1. Definimos una partida que ya cuenta con diana inicial asignada (Diana 1)
+        const MOCK_MATCH_WITH_BOARD = {
+            id: 'match-reassign-456',
+            round: 1,
+            matchIndex: 0,
+            boardNumber: 1,
+            boardShortId: 'SABC-D001',
+            startedAt: null,
+            finishedAt: null,
+            status: 'READY',
+            participant1: { id: 'p1', alias: 'Player 1', federation: Federations.MADRID },
+            participant2: { id: 'p2', alias: 'Player 2', federation: Federations.GALICIA },
+            matchScore: {
+                participant1: { setsWon: 0, legsWon: 0 },
+                participant2: { setsWon: 0, legsWon: 0 },
+            },
+        };
+
+        // Inyectamos esta partida en el endpoint de consulta
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/matches`, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: "success",
+                    message: "Matches fetched successfully",
+                    data: [MOCK_MATCH_WITH_BOARD],
+                }),
+            });
+        });
+
+        // 2. Interceptamos la llamada PUT/POST de actualización de diana
+        let putRequestTriggered = false;
+        await page.route(new RegExp(`/matches/${MOCK_MATCH_WITH_BOARD.id}/board`), async (route) => {
+            putRequestTriggered = true;
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: 'success' }),
+            });
+        });
+
+        // 3. Navegar a la pantalla del torneo
+        await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+        // 4. Verificar que estamos en la pantalla del torneo
+        const title = page.getByRole('heading', { name: `${MOCK_TOURNAMENT.name}`, exact: true });
+        await expect(title).toBeVisible();
+
+        // 5. Navegar a la pestaña "PARTIDAS"
+        const matchesButton = page.getByRole('button', { name: 'PARTIDAS', exact: true });
+        await expect(matchesButton).toBeVisible();
+        await matchesButton.click();
+
+        // 6. Localizar la tarjeta del partido buscando a su primer participante
+        const pendingSection = page.locator('div').filter({ has: page.getByRole('heading', { name: /Partidas pendientes/i }) }).first();
+        const matchCard = pendingSection.locator('div').filter({ hasText: 'Player 1' }).first();
+        await expect(matchCard).toBeVisible();
+
+        // Confirmar que el texto visual inicial muestra la diana que venía en el Mock
+        await expect(matchCard.getByText('Diana 1')).toBeVisible();
+
+        // 7. Hacer click en el botón para cambiar o reasignar la diana
+        // (Usa una expresión regular flexible por si tu diseño de MatchCard utiliza un botón o icono con texto "Asignar", "Cambiar" o "Diana")
+        const reassignBoardButton = matchCard.getByRole('button', { name: /Asignar|Cambiar/i });
+        await expect(reassignBoardButton).toBeVisible();
+        await reassignBoardButton.click();
+
+        // 8. Gestionar el modal reutilizable 'Asignar Diana'
+        const modalHeading = page.getByRole('heading', { name: 'Asignar Diana', exact: true });
+        await expect(modalHeading).toBeVisible();
+
+        const boardInput = page.getByLabel('Número de diana');
+        await expect(boardInput).toBeVisible();
+
+        // Limpiamos el valor previo que pudiera venir precargado e insertamos la nueva diana (Diana 5)
+        await boardInput.clear();
+        await boardInput.fill('5');
+
+        // Confirmamos el cambio presionando el botón "Asignar" del modal
+        const confirmModalButton = page.getByRole('button', { name: 'Asignar', exact: true });
+        await expect(confirmModalButton).toBeEnabled();
+        await confirmModalButton.click();
+
+        // 9. Validaciones finales
+        // Verificamos que la API haya procesado la petición
+        await expect.poll(() => putRequestTriggered).toBeTruthy();
+
+        // Verificamos el cierre del modal
+        await expect(modalHeading).not.toBeVisible();
     });
 });
