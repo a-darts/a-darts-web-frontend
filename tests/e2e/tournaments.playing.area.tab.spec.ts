@@ -391,4 +391,118 @@ test.describe('Tournament Playing Area Tab (Salón de Juego)', () => {
         await expect(page.locator('div').filter({ hasText: 'B-01' }).first()).toBeVisible();
         await expect(page.locator('div').filter({ hasText: 'B-02' }).first()).toBeVisible();
     });
+
+    test('debe permitir asignar una partida pendiente a una diana disponible', async ({ page }) => {
+        // 1. Definimos una partida ficticia que cumpla las condiciones para ser asignada
+        const MOCK_ASSIGNABLE_MATCH = {
+            id: 'match-xyz-789',
+            tournamentId: MOCK_TOURNAMENT.id,
+            round: 1,
+            matchIndex: 3,
+            status: 'READY', // Al estar READY o PENDING aparece en la lista de asignables
+            participant1: { alias: 'Jugador 1' },
+            participant2: { alias: 'Jugador 2' },
+        };
+
+        // Forzamos a que el endpoint de partidas devuelva esta partida elegible
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/matches`, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: 'success',
+                    data: [MOCK_ASSIGNABLE_MATCH],
+                }),
+            });
+        });
+
+        // 2. Interceptamos el método POST/PUT de asignación que invoca tu 'matchService.assignMatchBoard'
+        let assignationPayload: any = null;
+        await page.route(new RegExp(`/matches/${MOCK_ASSIGNABLE_MATCH.id}/board`), async (route) => {
+            assignationPayload = route.request().postDataJSON();
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: 'success' }),
+            });
+        });
+
+        // 3. Forzamos un re-fetch simulado del GET tras la asignación para verificar cambios en la UI si fuera necesario
+        // (En tu flujo invocas a `fetchData()` tras completar la asignación con éxito)
+        let isMatchAssigned = false;
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/playing-areas`, async (route) => {
+            if (isMatchAssigned) {
+                // Estado simulado después de la asignación exitosa
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: 'success',
+                        data: {
+                            ...MOCK_PLAYING_AREA,
+                            boards: [
+                                { number: 1, shortId: 'B-01', status: BoardStatus.OCCUPIED, matchId: MOCK_ASSIGNABLE_MATCH.id },
+                                { number: 2, shortId: 'B-02', status: BoardStatus.DISABLED, matchId: null }
+                            ]
+                        }
+                    }),
+                });
+            } else {
+                await route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({ status: 'success', data: MOCK_PLAYING_AREA }),
+                });
+            }
+        });
+
+        // 2. Forzar la recarga para que el mock entre en vigor
+        await page.goto(`/tournaments/${MOCK_TOURNAMENT.id}`);
+
+        // 3. Verificar que estamos en la pantalla del torneo
+        const title = page.getByRole('heading', { name: `${MOCK_TOURNAMENT.name}`, exact: true });
+        await expect(title).toBeVisible();
+
+        // Recargamos sutilmente la pestaña para renderizar la partida disponible en los selectores
+        const playingAreaButton = page.getByRole('button', { name: 'SALÓN DE JUEGO', exact: true });
+        await playingAreaButton.click();
+
+        // 4. Localizar la tarjeta de la Diana 1 (B-01) y abrir el modal
+        const boardOneCard = page.locator('div').filter({ hasText: 'B-01' }).first();
+        const assignButton = boardOneCard.getByRole('button', { name: 'Asignar partida' });
+        await expect(assignButton).toBeVisible();
+        await assignButton.click();
+
+        // 5. Verificar la apertura del modal y la visibilidad de los elementos
+        await expect(page.getByRole('heading', { name: 'Asignar partida a la Diana 1' })).toBeVisible();
+
+        // Localizamos el selector de partidas
+        const selectDropdown = page.getByLabel('Selecciona una partida');
+        await expect(selectDropdown).toBeVisible();
+
+        // Cambiamos el estado interno antes de confirmar para simular la persistencia en el re-fetch
+        isMatchAssigned = true;
+
+        // 6. Seleccionar la partida del desplegable (usando la opción con el texto correspondiente)
+        await page.getByRole('combobox', { name: 'Selecciona una partida' }).click();
+        await page.getByRole('option', { name: 'Ronda 1 - Partida 3 (Jugador 1 vs Jugador 2)', exact: true }).click();
+
+        // 7. Hacer click en el botón de confirmación del modal y esperar la petición de red
+        const confirmButton = page.getByRole('button', { name: 'Asignar', exact: true });
+        await expect(confirmButton).toBeEnabled();
+
+        const assignResponsePromise = page.waitForResponse(
+            response => response.url().includes(`/matches/${MOCK_ASSIGNABLE_MATCH.id}/board`)
+        );
+
+        await confirmButton.click();
+        await assignResponsePromise;
+
+        // 8. Verificaciones finales
+        // Validamos que el modal se cerró
+        await expect(page.getByRole('heading', { name: 'Asignar partida a la Diana 1' })).not.toBeVisible();
+
+        // Opcional: Validar que el Toast o la UI informen del cambio de estado a ocupado o refleje el éxito
+        await expect(page.getByText('Partida asignada correctamente')).toBeVisible();
+    });
 });
