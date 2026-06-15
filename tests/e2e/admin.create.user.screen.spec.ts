@@ -167,7 +167,7 @@ test.describe('Admin Create User Screen', () => {
                         data: {
                             id: 'user-new-999',
                             ...NEW_USER_DATA,
-                            status: 'ACTIVE',
+                            status: 'INACTIVE',
                             registeredAt: new Date().toISOString(),
                         }
                     }),
