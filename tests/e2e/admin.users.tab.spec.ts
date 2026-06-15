@@ -260,4 +260,18 @@ test.describe('Admin Users Tab', () => {
         await expect(rowDeleted.getByRole('button', { name: 'Eliminar usuario', exact: true })).not.toBeVisible();
         await expect(rowDeleted.getByRole('button', { name: 'Restaurar usuario', exact: true })).toBeVisible();
     });
+
+    test('debe navegar a la pantalla de Editar Usuario', async ({ page }) => {
+        const rowActive = page.locator('tr', { hasText: 'DardoMaestro' });
+
+        // 1. Seleccionar el botón de editar
+        const editButton = rowActive.getByRole('button', { name: 'Editar usuario', exact: true });
+        await expect(editButton).toBeVisible();
+        await editButton.click();
+
+        // 2. Verificar que se navega a la pantalla de Editar Usuario
+        await expect(page).toHaveURL(`/admin/usuarios/editar/${MOCK_USERS[0].id}`);
+        const formTitle = page.getByRole('heading', { name: 'Editar Usuario', exact: true });
+        await expect(formTitle).toBeVisible();
+    });
 });
