@@ -209,4 +209,52 @@ test.describe('Admin Create User Screen', () => {
         await expect(userPanelTitle).toBeVisible();
         await expect(formTitle).not.toBeVisible();
     });
+
+    test('debe mostrar un error en el toast si el correo electrónico ya está registrado', async ({ page }) => {
+        const DUPLICATED_USER_DATA = {
+            alias: 'DardoRepetido',
+            email: 'dardo.maestro@example.com', // Este correo ya existe en MOCK_USERS
+            role: 'PLAYER'
+        };
+
+        // 1. Interceptar el POST para simular un fallo de conflicto en el servidor (Email Duplicado)
+        await page.route(`${API_BASE}/users`, async (route) => {
+            if (route.request().method() === 'POST') {
+                await route.fulfill({
+                    status: 409, // Conflict
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        status: "error",
+                        message: "El correo ya está en uso"
+                    }),
+                });
+            } else {
+                await route.continue();
+            }
+        });
+
+        // 2. Ir desde el Panel de Usuarios hacia el formulario
+        await page.getByRole('button', { name: 'Crear usuario', exact: true }).click();
+
+        const formTitle = page.getByRole('heading', { name: 'Crear Nuevo Usuario', exact: true });
+        await expect(formTitle).toBeVisible();
+
+        // 3. Rellenar los inputs del formulario
+        await page.getByLabel('Alias del usuario').fill(DUPLICATED_USER_DATA.alias);
+        await page.getByLabel('Correo electrónico').fill(DUPLICATED_USER_DATA.email);
+
+        // 4. Intentar realizar el envío del formulario
+        const submitButton = page.getByRole('button', { name: 'Crear usuario', exact: true });
+        await submitButton.click();
+
+        // 5. Validar que aparece el Toast de error con el mensaje devuelto por el servicio/API
+        const errorToast = page.getByText('El correo ya está en uso');
+        await expect(errorToast).toBeVisible();
+
+        // 6. Validar que NO hubo redirección
+        await expect(formTitle).toBeVisible();
+
+        const userPanelTitle = page.getByRole('heading', { name: 'Panel de Usuarios', exact: true });
+        await expect(userPanelTitle).not.toBeVisible();
+    });
 });
