@@ -648,4 +648,122 @@ test.describe('Tournaments Matches Tab', () => {
         // Verificamos el cierre del modal
         await expect(modalHeading).not.toBeVisible();
     });
+
+    test('debe permitir suspender una partida en curso', async ({ page }) => {
+        // 1. Mock de una partida en curso (IN_PROGRESS)
+        const MOCK_IN_PROGRESS_MATCH = {
+            id: 'match-to-suspend-999',
+            round: 1,
+            matchIndex: 0,
+            boardNumber: 3,
+            boardShortId: 'BOARD-003',
+            startedAt: '2026-08-15T18:05:00.000Z',
+            finishedAt: null,
+            status: 'IN_PROGRESS',
+            participant1: { id: 'p1', alias: 'Rival Activo 1', federation: Federations.MADRID },
+            participant2: { id: 'p2', alias: 'Rival Activo 2', federation: Federations.GALICIA },
+            matchScore: {
+                participant1: { setsWon: 0, legsWon: 2 },
+                participant2: { setsWon: 0, legsWon: 1 },
+            },
+        };
+
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/matches`, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: "success",
+                    data: [MOCK_IN_PROGRESS_MATCH],
+                }),
+            });
+        });
+
+        // Interceptamos la llamada a la API que realiza la suspensión del partido
+        let suspendRequestTriggered = false;
+        await page.route(new RegExp(`/matches/${MOCK_IN_PROGRESS_MATCH.id}/suspend`), async (route) => {
+            suspendRequestTriggered = true;
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: 'success' }),
+            });
+        });
+
+        // 2. Ir a la pestaña de PARTIDAS
+        const matchesButton = page.getByRole('button', { name: 'PARTIDAS', exact: true });
+        await matchesButton.click();
+
+        // 3. Localizar la sección "Partidas en curso" y la tarjeta del partido
+        const inProgressSection = page.locator('div').filter({ has: page.getByRole('heading', { name: /Partidas en curso/i }) }).first();
+        const matchCard = inProgressSection.locator('div').filter({ hasText: 'Rival Activo 1' }).first();
+        await expect(matchCard).toBeVisible();
+
+        // 4. Hacer click en el botón de Suspender dentro de la tarjeta
+        const suspendButton = matchCard.getByRole('button', { name: /Suspender/i });
+        await expect(suspendButton).toBeVisible();
+        await suspendButton.click();
+
+        // 5. Validar que se ha ejecutado la petición HTTP correctamente
+        await expect.poll(() => suspendRequestTriggered).toBeTruthy();
+    });
+
+    test('debe permitir reanudar una partida previamente suspendida', async ({ page }) => {
+        // 1. Mock de una partida suspendida (SUSPENDED)
+        const MOCK_SUSPENDED_MATCH = {
+            id: 'match-to-resume-888',
+            round: 1,
+            matchIndex: 3,
+            boardNumber: 5,
+            boardShortId: 'BOARD-005',
+            startedAt: '2026-08-15T18:10:00.000Z',
+            finishedAt: null,
+            status: 'SUSPENDED',
+            participant1: { id: 'p7', alias: 'Pausado 1', federation: Federations.GALICIA },
+            participant2: { id: 'p8', alias: 'Pausado 2', federation: Federations.GALICIA },
+            matchScore: {
+                participant1: { setsWon: 0, legsWon: 1 },
+                participant2: { setsWon: 0, legsWon: 1 },
+            },
+        };
+
+        await page.route(`${API_BASE}/tournaments/${MOCK_TOURNAMENT.id}/matches`, async (route) => {
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({
+                    status: "success",
+                    data: [MOCK_SUSPENDED_MATCH],
+                }),
+            });
+        });
+
+        // Interceptamos la llamada a la API que realiza la reanudación del partido
+        let resumeRequestTriggered = false;
+        await page.route(new RegExp(`/matches/${MOCK_SUSPENDED_MATCH.id}/resume`), async (route) => {
+            resumeRequestTriggered = true;
+            await route.fulfill({
+                status: 200,
+                contentType: 'application/json',
+                body: JSON.stringify({ status: 'success' }),
+            });
+        });
+
+        // 2. Ir a la pestaña de PARTIDAS
+        const matchesButton = page.getByRole('button', { name: 'PARTIDAS', exact: true });
+        await matchesButton.click();
+
+        // 3. Según tu lógica de filtrado, las partidas SUSPENDED van a la sección "Otras partidas"
+        const othersSection = page.locator('div').filter({ has: page.getByRole('heading', { name: /Otras partidas/i }) }).first();
+        const matchCard = othersSection.locator('div').filter({ hasText: 'Pausado 1' }).first();
+        await expect(matchCard).toBeVisible();
+
+        // 4. Hacer click en el botón de Reanudar dentro de la tarjeta
+        const resumeButton = matchCard.getByRole('button', { name: /Reanudar/i });
+        await expect(resumeButton).toBeVisible();
+        await resumeButton.click();
+
+        // 5. Validar que se ha ejecutado la petición HTTP correctamente
+        await expect.poll(() => resumeRequestTriggered).toBeTruthy();
+    });
 });
