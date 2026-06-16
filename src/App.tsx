@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HomeScreen from './screens/HomeScreen';
 import TournamentsScreen from './screens/TournamentsScreen';
@@ -23,6 +23,8 @@ import CookiesPolicyScreen from './screens/Footer/CookiesPolicyScreen';
 function App() {
   return (
     <div className="app-container">
+      <ScrollToTop />
+
       <Navbar />
 
       <Routes>
@@ -80,6 +82,16 @@ function App() {
     </div>
   );
 }
+
+const ScrollToTop: React.FC = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 const styles: { [key: string]: React.CSSProperties } = {
   footer: {
