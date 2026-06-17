@@ -170,12 +170,16 @@ const TournamentBracketTab: React.FC<TournamentBracketTabProps> = ({
         setBracket(bracketData);
         setMatches(matchesData);
         setParticipantsCount(participantsData.length);
+        setError(null);
+        setIsNotPublished(false);
       } catch (err: any) {
         console.error('Error fetching bracket data:', err);
-        if (err.status === 404) {
-          setIsNotPublished(true);
-        } else {
-          setError(err.message || 'Error al cargar el cuadrante.');
+        if (isInitial) {
+          if (err.status === 404) {
+            setIsNotPublished(true);
+          } else {
+            setError(err.message || 'Error al cargar el cuadrante.');
+          }
         }
       } finally {
         if (isInitial) setLoading(false);
