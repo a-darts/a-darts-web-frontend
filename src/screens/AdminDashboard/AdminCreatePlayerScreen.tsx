@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth, UserRoles } from '../../context/AuthContext';
+import { useAuth, UserRoles, UserStatus } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
@@ -16,6 +16,7 @@ interface UserItem {
   id: string;
   alias: string;
   email: string;
+  status: UserStatus;
 }
 
 const AdminCreatePlayerScreen: React.FC = () => {
@@ -58,8 +59,8 @@ const AdminCreatePlayerScreen: React.FC = () => {
           } else if (res.data.users && Array.isArray(res.data.users)) {
             userList = res.data.users;
           }
-          // Filter out users who don't have active/valid attributes if necessary, or show all
-          setUsers(userList);
+          const activeUsers = userList.filter(u => u.status !== UserStatus.DELETED);
+          setUsers(activeUsers);
         }
       } catch (err: any) {
         console.error('Error fetching users:', err);

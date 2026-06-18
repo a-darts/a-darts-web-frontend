@@ -506,7 +506,7 @@ const TournamentRegistrationTab: React.FC<TournamentRegistrationTabProps> = ({
           <div style={styles.modalContainer}>
             {unregisteredPlayers.length === 0 && !isLoadingUnregistered ? (
               <ErrorMessage
-                message='No hay jugadores disponibles para inscribir (todos los jugadores con ficha en esta temporada ya están inscritos en este torneo).'
+                message='No hay jugadores disponibles para inscribir (o no hay jugadores con ficha en esta temporada o ya están inscritos en este torneo)'
               />
             ) : (
               <>

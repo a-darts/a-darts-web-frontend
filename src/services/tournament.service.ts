@@ -207,19 +207,22 @@ export const tournamentService = {
     }
   },
 
-  updateTournamentName: async (id: string, newName: string): Promise<void> => {
+  updateTournament: async (id: string, newName?: string, newSeasonStartYear?: number): Promise<void> => {
     const token = localStorage.getItem('auth_token');
     if (!token) throw new Error(i18n.t('exceptions.User not authenticated'));
 
     try {
-      const response = await fetch(`${API_BASE_URL}/tournaments/${id}/name`, {
+      const response = await fetch(`${API_BASE_URL}/tournaments/${id}`, {
         method: 'PUT',
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ newName }),
+        body: JSON.stringify({
+          newName,
+          newSeasonStartYear,
+        }),
       });
       await handleResponse(response);
     } catch (error: any) {

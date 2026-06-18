@@ -115,7 +115,7 @@ const AdminEditTournamentScreen: React.FC = () => {
       // Check if name has changed
       let nameChanged = false;
       if (name !== tournament.name) {
-        await tournamentService.updateTournamentName(id, name);
+        await tournamentService.updateTournament(id, name);
         nameChanged = true;
       }
 
