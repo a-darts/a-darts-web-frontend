@@ -166,7 +166,7 @@ const resources = {
         'Participant is not registered in this tournament': 'El participante no está inscrito en este torneo',
         'Registered participant not found': 'Participante inscrito no encontrado',
         'No participants registered': 'No hay participantes inscritos',
-        'Not enough participants registered (minimum {{needed}} required, {{available}} available)': 'No hay suficientes participantes inscritos en el torneo (mínimo {{needed}}, {{available}} inscritos actualmente)',
+        'Not enough participants registered (minimum 2 required)': 'No hay suficientes participantes inscritos en el torneo (mínimo 2)',
         'Registered participants types unhandled': 'Tipo de participante no admitido',
         //
         // PlayingAreaExceptions
@@ -457,7 +457,7 @@ const resources = {
         'Participant is not registered in this tournament': 'Participant is not registered in this tournament',
         'Registered participant not found': 'Registered participant not found',
         'No participants registered': 'No participants registered',
-        'Not enough participants registered (minimum {{needed}} required, {{available}} available)': 'Not enough participants registered (minimum {{needed}} required, {{available}} available)',
+        'Not enough participants registered (minimum 2 required)': 'Not enough participants registered (minimum 2 required)',
         'Registered participants types unhandled': 'Registered participants types unhandled',
         //
         // PlayingAreaExceptions
